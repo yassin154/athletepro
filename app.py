@@ -411,7 +411,7 @@ def athlete(aid):
     all_epreuves_chart = sorted(set(r['epreuve'] for r in all_hist if r['epreuve']))
 
     return render_template('athlete.html',
-        a=a,
+        a=a, ath=a,
         all_epreuves=all_epreuves,
         hist_2425=hist_2425,
         hist_2526=hist_2526,

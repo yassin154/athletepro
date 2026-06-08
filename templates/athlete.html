@@ -285,26 +285,54 @@
       <div style="background:#F0F5FF;border-top:1px solid rgba(36,113,214,.15);padding:1.2rem">
         <div style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#2471D6;margin-bottom:1rem">+ Ajouter un résultat de compétition</div>
         <form method="POST" action="/athlete/{{ ath.id }}/submit_resultat">
-          <div class="form-grid">
-            <div class="field">
-              <label>Épreuve <span class="req">*</span></label>
-              <select name="epreuve" required style="padding:9px 12px;border:1.5px solid rgba(36,113,214,.4);border-radius:5px;background:#F0F5FF;font-family:'Barlow',sans-serif;font-size:.88rem;color:#2C3345;outline:none">
-                <option value="">— Sélectionner —</option>
-                {% for epr in all_epreuves %}
-                <option value="{{ epr }}">{{ epr }}</option>
-                {% endfor %}
-              </select>
-            </div>
-            <div class="field"><label>Compétition <span class="req">*</span></label><input type="text" name="nom_competition" class="editable" placeholder="ex: Ch. National" required></div>
-            <div class="field"><label>Lieu</label><input type="text" name="lieu" class="editable" placeholder="ex: Rabat"></div>
-            <div class="field"><label>Date</label><input type="date" name="date_competition" class="editable"></div>
-            <div class="field"><label>Performance <span class="req">*</span></label><input type="text" name="performance" class="editable" placeholder="ex: 3:28.50" required></div>
-            <div class="field"><label>Classement</label><input type="text" name="classement" class="editable" placeholder="ex: 1, 2, 3..."></div>
-            <div class="field" style="justify-content:flex-end;padding-top:1.4rem">
-              <button type="submit" class="btn btn-secondary">✉ Soumettre</button>
-            </div>
-          </div>
+          <table style="width:100%;border-collapse:collapse;margin-bottom:1rem">
+            <thead>
+              <tr style="background:#F0F5FF">
+                <th style="padding:9px 12px;font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:600;text-align:left">Compétition *</th>
+                <th style="padding:9px 12px;font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:600;text-align:left">Lieu</th>
+                <th style="padding:9px 12px;font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:600;text-align:left">Date</th>
+                <th style="padding:9px 12px;font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:600;text-align:left">Épreuve *</th>
+                <th style="padding:9px 12px;font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:600;text-align:left">Classement</th>
+                <th style="padding:9px 12px;font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:600;text-align:left">Performance *</th>
+                <th style="padding:9px 12px;font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:600;text-align:left">Obj. Performance</th>
+                <th style="padding:9px 12px;font-size:.68rem;border-bottom:1px solid #DDE2EC"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding:8px 6px"><input type="text" name="nom_competition" class="editable" placeholder="ex: Ch. National" required style="width:100%;min-width:120px"></td>
+                <td style="padding:8px 6px"><input type="text" name="lieu" class="editable" placeholder="ex: Rabat" style="width:100%;min-width:90px"></td>
+                <td style="padding:8px 6px"><input type="date" name="date_competition" class="editable" style="width:100%;min-width:120px"></td>
+                <td style="padding:8px 6px">
+                  <select name="epreuve" id="epreuve_select_res" required style="padding:7px 10px;border:1.5px solid rgba(36,113,214,.4);border-radius:5px;background:#F0F5FF;font-family:'Barlow',sans-serif;font-size:.85rem;color:#2C3345;outline:none;width:100%;min-width:130px">
+                    <option value="">— Sélectionner —</option>
+                    {% for epr in epreuves_ref %}
+                    <option value="{{ epr }}">{{ epr }}</option>
+                    {% endfor %}
+                    {% for epr in all_epreuves %}
+                    {% if epr not in epreuves_ref %}
+                    <option value="{{ epr }}">{{ epr }}</option>
+                    {% endif %}
+                    {% endfor %}
+                    <option value="__new__">✚ Autre épreuve...</option>
+                  </select>
+                  <input type="text" name="new_epreuve" id="new_epreuve_res" class="editable" placeholder="Saisir l'épreuve" style="display:none;margin-top:5px;width:100%">
+                </td>
+                <td style="padding:8px 6px"><input type="text" name="classement" class="editable" placeholder="ex: 1" style="width:60px"></td>
+                <td style="padding:8px 6px"><input type="text" name="performance" class="editable" placeholder="ex: 3:28.50" required style="width:100%;min-width:90px"></td>
+                <td style="padding:8px 6px"><input type="text" name="objectif_perf_inline" class="editable" placeholder="ex: 3:25.00" style="width:100%;min-width:90px"></td>
+                <td style="padding:8px 6px;text-align:center">
+                  <button type="submit" class="btn btn-secondary" style="white-space:nowrap">✉ Soumettre</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </form>
+        <script>
+        document.getElementById('epreuve_select_res').addEventListener('change', function(){
+          document.getElementById('new_epreuve_res').style.display = this.value === '__new__' ? 'block' : 'none';
+        });
+        </script>
       </div>
     </div>
   </div>

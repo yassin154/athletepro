@@ -671,12 +671,33 @@ def admin_dashboard():
         ORDER BY a.categorie, a.nom_prenom
     """)
 
+    coaches = q(conn, "SELECT * FROM users WHERE role='coach' ORDER BY full_name")
+
+    validated_obj = q(conn, """
+        SELECT o.*, a.nom_prenom, a.centre, a.categorie, u.full_name as coach_name
+        FROM objectifs o
+        JOIN athletes a ON o.athlete_id=a.id
+        JOIN users u ON a.coach_id=u.id
+        WHERE o.statut='validé'
+        ORDER BY o.valide_le DESC
+    """)
+
+    validated_res = q(conn, """
+        SELECT r.*, a.nom_prenom, a.centre, a.categorie, u.full_name as coach_name
+        FROM resultats r
+        JOIN athletes a ON r.athlete_id=a.id
+        JOIN users u ON a.coach_id=u.id
+        WHERE r.statut='validé'
+        ORDER BY r.valide_le DESC
+    """)
+
     conn.close()
 
     stats = {
         'total_athletes': total_athletes,
         'total_coaches': total_coaches,
-        'en_attente': len(pending_obj) + len(pending_res) + len(pending_champ) + len(pending_perf)
+        'en_attente': len(pending_obj) + len(pending_res) + len(pending_champ) + len(pending_perf),
+        'validated': 0  # filled after query
     }
 
     return render_template('admin.html',
@@ -685,7 +706,10 @@ def admin_dashboard():
         pending_res=pending_res,
         pending_champ=pending_champ,
         pending_perf=pending_perf,
-        athletes=all_athletes
+        athletes=all_athletes,
+        coaches=coaches,
+        validated_obj=validated_obj,
+        validated_res=validated_res,
     )
 
 @app.route('/admin/valider_obj/<int:oid>')
@@ -764,6 +788,24 @@ def rejeter_champ(cid):
     conn.close()
     return redirect(url_for('admin_dashboard'))
 
+@app.route('/admin/supprimer_obj/<int:oid>', methods=['POST'])
+@login_required
+@admin_required
+def supprimer_obj(oid):
+    conn = get_db()
+    ex(conn, "DELETE FROM objectifs WHERE id=%s", (oid,))
+    conn.close()
+    return redirect(url_for('admin_dashboard'))
+
+@app.route('/admin/supprimer_res/<int:rid>', methods=['POST'])
+@login_required
+@admin_required
+def supprimer_res(rid):
+    conn = get_db()
+    ex(conn, "DELETE FROM resultats WHERE id=%s", (rid,))
+    conn.close()
+    return redirect(url_for('admin_dashboard'))
+
 @app.route('/admin/athlete/<int:aid>')
 @login_required
 @admin_required
@@ -788,74 +830,186 @@ def admin_athlete(aid):
 @admin_required
 def export_excel():
     conn = get_db()
+
+    # All athletes with their info
     all_athletes = q(conn, """
         SELECT a.*, u.full_name as coach_name
         FROM athletes a JOIN users u ON a.coach_id=u.id
         ORDER BY a.centre, a.categorie, a.nom_prenom
     """)
+
+    # Objectifs validés per athlete
     all_obj = q(conn, """
-        SELECT o.*, a.nom_prenom, a.numero_licence, u.full_name as coach_name
+        SELECT o.*, a.numero_licence
         FROM objectifs o
         JOIN athletes a ON o.athlete_id=a.id
-        JOIN users u ON a.coach_id=u.id
         WHERE o.statut='validé'
-        ORDER BY a.nom_prenom, o.epreuve
     """)
+    obj_by_lic = {}
+    for o in all_obj:
+        lic = o['numero_licence']
+        if lic not in obj_by_lic:
+            obj_by_lic[lic] = []
+        obj_by_lic[lic].append(o)
+
+    # Résultats validés per athlete
     all_res = q(conn, """
-        SELECT r.*, a.nom_prenom, a.numero_licence, u.full_name as coach_name
+        SELECT r.*, a.numero_licence
         FROM resultats r
         JOIN athletes a ON r.athlete_id=a.id
-        JOIN users u ON a.coach_id=u.id
         WHERE r.statut='validé'
-        ORDER BY a.nom_prenom, r.date_competition
+        ORDER BY r.date_competition
     """)
+    res_by_lic = {}
+    for r in all_res:
+        lic = r['numero_licence']
+        if lic not in res_by_lic:
+            res_by_lic[lic] = []
+        res_by_lic[lic].append(r)
+
+    # Historique from JSON
+    hist_by_lic = RESULTATS_BY_LICENCE
+
     conn.close()
 
     wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Export complet"
 
-    # Sheet 1 - Athletes
-    ws1 = wb.active
-    ws1.title = "Athlètes"
-    headers1 = ['CRF/INA', 'Entraineur', 'Nom', 'Licence', 'Catégorie', 'Sexe', 'Spécialité', 'Épreuves', 'Club', 'Statut']
-    for col, h in enumerate(headers1, 1):
-        cell = ws1.cell(row=1, column=col, value=h)
-        cell.font = Font(bold=True, color='FFFFFF')
-        cell.fill = PatternFill(fill_type='solid', fgColor='003366')
-    for row, a in enumerate(all_athletes, 2):
-        ws1.append([a['centre'], a['coach_name'], a['nom_prenom'], a['numero_licence'],
-                    a['categorie'], a['sexe'], a['specialite'], a['epreuves'], a['club'], a['statut']])
+    # Header style
+    hdr_font = Font(bold=True, color='FFFFFF', size=9)
+    hdr_fill_blue  = PatternFill(fill_type='solid', fgColor='1E2742')
+    hdr_fill_green = PatternFill(fill_type='solid', fgColor='1A6B3C')
+    hdr_fill_red   = PatternFill(fill_type='solid', fgColor='8B1A1A')
+    hdr_fill_orange= PatternFill(fill_type='solid', fgColor='B7500A')
+    thin = Border(
+        left=Side(style='thin', color='DDDDDD'),
+        right=Side(style='thin', color='DDDDDD'),
+        bottom=Side(style='thin', color='DDDDDD')
+    )
+    center = Alignment(horizontal='center', vertical='center', wrap_text=True)
+    wrap = Alignment(wrap_text=True, vertical='center')
 
-    # Sheet 2 - Objectifs
-    ws2 = wb.create_sheet("Objectifs validés")
-    headers2 = ['Athlète', 'Licence', 'Entraineur', 'Épreuve', 'Saison', 'Objectif Chrono', 'Date validation']
-    for col, h in enumerate(headers2, 1):
-        cell = ws2.cell(row=1, column=col, value=h)
-        cell.font = Font(bold=True, color='FFFFFF')
-        cell.fill = PatternFill(fill_type='solid', fgColor='003366')
-    for row, o in enumerate(all_obj, 2):
-        ws2.append([o['nom_prenom'], o['numero_licence'], o['coach_name'],
-                    o['epreuve'], o.get('saison'), o['objectif_chrono'], o['valide_le']])
+    # Column groups
+    info_cols    = ['CRF/INA','Entraineur','Nom & Prénom','N° Licence','Catégorie','Sexe','Spécialité','Club','Statut','Date Naissance','Date Intégration']
+    obj_cols     = ['Épreuve Obj.','Saison','Obj. Chrono','Statut Obj.']
+    res_cols     = ['Date Compét.','Compétition','Lieu','Épreuve','Classement','Performance','Statut Résultat']
+    hist_cols    = ['Saison Hist.','Date Hist.','Compét. Hist.','Lieu Hist.','Épreuve Hist.','Classement Hist.','Résultat Hist.']
 
-    # Sheet 3 - Résultats
-    ws3 = wb.create_sheet("Résultats saisis")
-    headers3 = ['Athlète', 'Licence', 'Entraineur', 'Épreuve', 'Compétition', 'Lieu', 'Date', 'Performance', 'Classement']
-    for col, h in enumerate(headers3, 1):
-        cell = ws3.cell(row=1, column=col, value=h)
-        cell.font = Font(bold=True, color='FFFFFF')
-        cell.fill = PatternFill(fill_type='solid', fgColor='003366')
-    for row, r in enumerate(all_res, 2):
-        ws3.append([r['nom_prenom'], r['numero_licence'], r['coach_name'],
-                    r['epreuve'], r['nom_competition'], r['lieu'],
-                    r['date_competition'], r['performance'], r.get('classement')])
+    all_headers = info_cols + obj_cols + res_cols + hist_cols
 
-    for ws in [ws1, ws2, ws3]:
-        for col in ws.columns:
-            ws.column_dimensions[get_column_letter(col[0].column)].width = 20
+    # Write header row 1 — group labels
+    group_labels = [
+        ('INFORMATIONS ATHLÈTE', len(info_cols), hdr_fill_blue),
+        ('OBJECTIFS VALIDÉS', len(obj_cols), hdr_fill_green),
+        ('RÉSULTATS SAISIS VALIDÉS', len(res_cols), hdr_fill_red),
+        ('HISTORIQUE (FICHIERS EXCEL)', len(hist_cols), hdr_fill_orange),
+    ]
+    col = 1
+    for label, span, fill in group_labels:
+        cell = ws.cell(row=1, column=col, value=label)
+        cell.font = Font(bold=True, color='FFFFFF', size=10)
+        cell.fill = fill
+        cell.alignment = center
+        if span > 1:
+            ws.merge_cells(start_row=1, start_column=col, end_row=1, end_column=col+span-1)
+        col += span
+
+    # Write header row 2 — column names
+    fills_by_group = (
+        [(hdr_fill_blue, c) for c in info_cols] +
+        [(hdr_fill_green, c) for c in obj_cols] +
+        [(hdr_fill_red, c) for c in res_cols] +
+        [(hdr_fill_orange, c) for c in hist_cols]
+    )
+    for col_idx, (fill, header) in enumerate(fills_by_group, 1):
+        cell = ws.cell(row=2, column=col_idx, value=header)
+        cell.font = hdr_font
+        cell.fill = fill
+        cell.alignment = center
+        cell.border = thin
+
+    ws.row_dimensions[1].height = 22
+    ws.row_dimensions[2].height = 30
+
+    # Write data — one row per athlete x max(obj, res, hist)
+    data_row = 3
+    alt = PatternFill(fill_type='solid', fgColor='F8F9FC')
+
+    for a in all_athletes:
+        lic = a['numero_licence']
+        objs  = obj_by_lic.get(lic, [{}])
+        ress  = res_by_lic.get(lic, [{}])
+        hists = hist_by_lic.get(lic, [{}])
+        n_rows = max(len(objs), len(ress), len(hists), 1)
+        row_fill = alt if data_row % 2 == 0 else None
+
+        for i in range(n_rows):
+            o = objs[i] if i < len(objs) else {}
+            r = ress[i] if i < len(ress) else {}
+            h = hists[i] if i < len(hists) else {}
+
+            row_data = [
+                # Info (only on first sub-row)
+                a['centre'] if i==0 else '',
+                a['coach_name'] if i==0 else '',
+                a['nom_prenom'] if i==0 else '',
+                a['numero_licence'] if i==0 else '',
+                a['categorie'] if i==0 else '',
+                a['sexe'] if i==0 else '',
+                a['specialite'] if i==0 else '',
+                a['club'] if i==0 else '',
+                a['statut'] if i==0 else '',
+                (a['date_naissance'][:10] if a['date_naissance'] else '') if i==0 else '',
+                (a['date_integration'][:10] if a['date_integration'] else '') if i==0 else '',
+                # Objectifs
+                o.get('epreuve',''),
+                o.get('saison',''),
+                o.get('objectif_chrono',''),
+                o.get('statut',''),
+                # Résultats saisis
+                r.get('date_competition',''),
+                r.get('nom_competition',''),
+                r.get('lieu',''),
+                r.get('epreuve',''),
+                r.get('classement',''),
+                r.get('performance',''),
+                r.get('statut',''),
+                # Historique
+                h.get('saison',''),
+                h.get('date',''),
+                h.get('competition',''),
+                h.get('lieu',''),
+                h.get('epreuve',''),
+                str(h.get('classement','')) if h.get('classement') else '',
+                h.get('resultat',''),
+            ]
+
+            for col_idx, val in enumerate(row_data, 1):
+                cell = ws.cell(row=data_row, column=col_idx, value=val)
+                cell.border = thin
+                cell.alignment = wrap
+                if row_fill:
+                    cell.fill = row_fill
+
+            data_row += 1
+
+    # Column widths
+    col_widths = (
+        [18, 22, 25, 14, 8, 6, 18, 14, 12, 14, 16] +  # info
+        [18, 12, 14, 12] +  # objectifs
+        [14, 22, 16, 18, 10, 14, 12] +  # resultats
+        [12, 14, 22, 16, 18, 10, 14]    # historique
+    )
+    for col_idx, width in enumerate(col_widths, 1):
+        ws.column_dimensions[get_column_letter(col_idx)].width = width
+
+    ws.freeze_panes = 'A3'
 
     output = io.BytesIO()
     wb.save(output)
     output.seek(0)
-    return send_file(output, download_name='athletepro_export.xlsx',
+    return send_file(output, download_name='athletepro_export_complet.xlsx',
                      as_attachment=True, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
 # ── AUTO INIT ──

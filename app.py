@@ -249,7 +249,9 @@ def init_db():
             ex(conn, '''INSERT INTO athletes
                 (centre,coach_id,nom_prenom,date_naissance,age,numero_licence,categorie,sexe,specialite,epreuves,club,statut,date_integration)
                 VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
-                ON CONFLICT (numero_licence) DO NOTHING''',
+                ON CONFLICT (numero_licence) DO UPDATE SET
+                    club=EXCLUDED.club, epreuves=EXCLUDED.epreuves,
+                    age=EXCLUDED.age, specialite=EXCLUDED.specialite''',
                 (a['crf'], coach['id'], a['nom'], a['date_naissance'], a['age'],
                  a['licence'], a['categorie'], a['sexe'], a['specialite'],
                  epreuves_str, a['club'], a['statut'], a['integration']))

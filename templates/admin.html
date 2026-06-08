@@ -198,6 +198,7 @@
             <th>Épreuve</th>
             <th>Obj. Chronométrique</th>
             <th>Validé le</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -209,6 +210,53 @@
             <td style="font-weight:500">{{ o.epreuve }}</td>
             <td style="color:#27AE60;font-weight:600">{{ o.objectif_chrono or '—' }}</td>
             <td style="font-size:.78rem;color:#B0B8CC">{{ o.valide_le }}</td>
+            <td>
+              <form method="POST" action="/admin/supprimer_obj/{{ o.id }}" style="display:inline"
+                onsubmit="return confirm('Supprimer cet objectif validé ?')">
+                <button type="submit" style="background:#fee2e2;color:#c0392b;border:none;border-radius:4px;padding:3px 10px;font-size:.72rem;cursor:pointer;font-weight:600">🗑 Suppr.</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if validated_res %}
+  <div class="card" style="margin-top:1.5rem">
+    <div class="card-header">
+      <h2>Résultats validés</h2>
+      <span class="tag tag-green">{{ validated_res|length }}</span>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Athlète</th><th>Catégorie</th><th>Épreuve</th>
+            <th>Compétition</th><th>Lieu</th><th>Date</th>
+            <th>Performance</th><th>Classement</th><th>Validé le</th><th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in validated_res %}
+          <tr>
+            <td style="font-weight:600;color:#1E2742">{{ r.nom_prenom }}</td>
+            <td><span class="tag tag-grey" style="font-size:.65rem">{{ r.categorie }}</span></td>
+            <td style="font-weight:500">{{ r.epreuve }}</td>
+            <td style="font-size:.82rem">{{ r.nom_competition or '—' }}</td>
+            <td style="font-size:.82rem;color:#8A92A6">{{ r.lieu or '—' }}</td>
+            <td style="font-size:.78rem;color:#8A92A6">{{ r.date_competition or '—' }}</td>
+            <td style="color:#27AE60;font-weight:600">{{ r.performance or '—' }}</td>
+            <td style="text-align:center">{{ r.classement or '—' }}</td>
+            <td style="font-size:.78rem;color:#B0B8CC">{{ r.valide_le }}</td>
+            <td>
+              <form method="POST" action="/admin/supprimer_res/{{ r.id }}" style="display:inline"
+                onsubmit="return confirm('Supprimer ce résultat validé ?')">
+                <button type="submit" style="background:#fee2e2;color:#c0392b;border:none;border-radius:4px;padding:3px 10px;font-size:.72rem;cursor:pointer;font-weight:600">🗑 Suppr.</button>
+              </form>
+            </td>
           </tr>
           {% endfor %}
         </tbody>

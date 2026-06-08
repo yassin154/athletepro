@@ -425,7 +425,6 @@ def athlete(aid):
         historique_2425=hist_2425,
         historique_2526=hist_2526,
         res_list=resultats,
-        validated_champs=validated_champs,
         perf_obj_map=perf_obj_map,
         championnats=CHAMPIONNATS,
         chart_data=all_hist,

@@ -1,0 +1,716 @@
+{
+  "S_M": {
+    "Sprints": [
+      "100 m",
+      "200 m",
+      "400 m"
+    ],
+    "Demi-fond": [
+      "800 m",
+      "1500 m"
+    ],
+    "Fond": [
+      "5000 m",
+      "10 000 m"
+    ],
+    "Haies": [
+      "110 m haies",
+      "400 m haies"
+    ],
+    "Steeple": [
+      "3000 m steeple"
+    ],
+    "Relais": [
+      "4 x 100 m",
+      "4 x 400 m",
+      "4 x 400 m mixte"
+    ],
+    "Marathon": [
+      "Marathon"
+    ],
+    "Marche": [
+      "20 km marche",
+      "35 km marche"
+    ],
+    "Sauts verticaux": [
+      "Hauteur",
+      "Perche"
+    ],
+    "Sauts horizontaux": [
+      "Longueur",
+      "Triple saut"
+    ],
+    "Lancers": [
+      "Poids",
+      "Disque",
+      "Marteau",
+      "Javelot"
+    ],
+    "Combinées": [
+      "Décathlon"
+    ]
+  },
+  "S_F": {
+    "Sprints": [
+      "100 m",
+      "200 m",
+      "400 m"
+    ],
+    "Demi-fond": [
+      "800 m",
+      "1500 m"
+    ],
+    "Fond": [
+      "5000 m",
+      "10 000 m"
+    ],
+    "Haies": [
+      "100 m haies",
+      "400 m haies"
+    ],
+    "Steeple": [
+      "3000 m steeple"
+    ],
+    "Relais": [
+      "4 x 100 m",
+      "4 x 400 m",
+      "4 x 400 m mixte"
+    ],
+    "Marathon": [
+      "Marathon"
+    ],
+    "Marche": [
+      "20 km marche",
+      "35 km marche"
+    ],
+    "Sauts verticaux": [
+      "Hauteur",
+      "Perche"
+    ],
+    "Sauts horizontaux": [
+      "Longueur",
+      "Triple saut"
+    ],
+    "Lancers": [
+      "Poids",
+      "Disque",
+      "Marteau",
+      "Javelot"
+    ],
+    "Combinées": [
+      "Heptathlon"
+    ]
+  },
+  "J1_M": {
+    "Sprints": [
+      "100 m",
+      "200 m",
+      "400 m"
+    ],
+    "Demi-fond": [
+      "800 m",
+      "1500 m"
+    ],
+    "Fond": [
+      "5000 m",
+      "10 000 m"
+    ],
+    "Haies": [
+      "110 m haies",
+      "400 m haies"
+    ],
+    "Steeple": [
+      "3000 m steeple"
+    ],
+    "Relais": [
+      "4 x 100 m",
+      "4 x 400 m",
+      "4 x 400 m mixte"
+    ],
+    "Marathon": [
+      "Marathon"
+    ],
+    "Marche": [
+      "20 km marche",
+      "35 km marche"
+    ],
+    "Sauts verticaux": [
+      "Hauteur",
+      "Perche"
+    ],
+    "Sauts horizontaux": [
+      "Longueur",
+      "Triple saut"
+    ],
+    "Lancers": [
+      "Poids",
+      "Disque",
+      "Marteau",
+      "Javelot"
+    ],
+    "Combinées": [
+      "Décathlon"
+    ]
+  },
+  "J1_F": {
+    "Sprints": [
+      "100 m",
+      "200 m",
+      "400 m"
+    ],
+    "Demi-fond": [
+      "800 m",
+      "1500 m"
+    ],
+    "Fond": [
+      "5000 m",
+      "10 000 m"
+    ],
+    "Haies": [
+      "100 m haies",
+      "400 m haies"
+    ],
+    "Steeple": [
+      "3000 m steeple"
+    ],
+    "Relais": [
+      "4 x 100 m",
+      "4 x 400 m",
+      "4 x 400 m mixte"
+    ],
+    "Marathon": [
+      "Marathon"
+    ],
+    "Marche": [
+      "20 km marche",
+      "35 km marche"
+    ],
+    "Sauts verticaux": [
+      "Hauteur",
+      "Perche"
+    ],
+    "Sauts horizontaux": [
+      "Longueur",
+      "Triple saut"
+    ],
+    "Lancers": [
+      "Poids",
+      "Disque",
+      "Marteau",
+      "Javelot"
+    ],
+    "Combinées": [
+      "Heptathlon"
+    ]
+  },
+  "J2_M": {
+    "Sprints": [
+      "100 m",
+      "200 m",
+      "400 m"
+    ],
+    "Demi-fond": [
+      "800 m",
+      "1500 m"
+    ],
+    "Fond": [
+      "5000 m",
+      "10 000 m"
+    ],
+    "Haies": [
+      "110 m haies",
+      "400 m haies"
+    ],
+    "Steeple": [
+      "3000 m steeple"
+    ],
+    "Relais": [
+      "4 x 100 m",
+      "4 x 400 m",
+      "4 x 400 m mixte"
+    ],
+    "Marathon": [
+      "Marathon"
+    ],
+    "Marche": [
+      "20 km marche",
+      "35 km marche"
+    ],
+    "Sauts verticaux": [
+      "Hauteur",
+      "Perche"
+    ],
+    "Sauts horizontaux": [
+      "Longueur",
+      "Triple saut"
+    ],
+    "Lancers": [
+      "Poids",
+      "Disque",
+      "Marteau",
+      "Javelot"
+    ],
+    "Combinées": [
+      "Décathlon"
+    ]
+  },
+  "J2_F": {
+    "Sprints": [
+      "100 m",
+      "200 m",
+      "400 m"
+    ],
+    "Demi-fond": [
+      "800 m",
+      "1500 m"
+    ],
+    "Fond": [
+      "5000 m",
+      "10 000 m"
+    ],
+    "Haies": [
+      "100 m haies",
+      "400 m haies"
+    ],
+    "Steeple": [
+      "3000 m steeple"
+    ],
+    "Relais": [
+      "4 x 100 m",
+      "4 x 400 m",
+      "4 x 400 m mixte"
+    ],
+    "Marathon": [
+      "Marathon"
+    ],
+    "Marche": [
+      "20 km marche",
+      "35 km marche"
+    ],
+    "Sauts verticaux": [
+      "Hauteur",
+      "Perche"
+    ],
+    "Sauts horizontaux": [
+      "Longueur",
+      "Triple saut"
+    ],
+    "Lancers": [
+      "Poids",
+      "Disque",
+      "Marteau",
+      "Javelot"
+    ],
+    "Combinées": [
+      "Heptathlon"
+    ]
+  },
+  "M1_M": {
+    "Sprints": [
+      "100 m",
+      "200 m",
+      "400 m"
+    ],
+    "Demi-fond": [
+      "800 m",
+      "1500 m"
+    ],
+    "Fond": [
+      "5000 m",
+      "10 000 m"
+    ],
+    "Haies": [
+      "110 m haies",
+      "400 m haies"
+    ],
+    "Steeple": [
+      "3000 m steeple"
+    ],
+    "Relais": [
+      "4 x 100 m",
+      "4 x 400 m",
+      "4 x 400 m mixte"
+    ],
+    "Marathon": [
+      "Marathon"
+    ],
+    "Marche": [
+      "20 km marche",
+      "35 km marche"
+    ],
+    "Sauts verticaux": [
+      "Hauteur",
+      "Perche"
+    ],
+    "Sauts horizontaux": [
+      "Longueur",
+      "Triple saut"
+    ],
+    "Lancers": [
+      "Poids",
+      "Disque",
+      "Marteau",
+      "Javelot"
+    ],
+    "Combinées": [
+      "Décathlon"
+    ]
+  },
+  "M1_F": {
+    "Sprints": [
+      "100 m",
+      "200 m",
+      "400 m"
+    ],
+    "Demi-fond": [
+      "800 m",
+      "1500 m"
+    ],
+    "Fond": [
+      "5000 m",
+      "10 000 m"
+    ],
+    "Haies": [
+      "100 m haies",
+      "400 m haies"
+    ],
+    "Steeple": [
+      "3000 m steeple"
+    ],
+    "Relais": [
+      "4 x 100 m",
+      "4 x 400 m",
+      "4 x 400 m mixte"
+    ],
+    "Marathon": [
+      "Marathon"
+    ],
+    "Marche": [
+      "20 km marche",
+      "35 km marche"
+    ],
+    "Sauts verticaux": [
+      "Hauteur",
+      "Perche"
+    ],
+    "Sauts horizontaux": [
+      "Longueur",
+      "Triple saut"
+    ],
+    "Lancers": [
+      "Poids",
+      "Disque",
+      "Marteau",
+      "Javelot"
+    ],
+    "Combinées": [
+      "Heptathlon"
+    ]
+  },
+  "M2_M": {
+    "Sprints": [
+      "100 m",
+      "200 m",
+      "400 m"
+    ],
+    "Demi-fond": [
+      "800 m",
+      "1500 m"
+    ],
+    "Fond": [
+      "5000 m",
+      "10 000 m"
+    ],
+    "Haies": [
+      "110 m haies",
+      "400 m haies"
+    ],
+    "Steeple": [
+      "3000 m steeple"
+    ],
+    "Relais": [
+      "4 x 100 m",
+      "4 x 400 m",
+      "4 x 400 m mixte"
+    ],
+    "Marathon": [
+      "Marathon"
+    ],
+    "Marche": [
+      "20 km marche",
+      "35 km marche"
+    ],
+    "Sauts verticaux": [
+      "Hauteur",
+      "Perche"
+    ],
+    "Sauts horizontaux": [
+      "Longueur",
+      "Triple saut"
+    ],
+    "Lancers": [
+      "Poids",
+      "Disque",
+      "Marteau",
+      "Javelot"
+    ],
+    "Combinées": [
+      "Décathlon"
+    ]
+  },
+  "M2_F": {
+    "Sprints": [
+      "100 m",
+      "200 m",
+      "400 m"
+    ],
+    "Demi-fond": [
+      "800 m",
+      "1500 m"
+    ],
+    "Fond": [
+      "5000 m",
+      "10 000 m"
+    ],
+    "Haies": [
+      "100 m haies",
+      "400 m haies"
+    ],
+    "Steeple": [
+      "3000 m steeple"
+    ],
+    "Relais": [
+      "4 x 100 m",
+      "4 x 400 m",
+      "4 x 400 m mixte"
+    ],
+    "Marathon": [
+      "Marathon"
+    ],
+    "Marche": [
+      "20 km marche",
+      "35 km marche"
+    ],
+    "Sauts verticaux": [
+      "Hauteur",
+      "Perche"
+    ],
+    "Sauts horizontaux": [
+      "Longueur",
+      "Triple saut"
+    ],
+    "Lancers": [
+      "Poids",
+      "Disque",
+      "Marteau",
+      "Javelot"
+    ],
+    "Combinées": [
+      "Heptathlon"
+    ]
+  },
+  "C1_M": {
+    "Sprints": [
+      "100 m",
+      "200 m",
+      "400 m"
+    ],
+    "Demi-fond": [
+      "800 m",
+      "1500 m"
+    ],
+    "Fond": [
+      "5000 m",
+      "10 000 m"
+    ],
+    "Haies": [
+      "110 m haies",
+      "400 m haies"
+    ],
+    "Steeple": [
+      "3000 m steeple"
+    ],
+    "Relais": [
+      "4 x 100 m",
+      "4 x 400 m",
+      "4 x 400 m mixte"
+    ],
+    "Marathon": [
+      "Marathon"
+    ],
+    "Marche": [
+      "20 km marche",
+      "35 km marche"
+    ],
+    "Sauts verticaux": [
+      "Hauteur",
+      "Perche"
+    ],
+    "Sauts horizontaux": [
+      "Longueur",
+      "Triple saut"
+    ],
+    "Lancers": [
+      "Poids",
+      "Disque",
+      "Marteau",
+      "Javelot"
+    ],
+    "Combinées": [
+      "Décathlon"
+    ]
+  },
+  "C1_F": {
+    "Sprints": [
+      "100 m",
+      "200 m",
+      "400 m"
+    ],
+    "Demi-fond": [
+      "800 m",
+      "1500 m"
+    ],
+    "Fond": [
+      "5000 m",
+      "10 000 m"
+    ],
+    "Haies": [
+      "100 m haies",
+      "400 m haies"
+    ],
+    "Steeple": [
+      "3000 m steeple"
+    ],
+    "Relais": [
+      "4 x 100 m",
+      "4 x 400 m",
+      "4 x 400 m mixte"
+    ],
+    "Marathon": [
+      "Marathon"
+    ],
+    "Marche": [
+      "20 km marche",
+      "35 km marche"
+    ],
+    "Sauts verticaux": [
+      "Hauteur",
+      "Perche"
+    ],
+    "Sauts horizontaux": [
+      "Longueur",
+      "Triple saut"
+    ],
+    "Lancers": [
+      "Poids",
+      "Disque",
+      "Marteau",
+      "Javelot"
+    ],
+    "Combinées": [
+      "Heptathlon"
+    ]
+  },
+  "C2_M": {
+    "Sprints": [
+      "100 m",
+      "200 m",
+      "400 m"
+    ],
+    "Demi-fond": [
+      "800 m",
+      "1500 m"
+    ],
+    "Fond": [
+      "5000 m",
+      "10 000 m"
+    ],
+    "Haies": [
+      "110 m haies",
+      "400 m haies"
+    ],
+    "Steeple": [
+      "3000 m steeple"
+    ],
+    "Relais": [
+      "4 x 100 m",
+      "4 x 400 m",
+      "4 x 400 m mixte"
+    ],
+    "Marathon": [
+      "Marathon"
+    ],
+    "Marche": [
+      "20 km marche",
+      "35 km marche"
+    ],
+    "Sauts verticaux": [
+      "Hauteur",
+      "Perche"
+    ],
+    "Sauts horizontaux": [
+      "Longueur",
+      "Triple saut"
+    ],
+    "Lancers": [
+      "Poids",
+      "Disque",
+      "Marteau",
+      "Javelot"
+    ],
+    "Combinées": [
+      "Décathlon"
+    ]
+  },
+  "C2_F": {
+    "Sprints": [
+      "100 m",
+      "200 m",
+      "400 m"
+    ],
+    "Demi-fond": [
+      "800 m",
+      "1500 m"
+    ],
+    "Fond": [
+      "5000 m",
+      "10 000 m"
+    ],
+    "Haies": [
+      "100 m haies",
+      "400 m haies"
+    ],
+    "Steeple": [
+      "3000 m steeple"
+    ],
+    "Relais": [
+      "4 x 100 m",
+      "4 x 400 m",
+      "4 x 400 m mixte"
+    ],
+    "Marathon": [
+      "Marathon"
+    ],
+    "Marche": [
+      "20 km marche",
+      "35 km marche"
+    ],
+    "Sauts verticaux": [
+      "Hauteur",
+      "Perche"
+    ],
+    "Sauts horizontaux": [
+      "Longueur",
+      "Triple saut"
+    ],
+    "Lancers": [
+      "Poids",
+      "Disque",
+      "Marteau",
+      "Javelot"
+    ],
+    "Combinées": [
+      "Heptathlon"
+    ]
+  }
+}

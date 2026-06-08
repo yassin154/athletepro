@@ -410,25 +410,35 @@ def athlete(aid):
     all_hist.sort(key=lambda x: x['date'] or '')
     all_epreuves_chart = sorted(set(r['epreuve'] for r in all_hist if r['epreuve']))
 
+    # Build res_by_epreuve for template
+    res_by_epreuve = {}
+    for r in resultats:
+        ep = r['epreuve']
+        if ep not in res_by_epreuve:
+            res_by_epreuve[ep] = []
+        res_by_epreuve[ep].append(r)
+
+    def obj_map_to_json(m):
+        return {k: dict(v) for k, v in m.items()}
+
     return render_template('athlete.html',
         a=a, ath=a,
         all_epreuves=all_epreuves,
-        hist_2425=hist_2425,
-        hist_2526=hist_2526,
-        resultats=resultats,
-        obj_map_2425=obj_map_2425,
-        obj_map_2526=obj_map_2526,
-        objectifs=objectifs,
-        champ_map=champ_map,
-        obj_champ_map=champ_map,
-        validated_champs=validated_champs,
         historique_2425=hist_2425,
         historique_2526=hist_2526,
-        res_list=resultats,
+        res_by_epreuve=res_by_epreuve,
+        obj_map_2425=obj_map_2425,
+        obj_map_2526=obj_map_2526,
+        obj_map_2425_json=obj_map_to_json(obj_map_2425),
+        obj_map_2526_json=obj_map_to_json(obj_map_2526),
+        objectifs=objectifs,
+        obj_champ_map=champ_map,
+        validated_champs=validated_champs,
         perf_obj_map=perf_obj_map,
         championnats=CHAMPIONNATS,
         chart_data=all_hist,
         chart_epreuves=all_epreuves_chart,
+        active_tab='tab-info',
     )
 
 @app.route('/athlete/<int:aid>/add_epreuve', methods=['POST'])

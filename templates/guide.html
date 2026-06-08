@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+{% block title %}Guide de l'application{% endblock %}
+{% block head %}
+<style>
+.guide-hero {
+  background: linear-gradient(135deg, #1E2742 0%, #2C3E6B 100%);
+  border-radius: 12px;
+  padding: 3rem 2.5rem;
+  margin-bottom: 2rem;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(30,39,66,.2);
+}
+.guide-hero h1 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800; font-size: 2.4rem;
+  text-transform: uppercase; letter-spacing: 2px;
+  color: #fff; margin-bottom: .5rem;
+}
+.guide-hero p { color: rgba(255,255,255,.6); font-size: 1rem; }
+.step-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.2rem; margin-bottom: 2rem; }
+.step-card {
+  background: #fff; border: 1px solid #DDE2EC;
+  border-radius: 10px; padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(30,39,66,.06);
+  transition: transform .2s, box-shadow .2s;
+}
+.step-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(30,39,66,.12); }
+.step-icon { font-size: 2.2rem; margin-bottom: 1rem; }
+.step-num {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800; font-size: 3rem;
+  color: #EEF1F8; line-height: 1;
+  position: absolute; top: 1rem; right: 1.2rem;
+}
+.step-card { position: relative; overflow: hidden; }
+.step-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: 1.1rem;
+  text-transform: uppercase; letter-spacing: 1px;
+  color: #1E2742; margin-bottom: .5rem;
+}
+.step-desc { font-size: .88rem; color: #8A92A6; line-height: 1.6; }
+.workflow {
+  background: #fff; border: 1px solid #DDE2EC;
+  border-radius: 10px; padding: 1.5rem 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 10px rgba(30,39,66,.06);
+}
+.workflow h2 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800; font-size: 1.2rem;
+  text-transform: uppercase; letter-spacing: 1px;
+  color: #1E2742; margin-bottom: 1.2rem;
+}
+.wf-steps { display: flex; align-items: center; gap: 0; flex-wrap: wrap; }
+.wf-step {
+  display: flex; flex-direction: column; align-items: center;
+  text-align: center; flex: 1; min-width: 120px;
+  padding: .8rem;
+}
+.wf-icon {
+  width: 52px; height: 52px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem; margin-bottom: .5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,.1);
+}
+.wf-label { font-size: .78rem; font-weight: 600; color: #1E2742; }
+.wf-sub { font-size: .7rem; color: #8A92A6; margin-top: 2px; }
+.wf-arrow {
+  font-size: 1.4rem; color: #DDE2EC; flex-shrink: 0;
+  padding: 0 .3rem;
+}
+.tip-box {
+  background: linear-gradient(135deg, #FFF8E1, #FFFDE7);
+  border: 1px solid #FFE082; border-left: 4px solid #F4A261;
+  border-radius: 8px; padding: 1.2rem 1.5rem;
+  margin-bottom: 2rem;
+  display: flex; gap: 1rem; align-items: flex-start;
+}
+.tip-box .tip-icon { font-size: 1.5rem; flex-shrink: 0; }
+.tip-box p { font-size: .88rem; color: #6D4C00; line-height: 1.6; margin: 0; }
+.btn-start {
+  display: block; width: fit-content; margin: 0 auto;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800; font-size: 1.1rem;
+  letter-spacing: 2px; text-transform: uppercase;
+  padding: 14px 40px; border-radius: 6px;
+  background: #C0392B; color: #fff; text-decoration: none;
+  box-shadow: 0 4px 16px rgba(192,57,43,.35);
+  transition: all .2s;
+}
+.btn-start:hover { background: #A93226; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(192,57,43,.4); }
+</style>
+{% endblock %}
+{% block content %}
+
+<!-- HERO -->
+<div class="guide-hero">
+  <div style="font-size:3rem;margin-bottom:1rem">🏃</div>
+  <h1>Bienvenue sur AthléPro</h1>
+  <p>Plateforme de gestion et de suivi des performances des athlètes</p>
+  <div style="margin-top:1rem;font-size:.85rem;color:rgba(255,255,255,.5)">
+    Connecté en tant que <strong style="color:#F4A261">{{ session.full_name }}</strong> — Entraineur
+  </div>
+</div>
+
+<!-- À QUOI ÇA SERT -->
+<div class="workflow" style="margin-bottom:1.5rem">
+  <h2>🎯 À quoi sert cette application ?</h2>
+  <p style="font-size:.9rem;color:#5A6070;line-height:1.7;margin-bottom:1rem">
+    AthléPro vous permet de <strong>gérer et suivre les performances de vos athlètes</strong> tout au long de la saison.
+    Vous pouvez consulter leurs résultats historiques, définir des objectifs personnalisés par épreuve,
+    saisir les résultats après chaque compétition et planifier leur participation aux championnats.
+    Toutes vos saisies sont envoyées à l'administrateur pour validation avant d'être intégrées dans la base de données.
+  </p>
+</div>
+
+<!-- ÉTAPES -->
+<div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.1rem;text-transform:uppercase;letter-spacing:1px;color:#1E2742;margin-bottom:1rem">
+  📋 Les 5 onglets de la fiche athlète
+</div>
+<div class="step-grid">
+  <div class="step-card">
+    <div class="step-num">1</div>
+    <div class="step-icon">👤</div>
+    <div class="step-title">Informations</div>
+    <div class="step-desc">Consultez les informations personnelles de l'athlète : nom, date de naissance, catégorie, licence, centre et toutes ses épreuves. <strong>Lecture seule.</strong></div>
+  </div>
+  <div class="step-card">
+    <div class="step-num">2</div>
+    <div class="step-icon">🎯</div>
+    <div class="step-title">Objectifs Performance</div>
+    <div class="step-desc">Saisissez l'objectif chronométrique pour chaque épreuve, pour la saison 2024/2025 et 2025/2026. Vous pouvez aussi ajouter une nouvelle épreuve au profil de l'athlète.</div>
+  </div>
+  <div class="step-card">
+    <div class="step-num">3</div>
+    <div class="step-icon">📊</div>
+    <div class="step-title">Réalisations</div>
+    <div class="step-desc">Consultez tous les résultats historiques (2024/2025 et 2025/2026) et saisissez les nouveaux résultats après chaque compétition. L'écart avec l'objectif est calculé automatiquement.</div>
+  </div>
+  <div class="step-card">
+    <div class="step-num">4</div>
+    <div class="step-icon">🏆</div>
+    <div class="step-title">Objectifs Participation</div>
+    <div class="step-desc">Pour chaque championnat, indiquez si l'athlète va participer et quel est son objectif (Médaille d'Or, Podium, Finaliste...). Une fois validé, apparaît automatiquement dans Réalisations.</div>
+  </div>
+  <div class="step-card">
+    <div class="step-num">5</div>
+    <div class="step-icon">📈</div>
+    <div class="step-title">Évolution</div>
+    <div class="step-desc">Visualisez la progression des performances de l'athlète dans le temps sous forme de graphique, filtrée par épreuve.</div>
+  </div>
+</div>
+
+<!-- WORKFLOW -->
+<div class="workflow">
+  <h2>⚙️ Comment ça marche ?</h2>
+  <div class="wf-steps">
+    <div class="wf-step">
+      <div class="wf-icon" style="background:#EFF5FF">✎</div>
+      <div class="wf-label">Vous saisissez</div>
+      <div class="wf-sub">Objectifs & résultats</div>
+    </div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-step">
+      <div class="wf-icon" style="background:#FFF3E0">✉</div>
+      <div class="wf-label">Vous envoyez</div>
+      <div class="wf-sub">Pour validation</div>
+    </div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-step">
+      <div class="wf-icon" style="background:#FDF0EF">👁</div>
+      <div class="wf-label">L'admin vérifie</div>
+      <div class="wf-sub">Et valide ou rejette</div>
+    </div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-step">
+      <div class="wf-icon" style="background:#EAFAF1">✔</div>
+      <div class="wf-label">Intégré</div>
+      <div class="wf-sub">Dans la base de données</div>
+    </div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-step">
+      <div class="wf-icon" style="background:#F8F9FC">📊</div>
+      <div class="wf-label">Visible</div>
+      <div class="wf-sub">Dans les réalisations</div>
+    </div>
+  </div>
+</div>
+
+<!-- TIP -->
+<div class="tip-box">
+  <div class="tip-icon">💡</div>
+  <p>
+    <strong>Bon à savoir :</strong> Si un objectif ou un résultat est <span style="color:#C0392B;font-weight:600">rejeté</span> par l'admin,
+    vous pouvez le corriger et le renvoyer pour validation. Consultez régulièrement l'application
+    pour voir l'état de vos saisies (⏳ En attente, ✔ Validé, ✗ Rejeté).
+  </p>
+</div>
+
+<!-- BOUTON COMMENCER -->
+<a href="/dashboard" class="btn-start">Accéder à mes athlètes →</a>
+<div style="height:2rem"></div>
+
+{% endblock %}

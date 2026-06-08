@@ -1,0 +1,652 @@
+{% extends "base.html" %}
+{% block title %}{{ ath.nom_prenom }}{% endblock %}
+{% block head %}
+<style>
+.tab-nav { display:flex; gap:0; border-bottom:2px solid #DDE2EC; margin-bottom:1.5rem; overflow-x:auto; }
+.tab-nav-btn {
+  font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:.85rem;
+  letter-spacing:1px; text-transform:uppercase; padding:12px 24px;
+  border:none; background:none; color:#8A92A6; border-bottom:3px solid transparent;
+  cursor:pointer; white-space:nowrap; margin-bottom:-2px; transition:all .2s;
+}
+.tab-nav-btn.active { color:#1E2742; border-bottom-color:#C0392B; background:#F8F9FC; }
+.tab-nav-btn:hover:not(.active) { color:#2C3345; background:#F4F6FB; }
+.tab-pane { display:none; }
+.tab-pane.active { display:block; }
+.epreuve-card { border:1.5px solid #DDE2EC; border-radius:8px; margin-bottom:1rem; overflow:hidden; }
+.epreuve-card-header { background:#1E2742; padding:.7rem 1.2rem; display:flex; align-items:center; gap:10px; }
+.epreuve-badge { background:#C0392B; color:#fff; font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:.75rem; padding:2px 10px; border-radius:2px; letter-spacing:1px; }
+.epreuve-name { color:#fff; font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:1.05rem; letter-spacing:1px; }
+.perf-badge { font-size:.72rem; padding:3px 10px; border-radius:10px; font-weight:600; display:inline-block; }
+.perf-gold   { background:#FFF3CD; color:#856404; }
+.perf-silver { background:#E2E3E5; color:#383d41; }
+.perf-bronze { background:#FFE5D0; color:#842029; }
+.perf-normal { background:#E8F4FD; color:#1A5276; }
+.ecart-pos { color:#C0392B; font-weight:600; }
+.ecart-neg { color:#27AE60; font-weight:600; }
+.ecart-eq  { color:#2471D6; font-weight:600; }
+</style>
+{% endblock %}
+{% block content %}
+
+<div style="margin-bottom:1rem">
+  <a href="/dashboard" style="font-size:.82rem;color:#8A92A6;text-decoration:none">← Retour à mes athlètes</a>
+</div>
+
+{% if saved %}<div class="alert-success">✔ Données soumises pour validation !</div>{% endif %}
+{% if sent %}<div class="alert-success">✔ Objectifs soumis à l'admin pour validation !</div>{% endif %}
+{% if epr_added %}<div class="alert-success">✔ Nouvelle épreuve ajoutée au profil de l'athlète !</div>{% endif %}
+
+<!-- HEADER -->
+<div style="background:linear-gradient(135deg,#1E2742,#2C3E6B);border-radius:8px;padding:1.5rem 2rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:1.5rem;box-shadow:0 4px 20px rgba(30,39,66,.15)">
+  <div style="width:56px;height:56px;border-radius:50%;background:#C0392B;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.4rem;color:#fff;flex-shrink:0">
+    {{ ath.nom_prenom[:2] }}
+  </div>
+  <div>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.6rem;color:#fff;letter-spacing:1px">{{ ath.nom_prenom }}</div>
+    <div style="font-size:.85rem;color:rgba(255,255,255,.6);margin-top:2px">
+      {{ ath.specialite }} &nbsp;·&nbsp; {{ ath.centre }} &nbsp;·&nbsp;
+      <span style="background:rgba(255,255,255,.15);padding:2px 8px;border-radius:10px;font-size:.75rem">Cat. {{ ath.categorie }}</span>
+    </div>
+  </div>
+  <div style="margin-left:auto;text-align:right">
+    <div style="font-size:.72rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px">N° Licence</div>
+    <div style="font-family:monospace;color:#F4A261;font-weight:700;font-size:1rem">{{ ath.numero_licence }}</div>
+  </div>
+</div>
+
+<!-- ONGLETS -->
+<div class="tab-nav">
+  <button class="tab-nav-btn {% if active_tab == 'info' or not active_tab %}active{% endif %}" onclick="showTab('tab-info',this)">👤 Informations</button>
+  <button class="tab-nav-btn {% if active_tab == 'objectifs' %}active{% endif %}" onclick="showTab('tab-objectifs',this)">🎯 Objectifs Performance</button>
+  <button class="tab-nav-btn {% if active_tab == 'realisations' %}active{% endif %}" onclick="showTab('tab-realisations',this)">📊 Réalisations</button>
+  <button class="tab-nav-btn {% if active_tab == 'participation' %}active{% endif %}" onclick="showTab('tab-participation',this)">🏆 Objectifs Participation</button>
+  <button class="tab-nav-btn {% if active_tab == 'evolution' %}active{% endif %}" onclick="showTab('tab-evolution',this)">📈 Évolution</button>
+</div>
+
+<!-- ══ ONGLET 1 : INFORMATIONS ══ -->
+<div id="tab-info" class="tab-pane {% if active_tab == 'info' or not active_tab %}active{% endif %}">
+  <div class="card">
+    <div class="card-header"><h2>Informations personnelles</h2><span class="tag tag-grey">Lecture seule</span></div>
+    <div class="card-body">
+      <div class="form-grid">
+        <div class="field"><label>Nom & Prénom</label><input type="text" value="{{ ath.nom_prenom }}" readonly></div>
+        <div class="field"><label>Date de naissance</label><input type="text" value="{{ ath.date_naissance[:10] if ath.date_naissance else '—' }}" readonly></div>
+        <div class="field"><label>Âge</label><input type="text" value="{{ ath.age or '—' }}" readonly></div>
+        <div class="field"><label>N° Licence</label><input type="text" value="{{ ath.numero_licence }}" readonly></div>
+        <div class="field"><label>Catégorie</label><input type="text" value="{{ ath.categorie }}" readonly></div>
+        <div class="field"><label>Sexe</label><input type="text" value="{{ ath.sexe }}" readonly></div>
+        <div class="field"><label>Club</label><input type="text" value="{{ ath.club or '—' }}" readonly></div>
+        <div class="field"><label>Centre</label><input type="text" value="{{ ath.centre }}" readonly></div>
+        <div class="field"><label>Date d'intégration</label><input type="text" value="{{ ath.date_integration[:10] if ath.date_integration else '—' }}" readonly></div>
+      </div>
+      {% if all_epreuves %}
+      <div style="margin-top:1.4rem;border-top:1px solid #EEF1F8;padding-top:1.2rem">
+        <div style="font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#8A92A6;margin-bottom:1rem">Épreuves pratiquées</div>
+        <div style="display:flex;flex-direction:column;gap:.5rem">
+          {% for epr in all_epreuves %}
+          <div style="display:flex;align-items:center;gap:1rem;background:#F8F9FC;border:1px solid #DDE2EC;border-radius:6px;padding:.7rem 1.2rem">
+            <span style="background:#1E2742;color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.7rem;padding:2px 8px;border-radius:2px;letter-spacing:1px">ÉPR. {{ loop.index }}</span>
+            <span style="font-weight:700;color:#1E2742;font-size:.92rem">{{ epr }}</span>
+            <span style="font-size:.72rem;color:#8A92A6;margin-left:.5rem">Spécialité :</span>
+            <span style="font-size:.88rem;color:#2471D6;font-weight:500">{{ ath.specialite }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- ══ ONGLET 2 : OBJECTIFS PERFORMANCE ══ -->
+<div id="tab-objectifs" class="tab-pane {% if active_tab == 'objectifs' %}active{% endif %}">
+
+  {% macro objectif_form(saison_label, saison_val, tag_color) %}
+  <div class="card" style="margin-bottom:1.2rem">
+    <div class="card-header">
+      <h2>Objectifs Performance — {{ saison_label }}</h2>
+      <span class="tag {{ tag_color }}">À saisir</span>
+    </div>
+    <div class="card-body">
+      <p style="font-size:.83rem;color:#8A92A6;margin-bottom:1.2rem">
+        Ces objectifs seront visibles dans la colonne <strong>Obj. Performance</strong> du tableau
+        <strong>Résultats {{ saison_label }}</strong> une fois validés par l'admin.
+      </p>
+      <form method="POST" action="/athlete/{{ ath.id }}/submit_objectifs">
+        {% for epr_clean in all_epreuves %}
+        {% set epr_idx = loop.index %}
+        {% set obj_val = '' %}
+        {% set obj_statut = '' %}
+        {% for o in objectifs %}
+          {% if o.epreuve == epr_clean and o.saison == saison_val %}
+            {% set obj_val = o.objectif_chrono or '' %}
+            {% set obj_statut = o.statut %}
+          {% endif %}
+        {% endfor %}
+        <div class="epreuve-card">
+          <div class="epreuve-card-header">
+            <span class="epreuve-badge">ÉPR. {{ epr_idx }}</span>
+            <span class="epreuve-name">{{ epr_clean }}</span>
+            {% if obj_statut == 'validé' %}<span class="tag tag-green" style="margin-left:auto">✔ Validé</span>
+            {% elif obj_statut == 'en_attente' %}<span class="tag tag-grey" style="margin-left:auto">⏳ En attente</span>
+            {% elif obj_statut == 'rejeté' %}<span class="tag tag-red" style="margin-left:auto">✗ Rejeté</span>{% endif %}
+          </div>
+          <div style="padding:1rem 1.2rem;display:flex;align-items:center;gap:2rem;flex-wrap:wrap;background:{% if obj_statut == 'validé' %}#EAFAF1{% elif obj_statut == 'rejeté' %}#FDF0EF{% else %}#fff{% endif %}">
+            <input type="hidden" name="epreuve[]" value="{{ epr_clean }}">
+            <input type="hidden" name="saison[]" value="{{ saison_val }}">
+            <input type="hidden" name="champ_count_{{ epr_idx }}" value="0">
+            <div class="field" style="min-width:220px">
+              <label>Objectif chronométrique</label>
+              <input type="text" name="objectif_chrono[]" class="editable"
+                     placeholder="ex: 3:29.00 ou 52.50"
+                     value="{{ obj_val }}"
+                     {% if obj_statut == 'validé' %}style="background:#EAFAF1;color:#27AE60;border-color:#27AE60;font-weight:600"{% endif %}>
+            </div>
+            {% if obj_val and obj_statut == 'validé' %}
+            <div style="font-size:.82rem;color:#27AE60">✔ Validé — visible dans Réalisations {{ saison_label }}</div>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+        {% if not all_epreuves %}
+        <div style="text-align:center;padding:2rem;color:#8A92A6;font-size:.88rem">Aucune épreuve. Ajoutez-en une ci-dessous.</div>
+        {% endif %}
+        {% if all_epreuves %}
+        <div style="display:flex;justify-content:flex-end;margin-top:.8rem">
+          <button type="submit" class="btn btn-primary">✉ Envoyer pour validation</button>
+        </div>
+        {% endif %}
+      </form>
+    </div>
+  </div>
+  {% endmacro %}
+
+  {{ objectif_form('2024 / 2025', '2024/2025', 'tag-grey') }}
+  {{ objectif_form('2025 / 2026', '2025/2026', 'tag-blue') }}
+
+  <!-- Ajouter une nouvelle épreuve -->
+  <div class="card" style="border:1.5px dashed #2471D6">
+    <div class="card-header" style="background:#F0F5FF;border-bottom:1px solid rgba(36,113,214,.15)">
+      <h2 style="color:#2471D6">+ Ajouter une nouvelle épreuve</h2>
+      <span class="tag tag-blue">Permanent</span>
+    </div>
+    <div class="card-body">
+      <p style="font-size:.83rem;color:#8A92A6;margin-bottom:1.2rem">
+        L'épreuve sera ajoutée définitivement au profil de l'athlète et apparaîtra dans sa fiche <strong>Informations</strong>.
+      </p>
+      <form method="POST" action="/athlete/{{ ath.id }}/add_epreuve">
+        <div style="display:flex;gap:1rem;align-items:flex-end;flex-wrap:wrap">
+          <div class="field" style="min-width:250px">
+            <label>Nom de la nouvelle épreuve <span class="req">*</span></label>
+            <input type="text" name="new_epreuve" class="editable" placeholder="ex: 3000m steeple, 110m haies..." required>
+          </div>
+          <button type="submit" class="btn btn-secondary" style="margin-bottom:0">Ajouter au profil →</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ONGLET 3 : RÉALISATIONS ══ -->
+<div id="tab-realisations" class="tab-pane {% if active_tab == 'realisations' %}active{% endif %}">
+
+  <!-- Build objectif maps per saison -->
+  {% set obj_map_2425 = {} %}
+  {% set obj_map_2526 = {} %}
+  {% for o in objectifs %}
+    {% if o.statut == 'validé' %}
+      {% if o.saison == '2024/2025' %}{% set _ = obj_map_2425.update({o.epreuve: o.objectif_chrono}) %}{% endif %}
+      {% if o.saison == '2025/2026' or not o.saison %}{% set _ = obj_map_2526.update({o.epreuve: o.objectif_chrono}) %}{% endif %}
+    {% endif %}
+  {% endfor %}
+
+  {% macro real_table(rows, show_classement, obj_map) %}
+  <div style="overflow-x:auto">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Date</th><th>Compétition</th><th>Lieu</th><th>Épreuve</th>
+          {% if show_classement %}<th>Classement</th>{% endif %}
+          <th>Performance</th>
+          <th style="color:#2471D6">Obj. Performance</th>
+          <th>Écart</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+        {% set epr = r.get('epreuve','') %}
+        {% set obj = obj_map.get(epr, '') %}
+        {% set perf = (r.get('performance') or r.get('Resultats') or '') | string %}
+        <tr>
+          <td style="font-size:.83rem;color:#8A92A6;white-space:nowrap">{{ r.get('date') or r.get('date_competition') or '—' }}</td>
+          <td style="font-weight:500">{{ r.get('competition') or r.get('nom_competition') or '—' }}</td>
+          <td style="font-size:.82rem;color:#8A92A6">{{ r.get('lieu') or '—' }}</td>
+          <td style="color:#2471D6;font-size:.85rem;white-space:nowrap">{{ epr or '—' }}</td>
+          {% if show_classement %}
+          <td style="text-align:center">
+            {% set cl = (r.get('classement','') or '') | string %}
+            {% if cl and cl not in ['nan','None','—',''] %}
+              {% if cl == '1' %}<span class="perf-badge perf-gold">🥇 1er</span>
+              {% elif cl == '2' %}<span class="perf-badge perf-silver">🥈 2e</span>
+              {% elif cl == '3' %}<span class="perf-badge perf-bronze">🥉 3e</span>
+              {% else %}<span class="perf-badge perf-normal">{{ cl }}</span>{% endif %}
+            {% else %}—{% endif %}
+          </td>
+          {% endif %}
+          <td style="font-weight:700;color:#1E2742;font-size:.95rem">{{ perf or '—' }}</td>
+          <td style="color:#2471D6;font-weight:500;font-size:.85rem">
+            {% if obj %}{{ obj }}{% else %}<span style="color:#DDE2EC;font-size:.8rem">Non défini</span>{% endif %}
+          </td>
+          <td class="ecart-cell" data-perf="{{ perf }}" data-obj="{{ obj or '' }}">—</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endmacro %}
+
+  <!-- 2024/2025 -->
+  {% if historique_2425 %}
+  <div class="card" style="margin-bottom:1.2rem">
+    <div class="card-header"><h2>Résultats 2024 / 2025</h2><span class="tag tag-grey">{{ historique_2425|length }} résultat(s)</span></div>
+    {{ real_table(historique_2425, false, obj_map_2425) }}
+  </div>
+  {% endif %}
+
+  <!-- 2025/2026 -->
+  {% if historique_2526 %}
+  <div class="card" style="margin-bottom:1.2rem">
+    <div class="card-header"><h2>Résultats 2025 / 2026</h2><span class="tag tag-grey">{{ historique_2526|length }} résultat(s)</span></div>
+    {{ real_table(historique_2526, false, obj_map_2526) }}
+  </div>
+  {% endif %}
+
+  <!-- Saison en cours -->
+  <div class="card">
+    <div class="card-header"><h2>Résultats saisis — Saison en cours</h2><span class="tag tag-blue">À compléter</span></div>
+    <div class="card-body" style="padding:0">
+      {% if res_by_epreuve %}
+        {% for epreuve, res_list in res_by_epreuve.items() %}
+        <div style="border-bottom:1px solid #EEF1F8">
+          <div style="padding:.7rem 1.2rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.88rem;text-transform:uppercase;letter-spacing:1px;color:#1E2742;display:flex;align-items:center;gap:8px;background:#FAFBFC">
+            <span style="width:7px;height:7px;border-radius:50%;background:#2471D6;display:inline-block"></span>{{ epreuve }}
+            {% set obj_e = obj_map_2526.get(epreuve,'') %}
+            {% if obj_e %}<span style="font-size:.75rem;color:#2471D6;font-weight:400;margin-left:.5rem">Objectif : {{ obj_e }}</span>{% endif %}
+          </div>
+          {{ real_table(res_list, true, obj_map_2526) }}
+        </div>
+        {% endfor %}
+      {% else %}
+      <div style="text-align:center;padding:2rem;color:#8A92A6;font-size:.85rem">Aucun résultat saisi pour la saison en cours.</div>
+      {% endif %}
+
+      <!-- Formulaire ajout résultat -->
+      <div style="background:#F0F5FF;border-top:1px solid rgba(36,113,214,.15);padding:1.2rem">
+        <div style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#2471D6;margin-bottom:1rem">+ Ajouter un résultat de compétition</div>
+        <form method="POST" action="/athlete/{{ ath.id }}/submit_resultat">
+          <div class="form-grid">
+            <div class="field">
+              <label>Épreuve <span class="req">*</span></label>
+              <select name="epreuve" required style="padding:9px 12px;border:1.5px solid rgba(36,113,214,.4);border-radius:5px;background:#F0F5FF;font-family:'Barlow',sans-serif;font-size:.88rem;color:#2C3345;outline:none">
+                <option value="">— Sélectionner —</option>
+                {% for epr in all_epreuves %}
+                <option value="{{ epr }}">{{ epr }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="field"><label>Compétition <span class="req">*</span></label><input type="text" name="nom_competition" class="editable" placeholder="ex: Ch. National" required></div>
+            <div class="field"><label>Lieu</label><input type="text" name="lieu" class="editable" placeholder="ex: Rabat"></div>
+            <div class="field"><label>Date</label><input type="date" name="date_competition" class="editable"></div>
+            <div class="field"><label>Performance <span class="req">*</span></label><input type="text" name="performance" class="editable" placeholder="ex: 3:28.50" required></div>
+            <div class="field"><label>Classement</label><input type="text" name="classement" class="editable" placeholder="ex: 1, 2, 3..."></div>
+            <div class="field" style="justify-content:flex-end;padding-top:1.4rem">
+              <button type="submit" class="btn btn-secondary">✉ Soumettre</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ONGLET 4 : OBJECTIFS PARTICIPATION ══ -->
+<div id="tab-participation" class="tab-pane {% if active_tab == 'participation' %}active{% endif %}">
+  <div class="card">
+    <div class="card-header"><h2>Objectifs Participation aux Championnats</h2><span class="tag tag-blue">À saisir</span></div>
+    <div class="card-body">
+      <p style="font-size:.83rem;color:#8A92A6;margin-bottom:1.5rem">
+        Pour chaque championnat, indiquez si l'athlète participe et son objectif.
+        Une fois validé par l'admin, il sera injecté dans <strong>Réalisations</strong>.
+      </p>
+      <form method="POST" action="/athlete/{{ ath.id }}/submit_objectifs">
+        {% for epr_clean in all_epreuves %}
+        {% set epr_idx = loop.index %}
+        <div class="epreuve-card" style="margin-bottom:1.2rem">
+          <div class="epreuve-card-header">
+            <span class="epreuve-badge">ÉPREUVE {{ epr_idx }}</span>
+            <span class="epreuve-name">{{ epr_clean }}</span>
+          </div>
+          <div style="padding:0">
+            <input type="hidden" name="epreuve[]" value="{{ epr_clean }}">
+            <input type="hidden" name="objectif_chrono[]" value="">
+            <table style="width:100%;border-collapse:collapse">
+              <thead>
+                <tr style="background:#F8F9FC">
+                  <th style="padding:9px 14px;font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:600;text-align:left">Championnat</th>
+                  <th style="padding:9px 14px;font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:600;text-align:left">Date</th>
+                  <th style="padding:9px 14px;font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:600;text-align:left">Lieu</th>
+                  <th style="padding:9px 14px;font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:600;text-align:center;width:90px">Participe ?</th>
+                  <th style="padding:9px 14px;font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:600;text-align:left">Objectif</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for champ in championnats %}
+                {% set field_key = epr_clean ~ '||' ~ champ.nom %}
+                {% set existing = obj_champ_map.get(field_key, {}) %}
+                <tr style="border-bottom:1px solid #EEF1F8">
+                  <td style="padding:9px 14px;font-weight:600;font-size:.88rem;color:#1E2742">{{ champ.nom }}</td>
+                  <td style="padding:9px 14px;font-size:.82rem;color:#8A92A6">{{ champ.date }}</td>
+                  <td style="padding:9px 14px;font-size:.82rem;color:#8A92A6">{{ champ.lieu }}</td>
+                  <td style="padding:9px 14px;text-align:center">
+                    <input type="checkbox"
+                           name="champ_participe_{{ epr_idx }}_{{ loop.index }}"
+                           value="1"
+                           onchange="toggleObj(this,'obj_{{ epr_idx }}_{{ loop.index }}')"
+                           {% if existing.get('participe') %}checked{% endif %}
+                           style="width:17px;height:17px;accent-color:#2471D6;cursor:pointer">
+                    <input type="hidden" name="champ_nom_{{ epr_idx }}_{{ loop.index }}" value="{{ champ.nom }}">
+                    <input type="hidden" name="champ_epreuve_{{ epr_idx }}_{{ loop.index }}" value="{{ epr_clean }}">
+                  </td>
+                  <td style="padding:9px 14px">
+                    <select name="champ_objectif_{{ epr_idx }}_{{ loop.index }}"
+                            id="obj_{{ epr_idx }}_{{ loop.index }}"
+                            {% if not existing.get('participe') %}disabled{% endif %}
+                            style="padding:6px 10px;border:1.5px solid #DDE2EC;border-radius:5px;font-family:'Barlow',sans-serif;font-size:.83rem;color:#2C3345;background:#F8F9FC;outline:none;min-width:170px;opacity:{{ '1' if existing.get('participe') else '0.35' }}">
+                      <option value="">— Choisir —</option>
+                      {% for opt in ['Participation','Demi-finaliste','Finaliste','Top 4','Top 5','Top 6','Top 7','Top 8','Top 9','Top 10','Podium','Médaille de Bronze','Médaille d\'Argent','Médaille d\'Or'] %}
+                      <option value="{{ opt }}" {% if existing.get('objectif') == opt %}selected{% endif %}>{{ opt }}</option>
+                      {% endfor %}
+                    </select>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            <input type="hidden" name="champ_count_{{ epr_idx }}" value="{{ championnats|length }}">
+          </div>
+        </div>
+        {% endfor %}
+        <div style="display:flex;justify-content:flex-end;padding:.5rem 0 .5rem">
+          <button type="submit" class="btn btn-primary">✉ Envoyer pour validation</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ONGLET 5 : ÉVOLUTION ══ -->
+<div id="tab-evolution" class="tab-pane {% if active_tab == 'evolution' %}active{% endif %}">
+  <div class="card">
+    <div class="card-header">
+      <h2>Évolution des performances</h2>
+      <span class="tag tag-blue">Toutes saisons</span>
+    </div>
+    <div class="card-body">
+      <div style="display:flex;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;align-items:flex-end">
+        <div class="field" style="min-width:200px">
+          <label>Filtrer par épreuve</label>
+          <select id="filter-epreuve" onchange="updateChart()"
+            style="padding:9px 12px;border:1.5px solid #DDE2EC;border-radius:5px;font-family:'Barlow',sans-serif;font-size:.88rem;color:#2C3345;background:#F8F9FC;outline:none">
+            <option value="">— Toutes les épreuves —</option>
+            {% for epr in all_epreuves %}
+            <option value="{{ epr }}">{{ epr }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div style="font-size:.8rem;color:#8A92A6;padding-bottom:.5rem">
+          <span style="display:inline-block;width:14px;height:3px;background:#2471D6;vertical-align:middle;margin-right:4px"></span> Performances
+          &nbsp;&nbsp;
+          <span style="display:inline-block;width:14px;height:3px;background:#C0392B;border-top:2px dashed #C0392B;vertical-align:middle;margin-right:4px"></span> Objectif
+        </div>
+      </div>
+      <canvas id="perf-chart" style="width:100%;max-height:420px"></canvas>
+      <div id="no-data" style="display:none;text-align:center;padding:3rem;color:#8A92A6;font-size:.88rem">
+        Aucune donnée disponible pour cette épreuve.
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats rapides -->
+  <div id="stats-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem;margin-top:1rem"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script>
+// Tab management
+const TABS = ['tab-info','tab-objectifs','tab-realisations','tab-participation','tab-evolution'];
+function showTab(id, btn) {
+  TABS.forEach(t => document.getElementById(t).classList.remove('active'));
+  document.querySelectorAll('.tab-nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// Auto-open tab from URL param
+const urlTab = new URLSearchParams(window.location.search).get('tab');
+if (urlTab) {
+  const tabId = 'tab-' + urlTab;
+  const idx = TABS.indexOf(tabId);
+  if (idx >= 0) {
+    const btns = document.querySelectorAll('.tab-nav-btn');
+    showTab(tabId, btns[idx]);
+  }
+}
+
+// Participation checkbox toggle
+function toggleObj(cb, selId) {
+  const sel = document.getElementById(selId);
+  sel.disabled = !cb.checked;
+  sel.style.opacity = cb.checked ? '1' : '0.35';
+  if (!cb.checked) sel.value = '';
+}
+
+// Écart calculation
+function toSec(t) {
+  if (!t) return NaN;
+  const p = t.toString().trim().replace(',','.');
+  if (p.includes(':')) {
+    const parts = p.split(':');
+    if (parts.length === 2) return parseFloat(parts[0])*60 + parseFloat(parts[1]);
+    if (parts.length === 3) return parseFloat(parts[0])*3600 + parseFloat(parts[1])*60 + parseFloat(parts[2]);
+  }
+  return parseFloat(p);
+}
+
+function calcEcarts() {
+  document.querySelectorAll('.ecart-cell').forEach(td => {
+    const ps = toSec(td.dataset.perf);
+    const os = toSec(td.dataset.obj);
+    if (isNaN(ps) || isNaN(os) || !td.dataset.obj) return;
+    const diff = ps - os;
+    const abs  = Math.abs(diff).toFixed(2);
+    if (diff < 0)       { td.textContent = '−' + abs + 's'; td.className = 'ecart-cell ecart-neg'; }
+    else if (diff === 0){ td.textContent = '= Objectif atteint'; td.className = 'ecart-cell ecart-eq'; }
+    else                { td.textContent = '+' + abs + 's'; td.className = 'ecart-cell ecart-pos'; }
+  });
+}
+document.addEventListener('DOMContentLoaded', () => {
+  calcEcarts();
+  buildChart();
+});
+
+// All results data injected from server
+const ALL_RESULTS = {{ chart_data | tojson }};
+const OBJ_MAP_2425 = {{ obj_map_2425_json | tojson }};
+const OBJ_MAP_2526 = {{ obj_map_2526_json | tojson }};
+
+let chart = null;
+
+function toSeconds(t) {
+  if (!t || t === '—') return null;
+  const p = t.toString().trim().replace(',', '.').replace(/\s/g,'');
+  if (p.includes(':')) {
+    const parts = p.split(':');
+    if (parts.length === 2) return parseFloat(parts[0]) * 60 + parseFloat(parts[1]);
+    if (parts.length === 3) return parseFloat(parts[0]) * 3600 + parseFloat(parts[1]) * 60 + parseFloat(parts[2]);
+  }
+  const n = parseFloat(p);
+  return isNaN(n) ? null : n;
+}
+
+function fmtTime(sec) {
+  if (sec === null) return '—';
+  if (sec >= 60) {
+    const m = Math.floor(sec / 60);
+    const s = (sec % 60).toFixed(2).padStart(5, '0');
+    return m + ':' + s;
+  }
+  return sec.toFixed(2);
+}
+
+function buildChart() { updateChart(); }
+
+function updateChart() {
+  const eprFilter = document.getElementById('filter-epreuve').value;
+  let rows = ALL_RESULTS;
+  if (eprFilter) rows = rows.filter(r => r.epreuve === eprFilter);
+  rows = rows.filter(r => r.date && r.performance && r.performance !== '—');
+  rows.sort((a, b) => a.date.localeCompare(b.date));
+
+  const canvas = document.getElementById('perf-chart');
+  const noData = document.getElementById('no-data');
+
+  if (rows.length === 0) {
+    canvas.style.display = 'none';
+    noData.style.display = 'block';
+    document.getElementById('stats-grid').innerHTML = '';
+    if (chart) { chart.destroy(); chart = null; }
+    return;
+  }
+  canvas.style.display = 'block';
+  noData.style.display = 'none';
+
+  const labels = rows.map(r => r.date);
+  const values = rows.map(r => toSeconds(r.performance));
+  const validValues = values.filter(v => v !== null);
+
+  // Objectif line
+  let objVal = null;
+  if (eprFilter) {
+    const o = OBJ_MAP_2526[eprFilter] || OBJ_MAP_2425[eprFilter];
+    if (o) objVal = toSeconds(o);
+  }
+  const objLine = labels.map(() => objVal);
+
+  const datasets = [{
+    label: 'Performance',
+    data: values,
+    borderColor: '#2471D6',
+    backgroundColor: 'rgba(36,113,214,.08)',
+    pointBackgroundColor: rows.map(r => {
+      if (r.classement === '1') return '#F4A261';
+      if (r.classement === '2') return '#8A92A6';
+      if (r.classement === '3') return '#C0392B';
+      return '#2471D6';
+    }),
+    pointRadius: 6,
+    pointHoverRadius: 9,
+    tension: 0.3,
+    fill: true,
+    spanGaps: true,
+  }];
+
+  if (objVal !== null) {
+    datasets.push({
+      label: 'Objectif',
+      data: objLine,
+      borderColor: '#C0392B',
+      borderDash: [6, 4],
+      borderWidth: 2,
+      pointRadius: 0,
+      fill: false,
+    });
+  }
+
+  if (chart) chart.destroy();
+  chart = new Chart(canvas, {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              const r = rows[ctx.dataIndex];
+              if (!r) return '';
+              const lines = [`Performance : ${r.performance}`];
+              if (r.competition) lines.push(`Compétition : ${r.competition}`);
+              if (r.lieu) lines.push(`Lieu : ${r.lieu}`);
+              if (r.classement && r.classement !== 'nan') lines.push(`Classement : ${r.classement}`);
+              if (r.saison) lines.push(`Saison : ${r.saison}`);
+              return lines;
+            },
+            title: ctx => ctx[0]?.label || '',
+          }
+        }
+      },
+      scales: {
+        y: {
+          reverse: true,
+          ticks: {
+            callback: val => fmtTime(val),
+            font: { family: 'Barlow, sans-serif', size: 11 },
+            color: '#8A92A6',
+          },
+          grid: { color: '#EEF1F8' },
+          title: { display: true, text: 'Temps (secondes)', color: '#8A92A6', font: { size: 11 } }
+        },
+        x: {
+          ticks: { font: { family: 'Barlow, sans-serif', size: 10 }, color: '#8A92A6', maxTicksLimit: 12 },
+          grid: { display: false },
+        }
+      }
+    }
+  });
+
+  // Stats rapides
+  const best = Math.min(...validValues);
+  const worst = Math.max(...validValues);
+  const last = validValues[validValues.length - 1];
+  const progress = validValues.length > 1 ? validValues[0] - last : 0;
+  const statsEl = document.getElementById('stats-grid');
+  statsEl.innerHTML = `
+    <div style="background:#fff;border:1px solid #DDE2EC;border-radius:8px;padding:1rem 1.2rem;border-left:4px solid #27AE60">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.6rem;color:#1E2742">${fmtTime(best)}</div>
+      <div style="font-size:.72rem;color:#8A92A6;text-transform:uppercase;letter-spacing:1px;margin-top:2px">Meilleure perf.</div>
+    </div>
+    <div style="background:#fff;border:1px solid #DDE2EC;border-radius:8px;padding:1rem 1.2rem;border-left:4px solid #2471D6">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.6rem;color:#1E2742">${fmtTime(last)}</div>
+      <div style="font-size:.72rem;color:#8A92A6;text-transform:uppercase;letter-spacing:1px;margin-top:2px">Dernière perf.</div>
+    </div>
+    <div style="background:#fff;border:1px solid #DDE2EC;border-radius:8px;padding:1rem 1.2rem;border-left:4px solid ${progress > 0 ? '#27AE60' : '#C0392B'}">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.6rem;color:${progress > 0 ? '#27AE60' : '#C0392B'}">${progress > 0 ? '-' : '+'}${Math.abs(progress).toFixed(2)}s</div>
+      <div style="font-size:.72rem;color:#8A92A6;text-transform:uppercase;letter-spacing:1px;margin-top:2px">Progression</div>
+    </div>
+    <div style="background:#fff;border:1px solid #DDE2EC;border-radius:8px;padding:1rem 1.2rem;border-left:4px solid #F4A261">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.6rem;color:#1E2742">${rows.length}</div>
+      <div style="font-size:.72rem;color:#8A92A6;text-transform:uppercase;letter-spacing:1px;margin-top:2px">Compétitions</div>
+    </div>
+    ${objVal !== null ? `
+    <div style="background:#fff;border:1px solid #DDE2EC;border-radius:8px;padding:1rem 1.2rem;border-left:4px solid #C0392B">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.6rem;color:${last <= objVal ? '#27AE60' : '#C0392B'}">${last <= objVal ? '✔ Atteint' : fmtTime(last - objVal) + 's'}</div>
+      <div style="font-size:.72rem;color:#8A92A6;text-transform:uppercase;letter-spacing:1px;margin-top:2px">Écart objectif</div>
+    </div>` : ''}
+  `;
+}
+</script>
+{% endblock %}

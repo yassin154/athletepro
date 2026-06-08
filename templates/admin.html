@@ -1,0 +1,292 @@
+{% extends "base.html" %}
+{% block title %}Tableau de bord Admin{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Tableau de bord</h1>
+  <p>Vue globale — {{ stats.total_athletes }} athlètes actifs sur {{ stats.total_coaches }} entraineurs</p>
+</div>
+
+<!-- STATS -->
+<div class="stat-cards">
+  <div class="stat-card accent">
+    <div class="stat-val">{{ stats.total_athletes }}</div>
+    <div class="stat-label">Athlètes actifs</div>
+  </div>
+  <div class="stat-card blue">
+    <div class="stat-val">{{ stats.total_coaches }}</div>
+    <div class="stat-label">Entraineurs</div>
+  </div>
+  <div class="stat-card" style="border-left:4px solid #F4A261">
+    <div class="stat-val" style="color:#E67E22">{{ stats.en_attente }}</div>
+    <div class="stat-label">En attente validation</div>
+  </div>
+  <div class="stat-card green">
+    <div class="stat-val">{{ stats.validated }}</div>
+    <div class="stat-label">Objectifs validés</div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('tab-validation',this)">⏳ Validation ({{ stats.en_attente }})</button>
+  <button class="tab-btn" onclick="showTab('tab-athletes',this)">👥 Tous les athlètes</button>
+  <button class="tab-btn" onclick="showTab('tab-coaches',this)">🏋️ Entraineurs</button>
+</div>
+
+<!-- TAB VALIDATION -->
+<div id="tab-validation">
+  <div style="display:flex;justify-content:flex-end;margin-bottom:1rem">
+    <a href="/admin/export" class="btn btn-success">⬇ Exporter Excel</a>
+  </div>
+  {% if pending_obj or pending_res or pending_champ %}
+  <div class="card">
+    <div class="card-header">
+      <h2>Objectifs en attente de validation</h2>
+      <span class="tag tag-red">{{ (pending_obj|length) + (pending_res|length) + (pending_champ|length) }} à valider</span>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Athlète</th>
+            <th>Entraineur</th>
+            <th>Centre</th>
+            <th>Cat.</th>
+            <th>Épreuve</th>
+            <th>Obj. Chronométrique</th>
+            <th>Soumis le</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for o in pending_obj %}
+          <tr>
+            <td style="font-weight:600;color:#1E2742">{{ o.nom_prenom }}</td>
+            <td style="font-size:.82rem;color:#2471D6;font-weight:500">{{ o.coach_name }}</td>
+            <td style="font-size:.82rem;color:#8A92A6">{{ o.centre }}</td>
+            <td><span class="tag tag-grey" style="font-size:.65rem">{{ o.categorie }}</span></td>
+            <td style="font-weight:500">{{ o.epreuve }}</td>
+            <td style="color:#2471D6;font-weight:600">{{ o.objectif_chrono or '—' }}</td>
+            <td style="font-size:.78rem;color:#B0B8CC">{{ o.soumis_le }}</td>
+            <td>
+              <div style="display:flex;gap:.5rem">
+                <form method="POST" action="/admin/valider_obj/{{ o.id }}" style="display:inline">
+                  <button class="btn btn-success btn-sm">✔ Valider</button>
+                </form>
+                <form method="POST" action="/admin/rejeter_obj/{{ o.id }}" style="display:inline">
+                  <button class="btn btn-primary btn-sm">✗ Rejeter</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% else %}
+  <div class="card">
+    <div class="card-body" style="text-align:center;padding:2.5rem;color:#8A92A6">
+      <div style="font-size:2.5rem;margin-bottom:.8rem">✅</div>
+      <p>Aucun objectif en attente de validation.</p>
+    </div>
+  </div>
+  {% endif %}
+
+
+  <!-- RÉSULTATS EN ATTENTE -->
+  {% if pending_res %}
+  <div class="card" style="margin-top:1.5rem">
+    <div class="card-header">
+      <h2>Résultats en attente de validation</h2>
+      <span class="tag tag-red">{{ pending_res|length }} à valider</span>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Athlète</th><th>Entraineur</th><th>Centre</th><th>Cat.</th><th>Épreuve</th>
+            <th>Compétition</th><th>Lieu</th><th>Date</th><th>Performance</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in pending_res %}
+          <tr>
+            <td style="font-weight:600;color:#1E2742">{{ r.nom_prenom }}</td>
+            <td style="font-size:.82rem;color:#2471D6;font-weight:500">{{ r.coach_name }}</td>
+            <td style="font-size:.82rem;color:#8A92A6">{{ r.centre }}</td>
+            <td><span class="tag tag-grey" style="font-size:.65rem">{{ r.categorie }}</span></td>
+            <td style="font-weight:500">{{ r.epreuve }}</td>
+            <td>{{ r.nom_competition or '—' }}</td>
+            <td style="color:#8A92A6;font-size:.82rem">{{ r.lieu or '—' }}</td>
+            <td style="color:#8A92A6;font-size:.82rem">{{ r.date_competition or '—' }}</td>
+            <td style="color:#27AE60;font-weight:600">{{ r.performance or '—' }}</td>
+            <td>
+              <div style="display:flex;gap:.5rem">
+                <form method="POST" action="/admin/valider_res/{{ r.id }}" style="display:inline">
+                  <button class="btn btn-success btn-sm">✔ Valider</button>
+                </form>
+                <form method="POST" action="/admin/rejeter_res/{{ r.id }}" style="display:inline">
+                  <button class="btn btn-primary btn-sm">✗ Rejeter</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- OBJECTIFS CHAMPIONNATS EN ATTENTE -->
+  {% if pending_champ %}
+  <div class="card" style="margin-top:1.5rem">
+    <div class="card-header">
+      <h2>Objectifs championnats en attente</h2>
+      <span class="tag tag-red">{{ pending_champ|length }} à valider</span>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Athlète</th><th>Entraineur</th><th>Centre</th><th>Cat.</th><th>Épreuve</th>
+            <th>Championnat</th><th>Objectif</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in pending_champ %}
+          <tr>
+            <td style="font-weight:600;color:#1E2742">{{ c.nom_prenom }}</td>
+            <td style="font-size:.82rem;color:#2471D6;font-weight:500">{{ c.coach_name }}</td>
+            <td style="font-size:.82rem;color:#8A92A6">{{ c.centre }}</td>
+            <td><span class="tag tag-grey" style="font-size:.65rem">{{ c.categorie }}</span></td>
+            <td style="font-weight:500">{{ c.epreuve }}</td>
+            <td style="color:#2471D6;font-weight:500">{{ c.championnat }}</td>
+            <td style="color:#2471D6;font-weight:600">{{ c.objectif or '—' }}</td>
+            <td>
+              <div style="display:flex;gap:.5rem">
+                <form method="POST" action="/admin/valider_champ/{{ c.id }}" style="display:inline">
+                  <button class="btn btn-success btn-sm">✔ Valider</button>
+                </form>
+                <form method="POST" action="/admin/rejeter_champ/{{ c.id }}" style="display:inline">
+                  <button class="btn btn-primary btn-sm">✗ Rejeter</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if validated_obj %}
+  <div class="card" style="margin-top:1.5rem">
+    <div class="card-header">
+      <h2>Objectifs validés</h2>
+      <span class="tag tag-green">{{ validated_obj|length }}</span>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Athlète</th>
+            <th>Centre</th>
+            <th>Catégorie</th>
+            <th>Épreuve</th>
+            <th>Obj. Chronométrique</th>
+            <th>Validé le</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for o in validated_obj %}
+          <tr>
+            <td style="font-weight:600;color:#1E2742">{{ o.nom_prenom }}</td>
+            <td style="font-size:.82rem;color:#8A92A6">{{ o.centre }}</td>
+            <td><span class="tag tag-grey" style="font-size:.65rem">{{ o.categorie }}</span></td>
+            <td style="font-weight:500">{{ o.epreuve }}</td>
+            <td style="color:#27AE60;font-weight:600">{{ o.objectif_chrono or '—' }}</td>
+            <td style="font-size:.78rem;color:#B0B8CC">{{ o.valide_le }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<!-- TAB ATHLETES -->
+<div id="tab-athletes" style="display:none">
+  {% set centres = athletes|map(attribute='centre')|unique|list|sort %}
+  {% for centre in centres %}
+  {% set grp = athletes|selectattr('centre','equalto',centre)|list %}
+  <div class="card" style="margin-bottom:1.2rem">
+    <div class="card-header">
+      <h2>{{ centre }}</h2>
+      <span class="tag tag-blue">{{ grp|length }} athlètes</span>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="table">
+        <thead>
+          <tr><th>Cat.</th><th>Nom & Prénom</th><th>Entraineur</th><th>Spécialité</th><th>Épreuves</th><th>Licence</th><th>Naissance</th><th></th></tr>
+        </thead>
+        <tbody>
+          {% for a in grp %}
+          <tr>
+            <td><span class="tag tag-grey" style="font-size:.65rem">{{ a.categorie }}</span></td>
+            <td style="font-weight:600;color:#1E2742">{{ a.nom_prenom }}</td>
+            <td style="font-size:.82rem;color:#8A92A6">{{ a.coach_name }}</td>
+            <td style="font-size:.83rem">{{ a.specialite }}</td>
+            <td style="font-size:.82rem;color:#2471D6">{{ a.epreuves }}</td>
+            <td style="font-family:monospace;font-size:.78rem;color:#8A92A6">{{ a.numero_licence }}</td>
+            <td style="font-size:.78rem;color:#8A92A6">{{ a.date_naissance[:10] if a.date_naissance else '—' }}</td>
+            <td><a href="/admin/athlete/{{ a.id }}" class="btn btn-ghost btn-sm">Voir →</a></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- TAB COACHES -->
+<div id="tab-coaches" style="display:none">
+  <div class="card">
+    <div class="card-header">
+      <h2>Liste des entraineurs & identifiants</h2>
+      <span class="tag tag-grey">{{ coaches|length }}</span>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="table">
+        <thead>
+          <tr><th>Nom complet</th><th>Identifiant</th><th>Mot de passe initial</th><th>Athlètes</th></tr>
+        </thead>
+        <tbody>
+          {% for c in coaches %}
+          {% set count = athletes|selectattr('coach_name','equalto',c.full_name)|list|length %}
+          <tr>
+            <td style="font-weight:600;color:#1E2742">{{ c.full_name }}</td>
+            <td style="font-family:monospace;color:#2471D6;font-size:.85rem">{{ c.username }}</td>
+            <td style="font-family:monospace;color:#8A92A6;font-size:.82rem">Coach2026</td>
+            <td><span class="tag tag-blue">{{ count }}</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+function showTab(id, btn) {
+  document.querySelectorAll('[id^="tab-"]').forEach(t => t.style.display='none');
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).style.display='block';
+  btn.classList.add('active');
+}
+</script>
+{% endblock %}

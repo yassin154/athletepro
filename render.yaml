@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: athletepro
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -c "from app import init_db; init_db()" && gunicorn app:app
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true

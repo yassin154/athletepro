@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Mes Athlètes{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Mes Athlètes</h1>
+  <p>{{ session.full_name }} — {{ athletes|length }} athlète(s) actif(s)</p>
+</div>
+
+{% if athletes %}
+{% set cat_order = ['M1','M2','C1','C2','J1','J2','S'] %}
+{% set cats = [] %}
+{% for c in cat_order %}
+  {% if athletes|selectattr('categorie','equalto',c)|list|length > 0 %}
+    {% set _ = cats.append(c) %}
+  {% endif %}
+{% endfor %}
+{% for cat in cats %}
+{% set group = athletes|selectattr('categorie','equalto',cat)|list %}
+{% if group %}
+<div class="card" style="margin-bottom:1.2rem">
+  <div class="card-header">
+    <h2>Catégorie {{ cat }}</h2>
+    <span class="tag tag-blue">{{ group|length }}</span>
+  </div>
+  <div style="overflow-x:auto">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Nom & Prénom</th>
+          <th>N° Licence</th>
+          <th>Naissance</th>
+          <th>Sexe</th>
+          <th>Spécialité</th>
+          <th>Épreuves</th>
+          <th>Objectifs</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in group %}
+        <tr>
+          <td style="font-weight:600;color:#1E2742">{{ a.nom_prenom }}</td>
+          <td style="font-family:monospace;font-size:.82rem;color:#8A92A6">{{ a.numero_licence }}</td>
+          <td style="font-size:.82rem;color:#8A92A6">{{ a.date_naissance[:10] if a.date_naissance else '—' }}</td>
+          <td>
+            <span style="font-size:.75rem;padding:2px 8px;border-radius:10px;
+              background:{{ '#E8F4FD' if a.sexe=='M' else '#FDE8F4' }};
+              color:{{ '#1A6EA8' if a.sexe=='M' else '#A8187A' }}">
+              {{ a.sexe }}
+            </span>
+          </td>
+          <td style="font-size:.85rem">{{ a.specialite }}</td>
+          <td style="font-size:.82rem;color:#2471D6">{{ a.epreuves }}</td>
+          <td>
+            {% set obj_count = a.id %}
+            <span class="tag tag-grey" style="font-size:.65rem">Voir fiche</span>
+          </td>
+          <td><a href="/athlete/{{ a.id }}" class="btn btn-secondary btn-sm">Ouvrir →</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+{% endfor %}
+{% else %}
+<div class="card">
+  <div class="card-body" style="text-align:center;padding:3rem;color:#8A92A6">
+    <div style="font-size:3rem;margin-bottom:1rem">🏃</div>
+    <p>Aucun athlète assigné pour le moment.</p>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

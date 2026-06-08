@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}{{ ath.nom_prenom }}{% endblock %}
+{% block content %}
+<div style="margin-bottom:1rem">
+  <a href="/admin" style="font-size:.82rem;color:#8A92A6;text-decoration:none">← Retour au tableau de bord</a>
+</div>
+<div class="page-header">
+  <h1>{{ ath.nom_prenom }}</h1>
+  <p>{{ ath.specialite }} — {{ ath.centre }} — Entraineur : {{ ath.coach_name }}</p>
+</div>
+<div class="card">
+  <div class="card-header"><h2>Informations personnelles</h2></div>
+  <div class="card-body">
+    <div class="form-grid">
+      <div class="field"><label>Nom & Prénom</label><input type="text" value="{{ ath.nom_prenom }}" readonly></div>
+      <div class="field"><label>Date de naissance</label><input type="text" value="{{ ath.date_naissance[:10] if ath.date_naissance else '—' }}" readonly></div>
+      <div class="field"><label>Âge</label><input type="text" value="{{ ath.age or '—' }}" readonly></div>
+      <div class="field"><label>N° Licence</label><input type="text" value="{{ ath.numero_licence }}" readonly></div>
+      <div class="field"><label>Catégorie</label><input type="text" value="{{ ath.categorie }}" readonly></div>
+      <div class="field"><label>Sexe</label><input type="text" value="{{ ath.sexe }}" readonly></div>
+      <div class="field"><label>Spécialité</label><input type="text" value="{{ ath.specialite }}" readonly></div>
+      <div class="field"><label>Épreuves</label><input type="text" value="{{ ath.epreuves }}" readonly></div>
+      <div class="field"><label>Club</label><input type="text" value="{{ ath.club or '—' }}" readonly></div>
+      <div class="field"><label>Centre</label><input type="text" value="{{ ath.centre }}" readonly></div>
+      <div class="field"><label>Entraineur</label><input type="text" value="{{ ath.coach_name }}" readonly></div>
+      <div class="field"><label>Date d'intégration</label><input type="text" value="{{ ath.date_integration[:10] if ath.date_integration else '—' }}" readonly></div>
+    </div>
+  </div>
+</div>
+{% if objectifs %}
+<div class="card">
+  <div class="card-header"><h2>Objectifs soumis</h2><span class="tag tag-blue">{{ objectifs|length }}</span></div>
+  <div style="overflow-x:auto">
+    <table class="table">
+      <thead><tr><th>Épreuve</th><th>Obj. Chronométrique</th><th>Obj. Métrique</th><th>Statut</th><th>Soumis le</th><th>Validé le</th></tr></thead>
+      <tbody>
+        {% for o in objectifs %}
+        <tr>
+          <td style="font-weight:600">{{ o.epreuve }}</td>
+          <td style="color:#2471D6;font-weight:600">{{ o.objectif_chrono or '—' }}</td>
+          <td style="color:#2471D6">{{ o.objectif_metrique or '—' }}</td>
+          <td>
+            {% if o.statut == 'validé' %}<span class="tag tag-green">✔ Validé</span>
+            {% elif o.statut == 'rejeté' %}<span class="tag tag-red">✗ Rejeté</span>
+            {% else %}<span class="tag tag-grey">⏳ En attente</span>{% endif %}
+          </td>
+          <td style="font-size:.78rem;color:#B0B8CC">{{ o.soumis_le or '—' }}</td>
+          <td style="font-size:.78rem;color:#B0B8CC">{{ o.valide_le or '—' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="card"><div class="card-body" style="text-align:center;padding:2rem;color:#8A92A6">Aucun objectif soumis pour cet athlète.</div></div>
+{% endif %}
+{% endblock %}

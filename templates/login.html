@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AthléPro — Connexion</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    min-height:100vh; display:flex; align-items:center; justify-content:center;
+    background:#F0F2F7;
+    font-family:'Barlow',sans-serif;
+  }
+  .bg-deco {
+    position:fixed; inset:0; z-index:0;
+    background: linear-gradient(135deg, #1E2742 0%, #2C3E6B 60%, #F0F2F7 100%);
+  }
+  .card {
+    position:relative; z-index:1;
+    background:#fff; border-radius:10px;
+    box-shadow:0 20px 60px rgba(30,39,66,.18);
+    width:100%; max-width:420px;
+    overflow:hidden;
+  }
+  .card-top {
+    background:linear-gradient(135deg,#1E2742,#2C3E6B);
+    padding:2.5rem 2rem 2rem;
+    text-align:center;
+  }
+  .logo {
+    font-family:'Barlow Condensed',sans-serif;
+    font-weight:800; font-size:2.2rem;
+    color:#fff; letter-spacing:2px; text-transform:uppercase;
+  }
+  .logo span { color:#F4A261; }
+  .logo-sub {
+    font-size:.78rem; color:rgba(255,255,255,.5);
+    letter-spacing:3px; text-transform:uppercase;
+    margin-top:4px;
+  }
+  .card-body { padding:2rem; }
+  .field { margin-bottom:1.2rem; }
+  .field label {
+    display:block; font-size:.72rem; font-weight:600;
+    text-transform:uppercase; letter-spacing:1px;
+    color:#8A92A6; margin-bottom:6px;
+  }
+  .field input {
+    width:100%; padding:11px 14px;
+    border:1.5px solid #DDE2EC; border-radius:6px;
+    font-family:'Barlow',sans-serif; font-size:.95rem;
+    color:#1E2742; background:#F8F9FC;
+    transition:border-color .2s, background .2s; outline:none;
+  }
+  .field input:focus { border-color:#2471D6; background:#fff; }
+  .btn-login {
+    width:100%; padding:13px;
+    background:#C0392B; color:#fff; border:none;
+    border-radius:6px; cursor:pointer;
+    font-family:'Barlow Condensed',sans-serif;
+    font-weight:700; font-size:1rem;
+    letter-spacing:2px; text-transform:uppercase;
+    transition:background .2s;
+    margin-top:.5rem;
+  }
+  .btn-login:hover { background:#A93226; }
+  .error {
+    background:#FDF0EF; border-left:3px solid #C0392B;
+    color:#922B21; font-size:.83rem;
+    padding:.7rem 1rem; border-radius:4px;
+    margin-bottom:1.2rem;
+  }
+  .footer-note {
+    text-align:center; font-size:.75rem;
+    color:#B0B8CC; padding:0 2rem 1.5rem;
+  }
+</style>
+</head>
+<body>
+<div class="bg-deco"></div>
+<div class="card">
+  <div class="card-top">
+    <div class="logo">Athlé<span>Pro</span></div>
+    <div class="logo-sub">Gestion des Athlètes</div>
+  </div>
+  <div class="card-body">
+    {% if error %}
+    <div class="error">⚠ {{ error }}</div>
+    {% endif %}
+    <form method="POST">
+      <div class="field">
+        <label>Identifiant</label>
+        <input type="text" name="username" placeholder="ex: ezzine.ali" required autofocus>
+      </div>
+      <div class="field">
+        <label>Mot de passe</label>
+        <input type="password" name="password" placeholder="••••••••" required>
+      </div>
+      <button class="btn-login" type="submit">Se connecter</button>
+    </form>
+  </div>
+  <div class="footer-note">Fédération Royale Marocaine d'Athlétisme</div>
+</div>
+</body>
+</html>

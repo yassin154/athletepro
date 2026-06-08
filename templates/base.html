@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AthléPro — {% block title %}{% endblock %}</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#F0F2F7; color:#2C3345; font-family:'Barlow',sans-serif; min-height:100vh; }
+
+  nav {
+    background:#1E2742; border-bottom:3px solid #C0392B;
+    padding:0 2rem; height:60px;
+    display:flex; align-items:center; justify-content:space-between;
+    position:sticky; top:0; z-index:100;
+    box-shadow:0 2px 12px rgba(0,0,0,.15);
+  }
+  .nav-logo {
+    font-family:'Barlow Condensed',sans-serif; font-weight:800;
+    font-size:1.4rem; letter-spacing:2px; text-transform:uppercase; color:#fff;
+  }
+  .nav-logo span { color:#F4A261; }
+  .nav-right { display:flex; align-items:center; gap:1rem; }
+  .nav-user {
+    font-size:.82rem; color:rgba(255,255,255,.7);
+    display:flex; align-items:center; gap:8px;
+  }
+  .nav-avatar {
+    width:32px; height:32px; border-radius:50%; background:#C0392B;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Barlow Condensed',sans-serif; font-weight:700;
+    font-size:.85rem; color:#fff;
+  }
+  .nav-role {
+    font-size:.62rem; background:rgba(255,255,255,.12);
+    padding:2px 8px; border-radius:2px; color:rgba(255,255,255,.6);
+    text-transform:uppercase; letter-spacing:1px;
+  }
+  .btn-logout {
+    font-size:.75rem; color:rgba(255,255,255,.5); text-decoration:none;
+    border:1px solid rgba(255,255,255,.15); padding:5px 12px; border-radius:4px;
+    transition:all .2s;
+  }
+  .btn-logout:hover { color:#fff; border-color:rgba(255,255,255,.4); }
+
+  .page { max-width:1200px; margin:0 auto; padding:2rem 1.5rem; }
+
+  .page-header { margin-bottom:1.8rem; }
+  .page-header h1 {
+    font-family:'Barlow Condensed',sans-serif; font-weight:800;
+    font-size:1.8rem; text-transform:uppercase; letter-spacing:1px; color:#1E2742;
+  }
+  .page-header p { font-size:.88rem; color:#8A92A6; margin-top:4px; }
+
+  .card {
+    background:#fff; border:1px solid #DDE2EC;
+    border-radius:8px; overflow:hidden; margin-bottom:1.5rem;
+    box-shadow:0 1px 8px rgba(30,39,66,.06);
+  }
+  .card-header {
+    background:#F8F9FC; padding:.9rem 1.5rem;
+    border-bottom:1px solid #DDE2EC;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .card-header h2 {
+    font-family:'Barlow Condensed',sans-serif; font-weight:700;
+    font-size:.95rem; text-transform:uppercase; letter-spacing:1px; color:#1E2742;
+  }
+  .tag {
+    font-size:.62rem; font-weight:700; padding:2px 8px;
+    border-radius:2px; letter-spacing:1px; text-transform:uppercase;
+  }
+  .tag-red   { background:#C0392B; color:#fff; }
+  .tag-blue  { background:#2471D6; color:#fff; }
+  .tag-grey  { background:#8A92A6; color:#fff; }
+  .tag-green { background:#27AE60; color:#fff; }
+
+  .card-body { padding:1.5rem; }
+
+  .form-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:1rem; }
+  .field { display:flex; flex-direction:column; gap:5px; }
+  .field label {
+    font-size:.68rem; font-weight:600; text-transform:uppercase;
+    letter-spacing:1px; color:#8A92A6;
+  }
+  .field label .req { color:#C0392B; }
+  .field input, .field select {
+    padding:9px 12px; border:1.5px solid #DDE2EC; border-radius:5px;
+    font-family:'Barlow',sans-serif; font-size:.88rem; color:#2C3345;
+    background:#F8F9FC; outline:none; transition:border-color .2s, background .2s;
+  }
+  .field input:focus, .field select:focus { border-color:#2471D6; background:#fff; }
+  .field input[readonly] { color:#8A92A6; border-style:dashed; cursor:default; background:#F4F6FB; }
+  .field input.editable  { border-color:rgba(36,113,214,.4); background:#F0F5FF; }
+
+  .btn {
+    font-family:'Barlow Condensed',sans-serif; font-weight:700;
+    font-size:.88rem; letter-spacing:1px; text-transform:uppercase;
+    padding:9px 22px; border-radius:5px; cursor:pointer; border:none;
+    transition:all .2s; text-decoration:none; display:inline-block;
+  }
+  .btn-primary { background:#C0392B; color:#fff; }
+  .btn-primary:hover { background:#A93226; }
+  .btn-secondary { background:#2471D6; color:#fff; }
+  .btn-secondary:hover { background:#1A5DAB; }
+  .btn-ghost { background:none; color:#8A92A6; border:1.5px solid #DDE2EC; }
+  .btn-ghost:hover { color:#2C3345; border-color:#2C3345; }
+  .btn-success { background:#27AE60; color:#fff; }
+  .btn-success:hover { background:#1E8449; }
+  .btn-sm { padding:6px 14px; font-size:.78rem; }
+
+  .alert-success {
+    background:#EAFAF1; border-left:4px solid #27AE60;
+    color:#1E8449; padding:.8rem 1.2rem; border-radius:4px;
+    font-size:.85rem; margin-bottom:1.2rem;
+    display:flex; align-items:center; gap:8px;
+  }
+
+  .table { width:100%; border-collapse:collapse; }
+  .table th {
+    font-size:.68rem; text-transform:uppercase; letter-spacing:1px;
+    color:#8A92A6; padding:9px 12px; text-align:left;
+    border-bottom:2px solid #DDE2EC; font-weight:600; background:#F8F9FC;
+  }
+  .table td { padding:10px 12px; border-bottom:1px solid #EEF1F8; font-size:.88rem; }
+  .table tr:last-child td { border-bottom:none; }
+  .table tr:hover td { background:#F8F9FC; }
+
+  .stat-cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:1rem; margin-bottom:1.8rem; }
+  .stat-card {
+    background:#fff; border:1px solid #DDE2EC; border-radius:8px;
+    padding:1.2rem 1.5rem; box-shadow:0 1px 6px rgba(30,39,66,.05);
+  }
+  .stat-card .stat-val {
+    font-family:'Barlow Condensed',sans-serif; font-weight:800;
+    font-size:2.2rem; color:#1E2742; line-height:1;
+  }
+  .stat-card .stat-label { font-size:.75rem; color:#8A92A6; margin-top:4px; text-transform:uppercase; letter-spacing:1px; }
+  .stat-card.accent { border-left:4px solid #C0392B; }
+  .stat-card.blue   { border-left:4px solid #2471D6; }
+  .stat-card.green  { border-left:4px solid #27AE60; }
+
+  .tabs { display:flex; gap:2px; border-bottom:1px solid #DDE2EC; margin-bottom:1.5rem; }
+  .tab-btn {
+    font-family:'Barlow Condensed',sans-serif; font-weight:700;
+    font-size:.85rem; letter-spacing:1px; text-transform:uppercase;
+    padding:10px 20px; border:none; background:none;
+    color:#8A92A6; border-bottom:2px solid transparent;
+    cursor:pointer; margin-bottom:-1px; transition:all .2s;
+  }
+  .tab-btn.active { color:#2471D6; border-bottom-color:#2471D6; }
+  .tab-btn:hover:not(.active) { color:#2C3345; }
+
+  @media(max-width:640px) {
+    .page { padding:1rem; }
+    .form-grid { grid-template-columns:1fr; }
+    .stat-cards { grid-template-columns:1fr 1fr; }
+  }
+</style>
+{% block head %}{% endblock %}
+</head>
+<body>
+<nav>
+  <div class="nav-logo">Athlé<span>Pro</span></div>
+  <div class="nav-right">
+    <div class="nav-user">
+      <div class="nav-avatar">{{ session.full_name[:2].upper() }}</div>
+      <div>
+        <div style="color:#fff;font-weight:500;font-size:.85rem">{{ session.full_name }}</div>
+        <span class="nav-role">{{ 'Admin' if session.role == 'admin' else 'Entraineur' }}</span>
+      </div>
+    </div>
+    <a href="/logout" class="btn-logout">Déconnexion</a>
+  </div>
+</nav>
+<div class="page">
+  {% block content %}{% endblock %}
+</div>
+</body>
+</html>

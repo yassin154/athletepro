@@ -83,16 +83,36 @@
       {% if all_epreuves %}
       <div style="margin-top:1.4rem;border-top:1px solid #EEF1F8;padding-top:1.2rem">
         <div style="font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#8A92A6;margin-bottom:1rem">Épreuves pratiquées</div>
-        <div style="display:flex;flex-direction:column;gap:.5rem">
-          {% for epr in all_epreuves %}
-          <div style="display:flex;align-items:center;gap:1rem;background:#F8F9FC;border:1px solid #DDE2EC;border-radius:6px;padding:.7rem 1.2rem">
-            <span style="background:#1E2742;color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.7rem;padding:2px 8px;border-radius:2px;letter-spacing:1px">ÉPR. {{ loop.index }}</span>
-            <span style="font-weight:700;color:#1E2742;font-size:.92rem">{{ epr }}</span>
-            <span style="font-size:.72rem;color:#8A92A6;margin-left:.5rem">Spécialité :</span>
-            <span style="font-size:.88rem;color:#2471D6;font-weight:500">{{ ath.specialite }}</span>
-          </div>
-          {% endfor %}
-        </div>
+        {% set ns = namespace(idx=0) %}
+        {% set grouped = {} %}
+        {% for epr in all_epreuves %}
+          {% set spec = ep_to_spec.get(epr, ath.specialite or 'Autre') %}
+          {# build grouping via loop — Jinja2 workaround #}
+        {% endfor %}
+        {# Display grouped by specialite #}
+        {% set seen_specs = [] %}
+        {% for epr in all_epreuves %}
+          {% set spec = ep_to_spec.get(epr, ath.specialite or 'Autre') %}
+          {% if spec not in seen_specs %}
+            {% if seen_specs.append(spec) %}{% endif %}
+            <div style="margin-bottom:1rem">
+              <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#C0392B;margin-bottom:.5rem;padding-left:.3rem">
+                {{ spec }}
+              </div>
+              <div style="display:flex;flex-direction:column;gap:.35rem">
+                {% for epr2 in all_epreuves %}
+                {% if ep_to_spec.get(epr2, ath.specialite or 'Autre') == spec %}
+                {% set ns.idx = ns.idx + 1 %}
+                <div style="display:flex;align-items:center;gap:1rem;background:#F8F9FC;border:1px solid #DDE2EC;border-radius:6px;padding:.6rem 1.1rem">
+                  <span style="background:#1E2742;color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.68rem;padding:2px 7px;border-radius:2px;letter-spacing:1px">ÉPR. {{ ns.idx }}</span>
+                  <span style="font-weight:700;color:#1E2742;font-size:.9rem">{{ epr2 }}</span>
+                </div>
+                {% endif %}
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
+        {% endfor %}
       </div>
       {% endif %}
     </div>
@@ -422,13 +442,28 @@
     </div>
     <div class="card-body">
       <div style="display:flex;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;align-items:flex-end">
+        <div class="field" style="min-width:180px">
+          <label>Filtrer par spécialité</label>
+          <select id="filter-specialite" onchange="filterBySpecialite()"
+            style="padding:9px 12px;border:1.5px solid #DDE2EC;border-radius:5px;font-family:'Barlow',sans-serif;font-size:.88rem;color:#2C3345;background:#F8F9FC;outline:none">
+            <option value="">— Toutes —</option>
+            {% set seen_specs2 = [] %}
+            {% for epr in chart_epreuves %}
+              {% set spec = ep_to_spec.get(epr, '') %}
+              {% if spec and spec not in seen_specs2 %}
+                {% if seen_specs2.append(spec) %}{% endif %}
+                <option value="{{ spec }}">{{ spec }}</option>
+              {% endif %}
+            {% endfor %}
+          </select>
+        </div>
         <div class="field" style="min-width:200px">
           <label>Filtrer par épreuve</label>
           <select id="filter-epreuve" onchange="updateChart()"
             style="padding:9px 12px;border:1.5px solid #DDE2EC;border-radius:5px;font-family:'Barlow',sans-serif;font-size:.88rem;color:#2C3345;background:#F8F9FC;outline:none">
             <option value="">— Toutes les épreuves —</option>
-            {% for epr in all_epreuves %}
-            <option value="{{ epr }}">{{ epr }}</option>
+            {% for epr in chart_epreuves %}
+            <option value="{{ epr }}" data-spec="{{ ep_to_spec.get(epr, '') }}">{{ epr }}</option>
             {% endfor %}
           </select>
         </div>
@@ -539,6 +574,23 @@ function fmtTime(sec) {
 }
 
 function buildChart() { updateChart(); }
+
+function filterBySpecialite() {
+  const spec = document.getElementById('filter-specialite').value;
+  const epSelect = document.getElementById('filter-epreuve');
+  const opts = epSelect.querySelectorAll('option');
+  opts.forEach(opt => {
+    if (!opt.value) return; // keep "Toutes"
+    opt.style.display = (!spec || opt.dataset.spec === spec) ? '' : 'none';
+  });
+  // Reset epreuve selection if current is hidden
+  const cur = epSelect.value;
+  if (cur) {
+    const curOpt = epSelect.querySelector(`option[value="${cur}"]`);
+    if (curOpt && curOpt.style.display === 'none') epSelect.value = '';
+  }
+  updateChart();
+}
 
 function updateChart() {
   const eprFilter = document.getElementById('filter-epreuve').value;

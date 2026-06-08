@@ -42,6 +42,8 @@ def load_resultats_json():
 
 # Cache in memory at startup
 try:
+    with open(os.path.join(BASE_DIR, 'epreuves_ref.json'), encoding='utf-8') as _f:
+        EPREUVES_REF = json.load(_f)
     ATHLETES_JSON = load_athletes_json()
     RESULTATS_JSON = load_resultats_json()
     # Build lookup by licence
@@ -359,6 +361,11 @@ def athlete(aid):
 
     licence = a['numero_licence']
 
+    # Get reference epreuves from JSON (based on cat+sex)
+    a_json = ATHLETES_BY_LICENCE.get(licence, {})
+    epreuves_ref_list = a_json.get('epreuves_ref', [])
+    specialite_norm = a_json.get('specialite_norm', a.get('specialite',''))
+
     # Get epreuves from DB + JSON (merged)
     db_epreuves = set(e.strip() for e in (a['epreuves'] or '').split('/') if e.strip())
     json_epreuves = set(ATHLETES_BY_LICENCE.get(licence, {}).get('epreuves', []))
@@ -441,6 +448,9 @@ def athlete(aid):
         chart_data=all_hist,
         chart_epreuves=all_epreuves_chart,
         active_tab='tab-info',
+        epreuves_ref=epreuves_ref_list,
+        specialite_norm=specialite_norm,
+        epreuves_ref_all=EPREUVES_REF,
     )
 
 @app.route('/athlete/<int:aid>/add_epreuve', methods=['POST'])
@@ -518,9 +528,17 @@ def submit_resultat(aid):
     now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
     if epreuve and performance:
-        ex(conn, """INSERT INTO resultats (athlete_id,epreuve,nom_competition,lieu,date_competition,performance,classement,statut,soumis_le)
-                    VALUES (%s,%s,%s,%s,%s,%s,%s,'en_attente',%s)""",
+        rid = ex_ret(conn, """INSERT INTO resultats (athlete_id,epreuve,nom_competition,lieu,date_competition,performance,classement,statut,soumis_le)
+                    VALUES (%s,%s,%s,%s,%s,%s,%s,'en_attente',%s) RETURNING id""",
            (aid, epreuve, nom_competition, lieu, date_competition, performance, classement, now))
+        # If inline objectif_perf provided, save it too
+        obj_perf = request.form.get('objectif_perf_inline', '').strip()
+        if obj_perf and rid:
+            ex(conn, """INSERT INTO objectifs_perf_res (athlete_id,source,source_id,epreuve,objectif_perf,statut,soumis_le)
+                        VALUES (%s,'resultat',%s,%s,%s,'en_attente',%s)
+                        ON CONFLICT (athlete_id,source,source_id) DO UPDATE
+                        SET objectif_perf=%s, statut='en_attente', soumis_le=%s""",
+               (aid, rid, epreuve, obj_perf, now, obj_perf, now))
 
     conn.close()
     return redirect(url_for('athlete', aid=aid))

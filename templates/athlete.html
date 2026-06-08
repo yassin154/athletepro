@@ -217,7 +217,7 @@
         {% for r in rows %}
         {% set epr = r.get('epreuve','') %}
         {% set obj = obj_map.get(epr, '') %}
-        {% set perf = (r.get('performance') or r.get('Resultats') or '') | string %}
+        {% set perf = (r.get('performance') or r.get('resultat') or r.get('Resultats') or '') | string %}
         <tr>
           <td style="font-size:.83rem;color:#8A92A6;white-space:nowrap">{{ r.get('date') or r.get('date_competition') or '—' }}</td>
           <td style="font-weight:500">{{ r.get('competition') or r.get('nom_competition') or '—' }}</td>

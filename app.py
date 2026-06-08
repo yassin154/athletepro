@@ -44,6 +44,8 @@ def load_resultats_json():
 try:
     with open(os.path.join(BASE_DIR, 'epreuves_ref.json'), encoding='utf-8') as _f:
         EPREUVES_REF = json.load(_f)
+    with open(os.path.join(BASE_DIR, 'epreuve_to_specialite.json'), encoding='utf-8') as _f:
+        EPREUVE_TO_SPECIALITE = json.load(_f)
     ATHLETES_JSON = load_athletes_json()
     RESULTATS_JSON = load_resultats_json()
     # Build lookup by licence
@@ -61,6 +63,8 @@ except Exception as e:
     RESULTATS_JSON = []
     ATHLETES_BY_LICENCE = {}
     RESULTATS_BY_LICENCE = {}
+    EPREUVES_REF = {}
+    EPREUVE_TO_SPECIALITE = {}
 
 # ── DB ─────────────────────────────────────────────────────
 def get_db():
@@ -366,6 +370,9 @@ def athlete(aid):
     epreuves_ref_list = a_json.get('epreuves_ref', [])
     specialite_norm = a_json.get('specialite_norm', a.get('specialite',''))
 
+    # Epreuve -> specialite mapping
+    ep_to_spec = EPREUVE_TO_SPECIALITE
+
     # Get epreuves from DB + JSON (merged)
     db_epreuves = set(e.strip() for e in (a['epreuves'] or '').split('/') if e.strip())
     json_epreuves = set(ATHLETES_BY_LICENCE.get(licence, {}).get('epreuves', []))
@@ -417,7 +424,21 @@ def athlete(aid):
         })
 
     all_hist.sort(key=lambda x: x['date'] or '')
-    all_epreuves_chart = sorted(set(r['epreuve'] for r in all_hist if r['epreuve']))
+    # Only keep real epreuves (those in our mapping) for chart, exclude raw specialite names
+    specialite_names = set(EPREUVE_TO_SPECIALITE.values())
+    all_epreuves_chart = sorted(set(
+        r['epreuve'] for r in all_hist
+        if r['epreuve'] and r['epreuve'] not in specialite_names
+        and r['epreuve'] in EPREUVE_TO_SPECIALITE
+    ))
+    # Also add any epreuve not in mapping but looks like a real one (has digits)
+    import re as _re
+    for r in all_hist:
+        ep = r.get('epreuve','')
+        if ep and ep not in specialite_names and ep not in all_epreuves_chart:
+            if _re.search(r'[0-9]', ep):
+                all_epreuves_chart.append(ep)
+    all_epreuves_chart = sorted(set(all_epreuves_chart))
 
     # Build res_by_epreuve for template
     res_by_epreuve = {}
@@ -451,6 +472,7 @@ def athlete(aid):
         epreuves_ref=epreuves_ref_list,
         specialite_norm=specialite_norm,
         epreuves_ref_all=EPREUVES_REF,
+        ep_to_spec=ep_to_spec,
     )
 
 @app.route('/athlete/<int:aid>/add_epreuve', methods=['POST'])

@@ -511,11 +511,13 @@
       <span class="tag tag-blue">Toutes saisons</span>
     </div>
     <div class="card-body">
-      <div style="display:flex;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;align-items:flex-end">
-        <div class="field" style="min-width:180px">
-          <label>Filtrer par spécialité</label>
+      <div style="display:flex;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;align-items:flex-start">
+
+        <!-- Filtre spécialité -->
+        <div class="field" style="min-width:160px">
+          <label>Spécialité</label>
           <select id="filter-specialite" onchange="filterBySpecialite()"
-            style="padding:9px 12px;border:1.5px solid #DDE2EC;border-radius:5px;font-family:'Barlow',sans-serif;font-size:.88rem;color:#2C3345;background:#F8F9FC;outline:none">
+            style="padding:7px 12px;border:1.5px solid #DDE2EC;border-radius:5px;font-family:'Barlow',sans-serif;font-size:.85rem;color:#2C3345;background:#F8F9FC;outline:none;width:100%">
             <option value="">— Toutes —</option>
             {% set seen_specs2 = [] %}
             {% for epr in chart_epreuves %}
@@ -527,17 +529,41 @@
             {% endfor %}
           </select>
         </div>
-        <div class="field" style="min-width:200px">
-          <label>Filtrer par épreuve</label>
+
+        <!-- Filtre épreuve -->
+        <div class="field" style="min-width:180px">
+          <label>Épreuve</label>
           <select id="filter-epreuve" onchange="updateChart()"
-            style="padding:9px 12px;border:1.5px solid #DDE2EC;border-radius:5px;font-family:'Barlow',sans-serif;font-size:.88rem;color:#2C3345;background:#F8F9FC;outline:none">
-            <option value="">— Toutes les épreuves —</option>
+            style="padding:7px 12px;border:1.5px solid #DDE2EC;border-radius:5px;font-family:'Barlow',sans-serif;font-size:.85rem;color:#2C3345;background:#F8F9FC;outline:none;width:100%">
+            <option value="">— Toutes —</option>
             {% for epr in chart_epreuves %}
             <option value="{{ epr }}" data-spec="{{ ep_to_spec.get(epr, '') }}">{{ epr }}</option>
             {% endfor %}
           </select>
         </div>
-        <div style="font-size:.8rem;color:#8A92A6;padding-bottom:.5rem">
+
+        <!-- Filtre saisons multi-select -->
+        <div class="field" style="min-width:200px">
+          <label>Saisons <span style="font-weight:400;color:#8A92A6;font-size:.75rem">(plusieurs possibles)</span></label>
+          <div id="saison-checkboxes" style="background:#F8F9FC;border:1.5px solid #DDE2EC;border-radius:5px;padding:6px 10px;max-height:160px;overflow-y:auto;min-width:200px">
+            <label style="display:flex;align-items:center;gap:6px;padding:3px 0;font-size:.83rem;cursor:pointer;font-weight:600;color:#2471D6">
+              <input type="checkbox" id="saison-all" checked onchange="toggleAllSaisons(this)"> Toutes les saisons
+            </label>
+            <hr style="border:none;border-top:1px solid #DDE2EC;margin:4px 0">
+            {% set seen_saisons = [] %}
+            {% for r in chart_data | sort(attribute='saison', reverse=true) %}
+              {% set s = r.get('saison','') %}
+              {% if s and s not in seen_saisons %}
+                {% if seen_saisons.append(s) %}{% endif %}
+                <label style="display:flex;align-items:center;gap:6px;padding:3px 0;font-size:.82rem;cursor:pointer">
+                  <input type="checkbox" class="saison-cb" value="{{ s }}" checked onchange="updateChart()"> {{ s }}
+                </label>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+
+        <div style="font-size:.8rem;color:#8A92A6;padding-top:1.8rem">
           <span style="display:inline-block;width:14px;height:3px;background:#2471D6;vertical-align:middle;margin-right:4px"></span> Performances
           &nbsp;&nbsp;
           <span style="display:inline-block;width:14px;height:3px;background:#C0392B;border-top:2px dashed #C0392B;vertical-align:middle;margin-right:4px"></span> Objectif
@@ -662,6 +688,18 @@ function filterHistorique() {
   document.getElementById('hist-table').style.display = visible === 0 ? 'none' : '';
 }
 
+function syncAllCheckbox() {
+  const all = document.querySelectorAll('.saison-cb');
+  const checked = document.querySelectorAll('.saison-cb:checked');
+  document.getElementById('saison-all').checked = all.length === checked.length;
+}
+// Add sync to each saison checkbox dynamically
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.saison-cb').forEach(cb => {
+    cb.addEventListener('change', () => { syncAllCheckbox(); updateChart(); });
+  });
+});
+
 function filterBySpecialite() {
   const spec = document.getElementById('filter-specialite').value;
   const epSelect = document.getElementById('filter-epreuve');
@@ -679,10 +717,21 @@ function filterBySpecialite() {
   updateChart();
 }
 
+function toggleAllSaisons(cb) {
+  document.querySelectorAll('.saison-cb').forEach(c => c.checked = cb.checked);
+  updateChart();
+}
+
 function updateChart() {
   const eprFilter = document.getElementById('filter-epreuve').value;
+  const checkedSaisons = Array.from(document.querySelectorAll('.saison-cb:checked')).map(c => c.value);
+  const allChecked = document.getElementById('saison-all').checked;
+
   let rows = ALL_RESULTS;
   if (eprFilter) rows = rows.filter(r => r.epreuve === eprFilter);
+  if (!allChecked && checkedSaisons.length > 0) {
+    rows = rows.filter(r => checkedSaisons.includes(r.saison));
+  }
   rows = rows.filter(r => r.date && r.performance && r.performance !== '—');
   rows.sort((a, b) => a.date.localeCompare(b.date));
 
@@ -720,7 +769,12 @@ function updateChart() {
       if (r.classement === '1') return '#F4A261';
       if (r.classement === '2') return '#8A92A6';
       if (r.classement === '3') return '#C0392B';
-      return '#2471D6';
+      // Color by saison era
+      const s = r.saison || '';
+      if (s >= '2024') return '#2471D6';
+      if (s >= '2021') return '#27AE60';
+      if (s >= '2017') return '#8B44AC';
+      return '#B7500A';
     }),
     pointRadius: 6,
     pointHoverRadius: 9,

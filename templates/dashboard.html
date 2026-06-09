@@ -20,20 +20,20 @@
 <div class="card" style="margin-bottom:1.2rem">
   <div class="card-header">
     <h2>Catégorie {{ cat }}</h2>
-    <span class="tag tag-blue">{{ group|length }}</span>
+
   </div>
   <div style="overflow-x:auto">
-    <table class="table">
+    <table class="table" style="table-layout:fixed;width:100%">
       <thead>
         <tr>
-          <th>Nom & Prénom</th>
-          <th>N° Licence</th>
-          <th>Naissance</th>
-          <th>Sexe</th>
-          <th>Spécialité</th>
-
-          <th>Objectifs</th>
-          <th></th>
+          <th style="width:22%">Nom & Prénom</th>
+          <th style="width:13%">N° Licence</th>
+          <th style="width:12%">Naissance</th>
+          <th style="width:6%">Sexe</th>
+          <th style="width:16%">Spécialité</th>
+          <th style="width:10%">Classe</th>
+          <th style="width:10%"></th>
+          <th style="width:11%"></th>
         </tr>
       </thead>
       <tbody>
@@ -50,10 +50,9 @@
             </span>
           </td>
           <td style="font-size:.85rem">{{ a.specialite }}</td>
-
+          <td style="font-size:.85rem;color:#8A92A6">—</td>
           <td>
-            {% set obj_count = a.id %}
-            <span class="tag tag-grey" style="font-size:.65rem">Voir fiche</span>
+            <span class="tag tag-grey" style="font-size:.65rem;cursor:pointer" onclick="window.location='/athlete/{{ a.id }}'">Voir fiche</span>
           </td>
           <td><a href="/athlete/{{ a.id }}" class="btn btn-secondary btn-sm">Ouvrir →</a></td>
         </tr>

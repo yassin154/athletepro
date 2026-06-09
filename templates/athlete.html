@@ -38,30 +38,34 @@
 {% if epr_added %}<div class="alert-success">✔ Nouvelle épreuve ajoutée au profil de l'athlète !</div>{% endif %}
 
 <!-- HEADER -->
-<div style="background:linear-gradient(135deg,#1E2742,#2C3E6B);border-radius:8px;padding:1.5rem 2rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:1.5rem;box-shadow:0 4px 20px rgba(30,39,66,.15)">
-  <div style="width:56px;height:56px;border-radius:50%;background:#C0392B;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.4rem;color:#fff;flex-shrink:0">
+<div style="background:linear-gradient(135deg,#1E2742,#2C3E6B);border-radius:8px;padding:1.8rem 2rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:1.8rem;box-shadow:0 4px 20px rgba(30,39,66,.15)">
+  <div style="width:64px;height:64px;border-radius:50%;background:#C0392B;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.6rem;color:#fff;flex-shrink:0">
     {{ ath.nom_prenom[:2] }}
   </div>
   <div>
-    <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.6rem;color:#fff;letter-spacing:1px">{{ ath.nom_prenom }}</div>
-    <div style="font-size:.85rem;color:rgba(255,255,255,.6);margin-top:2px">
-      {{ ath.specialite }} &nbsp;·&nbsp; {{ ath.centre }} &nbsp;·&nbsp;
-      <span style="background:rgba(255,255,255,.15);padding:2px 8px;border-radius:10px;font-size:.75rem">Cat. {{ ath.categorie }}</span>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.9rem;color:#fff;letter-spacing:1px">{{ ath.nom_prenom }}</div>
+    <div style="font-size:.9rem;color:rgba(255,255,255,.65);margin-top:4px;display:flex;align-items:center;gap:.6rem;flex-wrap:wrap">
+      <span>{{ ath.specialite }}</span>
+      <span style="color:rgba(255,255,255,.3)">·</span>
+      <span>{{ ath.centre }}</span>
+      <span style="color:rgba(255,255,255,.3)">·</span>
+      <span style="background:rgba(255,255,255,.15);padding:2px 10px;border-radius:10px;font-size:.78rem;font-weight:600">Cat. {{ ath.categorie }}</span>
+      <span style="background:rgba(244,162,97,.2);color:#F4A261;padding:2px 10px;border-radius:10px;font-size:.78rem;font-weight:700;border:1px solid rgba(244,162,97,.35)">Classe : —</span>
     </div>
   </div>
   <div style="margin-left:auto;text-align:right">
     <div style="font-size:.72rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px">N° Licence</div>
-    <div style="font-family:monospace;color:#F4A261;font-weight:700;font-size:1rem">{{ ath.numero_licence }}</div>
+    <div style="font-family:monospace;color:#F4A261;font-weight:700;font-size:1.1rem">{{ ath.numero_licence }}</div>
   </div>
 </div>
 
 <!-- ONGLETS -->
 <div class="tab-nav">
-  <button class="tab-nav-btn {% if active_tab == 'info' or not active_tab %}active{% endif %}" onclick="showTab('tab-info',this)">👤 Informations</button>
-  <button class="tab-nav-btn {% if active_tab == 'objectifs' %}active{% endif %}" onclick="showTab('tab-objectifs',this)">🎯 Objectifs Performance</button>
-  <button class="tab-nav-btn {% if active_tab == 'realisations' %}active{% endif %}" onclick="showTab('tab-realisations',this)">📊 Réalisations</button>
-  <button class="tab-nav-btn {% if active_tab == 'participation' %}active{% endif %}" onclick="showTab('tab-participation',this)">🏆 Objectifs Participation</button>
-  <button class="tab-nav-btn {% if active_tab == 'evolution' %}active{% endif %}" onclick="showTab('tab-evolution',this)">📈 Évolution</button>
+  <button class="tab-nav-btn {% if active_tab == 'tab-info' or not active_tab %}active{% endif %}" onclick="showTab('tab-info',this)">👤 Informations</button>
+  <button class="tab-nav-btn" onclick="showTab('tab-objectifs',this)">🎯 Objectifs Performance</button>
+  <button class="tab-nav-btn" onclick="showTab('tab-participation',this)">🏆 Objectifs Participation</button>
+  <button class="tab-nav-btn" onclick="showTab('tab-realisations',this)">📊 Réalisations</button>
+  <button class="tab-nav-btn" onclick="showTab('tab-evolution',this)">📈 Évolution</button>
 </div>
 
 <!-- ══ ONGLET 1 : INFORMATIONS ══ -->
@@ -270,7 +274,7 @@
   {% if historique_2425 %}
   <div class="card" style="margin-bottom:1.2rem">
     <div class="card-header"><h2>Résultats 2024 / 2025</h2><span class="tag tag-grey">{{ historique_2425|length }} résultat(s)</span></div>
-    {{ real_table(historique_2425, false, obj_map_2425) }}
+    {{ real_table(historique_2425, true, obj_map_2425) }}
   </div>
   {% endif %}
 
@@ -278,7 +282,7 @@
   {% if historique_2526 %}
   <div class="card" style="margin-bottom:1.2rem">
     <div class="card-header"><h2>Résultats 2025 / 2026</h2><span class="tag tag-grey">{{ historique_2526|length }} résultat(s)</span></div>
-    {{ real_table(historique_2526, false, obj_map_2526) }}
+    {{ real_table(historique_2526, true, obj_map_2526) }}
   </div>
   {% endif %}
 

@@ -852,7 +852,7 @@
     "age": 15,
     "categorie": "C1",
     "cat_order": 3,
-    "sexe": "M",
+    "sexe": "F",
     "specialite": "Demi-fond",
     "epreuves": [
       "1000m",
@@ -1131,7 +1131,7 @@
     "age": 17,
     "categorie": "C2",
     "cat_order": 4,
-    "sexe": "M",
+    "sexe": "F",
     "specialite": "Demi-fond",
     "epreuves": [
       "1500m",
@@ -1316,7 +1316,7 @@
     "age": 16,
     "categorie": "C2",
     "cat_order": 4,
-    "sexe": "M",
+    "sexe": "F",
     "specialite": "Demi-fond",
     "epreuves": [
       "100m",
@@ -1341,7 +1341,7 @@
     "age": 16,
     "categorie": "C2",
     "cat_order": 4,
-    "sexe": "M",
+    "sexe": "F",
     "specialite": "Sprint / haies",
     "epreuves": [
       "100m",
@@ -1809,7 +1809,7 @@
     "age": 16,
     "categorie": "C2",
     "cat_order": 4,
-    "sexe": "M",
+    "sexe": "F",
     "specialite": "Lancers",
     "epreuves": [
       "Javelot",
@@ -2609,7 +2609,7 @@
     "age": 18,
     "categorie": "J1",
     "cat_order": 5,
-    "sexe": "M",
+    "sexe": "F",
     "specialite": "Sprint / haies",
     "epreuves": [
       "1500m",
@@ -2928,7 +2928,7 @@
     "age": 17,
     "categorie": "J1",
     "cat_order": 5,
-    "sexe": "F",
+    "sexe": "M",
     "specialite": "Demi-fond",
     "epreuves": [
       "100m",
@@ -3764,7 +3764,7 @@
     "age": 18,
     "categorie": "J2",
     "cat_order": 6,
-    "sexe": "F",
+    "sexe": "M",
     "specialite": "Demi-fond",
     "epreuves": [
       "1500m",
@@ -4590,7 +4590,7 @@
     "age": 19,
     "categorie": "S",
     "cat_order": 7,
-    "sexe": "F",
+    "sexe": "M",
     "specialite": "Sprint / haies",
     "epreuves": [
       "1500m",

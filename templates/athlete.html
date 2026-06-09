@@ -270,19 +270,85 @@
   </div>
   {% endmacro %}
 
-  <!-- 2024/2025 -->
-  {% if historique_2425 %}
-  <div class="card" style="margin-bottom:1.2rem">
-    <div class="card-header"><h2>Résultats 2024 / 2025</h2><span class="tag tag-grey">{{ historique_2425|length }} résultat(s)</span></div>
-    {{ real_table(historique_2425, true, obj_map_2425) }}
-  </div>
-  {% endif %}
+  <!-- Résultats historiques avec filtre saison -->
+  {% set all_hist_rows = [] %}
+  {% for r in hist_autres.values() | sum(start=[]) %}{% if all_hist_rows.append(r) %}{% endif %}{% endfor %}
+  {% for r in historique_2425 %}{% if all_hist_rows.append(r) %}{% endif %}{% endfor %}
+  {% for r in historique_2526 %}{% if all_hist_rows.append(r) %}{% endif %}{% endfor %}
 
-  <!-- 2025/2026 -->
-  {% if historique_2526 %}
+  {% if all_hist_rows %}
   <div class="card" style="margin-bottom:1.2rem">
-    <div class="card-header"><h2>Résultats 2025 / 2026</h2><span class="tag tag-grey">{{ historique_2526|length }} résultat(s)</span></div>
-    {{ real_table(historique_2526, true, obj_map_2526) }}
+    <div class="card-header" style="flex-wrap:wrap;gap:.8rem">
+      <h2>Résultats historiques</h2>
+      <span class="tag tag-grey" id="hist-count">{{ all_hist_rows|length }} résultat(s)</span>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:.8rem;flex-wrap:wrap">
+        <select id="filter-saison-hist" onchange="filterHistorique()"
+          style="padding:7px 12px;border:1.5px solid #DDE2EC;border-radius:5px;font-family:'Barlow',sans-serif;font-size:.85rem;color:#2C3345;background:#F8F9FC;outline:none">
+          <option value="">— Toutes les saisons —</option>
+          {% set seen_s = [] %}
+          {% for r in all_hist_rows | sort(attribute='saison', reverse=true) %}
+            {% set s = r.get('saison','') %}
+            {% if s and s not in seen_s %}
+              {% if seen_s.append(s) %}{% endif %}
+              <option value="{{ s }}">{{ s }}</option>
+            {% endif %}
+          {% endfor %}
+        </select>
+        <select id="filter-epreuve-hist" onchange="filterHistorique()"
+          style="padding:7px 12px;border:1.5px solid #DDE2EC;border-radius:5px;font-family:'Barlow',sans-serif;font-size:.85rem;color:#2C3345;background:#F8F9FC;outline:none">
+          <option value="">— Toutes les épreuves —</option>
+          {% set seen_ep = [] %}
+          {% for r in all_hist_rows %}
+            {% set ep = r.get('epreuve','') %}
+            {% if ep and ep not in seen_ep %}
+              {% if seen_ep.append(ep) %}{% endif %}
+              <option value="{{ ep }}">{{ ep }}</option>
+            {% endif %}
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="table" id="hist-table">
+        <thead>
+          <tr>
+            <th>Saison</th><th>Date</th><th>Compétition</th><th>Lieu</th><th>Épreuve</th>
+            <th>Classement</th><th>Performance</th>
+            <th style="color:#2471D6">Obj. Performance</th><th>Écart</th>
+          </tr>
+        </thead>
+        <tbody id="hist-tbody">
+          {% for r in all_hist_rows | sort(attribute='saison', reverse=true) %}
+          {% set saison_r = r.get('saison','') %}
+          {% set epr = r.get('epreuve','') %}
+          {% set perf = (r.get('performance') or r.get('resultat') or '') | string %}
+          {% set obj = obj_map_2425.get(epr,'') if saison_r == '2024/2025' else obj_map_2526.get(epr,'') %}
+          {% set cl = (r.get('classement','') or '') | string %}
+          <tr data-saison="{{ saison_r }}" data-epreuve="{{ epr }}">
+            <td><span style="background:#EEF1F8;padding:2px 8px;border-radius:4px;font-size:.75rem;font-weight:600;color:#1E2742">{{ saison_r or '—' }}</span></td>
+            <td style="font-size:.82rem;color:#8A92A6;white-space:nowrap">{{ r.get('date') or r.get('date_competition') or '—' }}</td>
+            <td style="font-weight:500;font-size:.85rem">{{ r.get('competition') or r.get('nom_competition') or '—' }}</td>
+            <td style="font-size:.82rem;color:#8A92A6">{{ r.get('lieu') or '—' }}</td>
+            <td style="color:#2471D6;font-size:.85rem;white-space:nowrap">{{ epr or '—' }}</td>
+            <td style="text-align:center">
+              {% if cl and cl not in ['nan','None','—',''] %}
+                {% if cl == '1' %}<span class="perf-badge perf-gold">🥇 1er</span>
+                {% elif cl == '2' %}<span class="perf-badge perf-silver">🥈 2e</span>
+                {% elif cl == '3' %}<span class="perf-badge perf-bronze">🥉 3e</span>
+                {% else %}<span class="perf-badge perf-normal">{{ cl }}</span>{% endif %}
+              {% else %}—{% endif %}
+            </td>
+            <td style="font-weight:700;color:#1E2742;font-size:.95rem">{{ perf or '—' }}</td>
+            <td style="color:#2471D6;font-weight:500;font-size:.85rem">
+              {% if obj %}{{ obj }}{% else %}<span style="color:#DDE2EC;font-size:.8rem">—</span>{% endif %}
+            </td>
+            <td class="ecart-cell" data-perf="{{ perf }}" data-obj="{{ obj or '' }}">—</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div id="hist-empty" style="display:none;text-align:center;padding:2rem;color:#8A92A6;font-size:.85rem">Aucun résultat pour cette sélection.</div>
   </div>
   {% endif %}
 
@@ -578,6 +644,23 @@ function fmtTime(sec) {
 }
 
 function buildChart() { updateChart(); }
+
+function filterHistorique() {
+  const saison = document.getElementById('filter-saison-hist').value;
+  const epreuve = document.getElementById('filter-epreuve-hist').value;
+  const rows = document.querySelectorAll('#hist-tbody tr');
+  let visible = 0;
+  rows.forEach(row => {
+    const matchS = !saison || row.dataset.saison === saison;
+    const matchE = !epreuve || row.dataset.epreuve === epreuve;
+    const show = matchS && matchE;
+    row.style.display = show ? '' : 'none';
+    if (show) visible++;
+  });
+  document.getElementById('hist-count').textContent = visible + ' résultat(s)';
+  document.getElementById('hist-empty').style.display = visible === 0 ? 'block' : 'none';
+  document.getElementById('hist-table').style.display = visible === 0 ? 'none' : '';
+}
 
 function filterBySpecialite() {
   const spec = document.getElementById('filter-specialite').value;

@@ -380,8 +380,17 @@ def athlete(aid):
 
     # Historical results from JSON
     hist = RESULTATS_BY_LICENCE.get(licence, [])
-    hist_2425 = [r for r in hist if r['saison'] == '2024/2025']
-    hist_2526 = [r for r in hist if r['saison'] == '2025/2026']
+    # Group by saison dynamically
+    from collections import defaultdict as _dd
+    hist_by_saison = _dd(list)
+    for r in hist:
+        hist_by_saison[r.get('saison','')].append(r)
+    # Keep named ones for template backward compat
+    hist_2425 = hist_by_saison.get('2024/2025', [])
+    hist_2526 = hist_by_saison.get('2025/2026', [])
+    # All other saisons (historical)
+    hist_autres = {s: v for s, v in sorted(hist_by_saison.items())
+                   if s not in ('2024/2025','2025/2026') and s}
 
     # Objectifs from DB
     objectifs = q(conn, "SELECT * FROM objectifs WHERE athlete_id=%s ORDER BY saison,epreuve", (aid,))
@@ -456,6 +465,7 @@ def athlete(aid):
         all_epreuves=all_epreuves,
         historique_2425=hist_2425,
         historique_2526=hist_2526,
+        hist_autres=hist_autres,
         res_by_epreuve=res_by_epreuve,
         obj_map_2425=obj_map_2425,
         obj_map_2526=obj_map_2526,

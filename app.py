@@ -416,18 +416,20 @@ def athlete(aid):
 
     conn.close()
 
-    # Build chart data for evolution tab
+    # Build chart data for evolution tab — include ALL historical results
     all_hist = []
-    for r in hist_2425 + hist_2526 + list(resultats):
-        # Determine performance value for chart
+    all_sources = list(hist) + list(resultats)  # hist = all JSON results, resultats = DB submitted
+    for r in all_sources:
         perf_str = r.get('performance') or r.get('resultat') or ''
+        if not perf_str or perf_str in ('nan', 'None', '—', ''):
+            continue
         all_hist.append({
             'date': r.get('date') or r.get('date_competition') or '',
             'epreuve': r.get('epreuve', ''),
             'competition': r.get('competition') or r.get('nom_competition') or '',
             'lieu': r.get('lieu', ''),
             'performance': perf_str,
-            'classement': r.get('classement'),
+            'classement': str(r.get('classement', '')) if r.get('classement') else '',
             'saison': r.get('saison') or r.get('saison_label') or '2025/2026',
             'source': 'db' if 'athlete_id' in r else 'json'
         })

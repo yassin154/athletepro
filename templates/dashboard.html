@@ -1,3 +1,29 @@
+<style>
+.classe-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 5px;
+  font-weight: 800;
+  font-size: .95rem;
+  letter-spacing: 1px;
+  animation: blink-classe 1.4s ease-in-out infinite;
+  vertical-align: middle;
+}
+.classe-A {
+  background: #F4A261;
+  color: #fff;
+  box-shadow: 0 0 6px rgba(244,162,97,.6);
+}
+.classe-B {
+  background: #2E6DA4;
+  color: #fff;
+  box-shadow: 0 0 6px rgba(46,109,164,.6);
+}
+@keyframes blink-classe {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: .55; transform: scale(.93); }
+}
+</style>
 {% extends "base.html" %}
 {% block title %}Mes Athlètes{% endblock %}
 {% block content %}
@@ -31,7 +57,6 @@
           <th style="width:12%">Naissance</th>
           <th style="width:6%">Sexe</th>
           <th style="width:16%">Spécialité</th>
-          <th style="width:10%">Classe</th>
           <th style="width:10%"></th>
           <th style="width:11%"></th>
         </tr>
@@ -40,7 +65,12 @@
         {% for a in group %}
         <tr>
           <td style="font-weight:600;color:#1E2742">{{ a.nom_prenom }}</td>
-          <td style="font-family:monospace;font-size:.82rem;color:#8A92A6">{{ a.numero_licence }}</td>
+          <td>
+              <span style="font-family:monospace;font-size:.82rem;color:#8A92A6">{{ a.numero_licence }}</span>
+              {% if a.classe and a.classe != 'Autre' %}
+              <span class="classe-badge classe-{{ a.classe }}" style="margin-left:6px">{{ a.classe }}</span>
+              {% endif %}
+            </td>
           <td style="font-size:.82rem;color:#8A92A6">{{ a.date_naissance[:10] if a.date_naissance else '—' }}</td>
           <td>
             <span style="font-size:.75rem;padding:2px 8px;border-radius:10px;
@@ -50,13 +80,7 @@
             </span>
           </td>
           <td style="font-size:.85rem">{{ a.specialite }}</td>
-          <td style="font-size:.85rem;text-align:center">
-              {% if a.classe and a.classe != 'Autre' %}
-              <span style="background:{% if a.classe=='A' %}#FDE8D0{% else %}#D6EAF8{% endif %};color:{% if a.classe=='A' %}#B7500A{% else %}#1A5276{% endif %};padding:2px 10px;border-radius:4px;font-weight:700;font-size:.8rem">{{ a.classe }}</span>
-              {% else %}
-              <span style="color:#B0B8CC;font-size:.78rem">—</span>
-              {% endif %}
-            </td>
+          
           <td>
             <span class="tag tag-grey" style="font-size:.65rem;cursor:pointer" onclick="window.location='/athlete/{{ a.id }}'">Voir fiche</span>
           </td>

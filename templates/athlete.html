@@ -312,7 +312,7 @@
       <table class="table" id="hist-table">
         <thead>
           <tr>
-            <th>Saison</th><th>Date</th><th>Compétition</th><th>Lieu</th><th>Épreuve</th>
+            <th>Saison</th><th>Catégorie</th><th>Date</th><th>Compétition</th><th>Lieu</th><th>Épreuve</th>
             <th>Classement</th><th>Performance</th>
             <th style="color:#2471D6">Obj. Performance</th><th>Écart</th>
           </tr>
@@ -326,6 +326,9 @@
           {% set cl = (r.get('classement','') or '') | string %}
           <tr data-saison="{{ saison_r }}" data-epreuve="{{ epr }}">
             <td><span style="background:#EEF1F8;padding:2px 8px;border-radius:4px;font-size:.75rem;font-weight:600;color:#1E2742">{{ saison_r or '—' }}</span></td>
+            <td class="cat-cell" data-saison="{{ saison_r }}">
+              <span style="background:#F0F5FF;color:#2471D6;padding:2px 8px;border-radius:4px;font-size:.73rem;font-weight:700">—</span>
+            </td>
             <td style="font-size:.82rem;color:#8A92A6;white-space:nowrap">{{ r.get('date') or r.get('date_competition') or '—' }}</td>
             <td style="font-weight:500;font-size:.85rem">{{ r.get('competition') or r.get('nom_competition') or '—' }}</td>
             <td style="font-size:.82rem;color:#8A92A6">{{ r.get('lieu') or '—' }}</td>
@@ -542,25 +545,21 @@
           </select>
         </div>
 
-        <!-- Filtre saisons multi-select -->
-        <div class="field" style="min-width:200px">
-          <label>Saisons <span style="font-weight:400;color:#8A92A6;font-size:.75rem">(plusieurs possibles)</span></label>
-          <div id="saison-checkboxes" style="background:#F8F9FC;border:1.5px solid #DDE2EC;border-radius:5px;padding:6px 10px;max-height:160px;overflow-y:auto;min-width:200px">
-            <label style="display:flex;align-items:center;gap:6px;padding:3px 0;font-size:.83rem;cursor:pointer;font-weight:600;color:#2471D6">
-              <input type="checkbox" id="saison-all" checked onchange="toggleAllSaisons(this)"> Toutes les saisons
-            </label>
-            <hr style="border:none;border-top:1px solid #DDE2EC;margin:4px 0">
+        <!-- Filtre saison -->
+        <div class="field" style="min-width:160px">
+          <label>Saison</label>
+          <select id="filter-saison-evo" onchange="updateChart()"
+            style="padding:7px 12px;border:1.5px solid #DDE2EC;border-radius:5px;font-family:'Barlow',sans-serif;font-size:.85rem;color:#2C3345;background:#F8F9FC;outline:none;width:100%">
+            <option value="">— Toutes —</option>
             {% set seen_saisons = [] %}
             {% for r in chart_data | sort(attribute='saison', reverse=true) %}
               {% set s = r.get('saison','') %}
               {% if s and s not in seen_saisons %}
                 {% if seen_saisons.append(s) %}{% endif %}
-                <label style="display:flex;align-items:center;gap:6px;padding:3px 0;font-size:.82rem;cursor:pointer">
-                  <input type="checkbox" class="saison-cb" value="{{ s }}" checked onchange="updateChart()"> {{ s }}
-                </label>
+                <option value="{{ s }}">{{ s }}</option>
               {% endif %}
             {% endfor %}
-          </div>
+          </select>
         </div>
 
         <div style="font-size:.8rem;color:#8A92A6;padding-top:1.8rem">
@@ -671,6 +670,25 @@ function fmtTime(sec) {
 
 function buildChart() { updateChart(); }
 
+// Calculate category from date of birth and season year
+function calcCategorie(dob, saisonStr) {
+  if (!dob || !saisonStr) return '—';
+  const birthYear = parseInt(dob.split('-')[0]);
+  // saison like "2022/2023" -> use end year
+  const saisonYear = parseInt(saisonStr.split('/')[1] || saisonStr.split('/')[0]);
+  if (!birthYear || !saisonYear) return '—';
+  const age = saisonYear - birthYear;
+  if (age <= 13) return 'M1';
+  if (age <= 15) return 'M2';
+  if (age <= 17) return 'C1';
+  if (age <= 19) return 'C2';  // Cadet
+  if (age <= 21) return 'J1';
+  if (age <= 23) return 'J2';
+  return 'S';
+}
+
+const ATHLETE_DOB = "{{ ath.date_naissance or '' }}";
+
 function filterHistorique() {
   const saison = document.getElementById('filter-saison-hist').value;
   const epreuve = document.getElementById('filter-epreuve-hist').value;
@@ -688,17 +706,15 @@ function filterHistorique() {
   document.getElementById('hist-table').style.display = visible === 0 ? 'none' : '';
 }
 
-function syncAllCheckbox() {
-  const all = document.querySelectorAll('.saison-cb');
-  const checked = document.querySelectorAll('.saison-cb:checked');
-  document.getElementById('saison-all').checked = all.length === checked.length;
-}
-// Add sync to each saison checkbox dynamically
+// Fill category cells based on DOB + saison
 document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.saison-cb').forEach(cb => {
-    cb.addEventListener('change', () => { syncAllCheckbox(); updateChart(); });
+  document.querySelectorAll('.cat-cell').forEach(cell => {
+    const saison = cell.dataset.saison;
+    const cat = calcCategorie(ATHLETE_DOB, saison);
+    cell.innerHTML = `<span style="background:#F0F5FF;color:#2471D6;padding:2px 8px;border-radius:4px;font-size:.73rem;font-weight:700">${cat}</span>`;
   });
 });
+
 
 function filterBySpecialite() {
   const spec = document.getElementById('filter-specialite').value;
@@ -717,23 +733,25 @@ function filterBySpecialite() {
   updateChart();
 }
 
-function toggleAllSaisons(cb) {
-  document.querySelectorAll('.saison-cb').forEach(c => c.checked = cb.checked);
-  updateChart();
-}
-
 function updateChart() {
   const eprFilter = document.getElementById('filter-epreuve').value;
-  const checkedSaisons = Array.from(document.querySelectorAll('.saison-cb:checked')).map(c => c.value);
-  const allChecked = document.getElementById('saison-all').checked;
+  const saisonFilter = document.getElementById('filter-saison-evo').value;
 
   let rows = ALL_RESULTS;
   if (eprFilter) rows = rows.filter(r => r.epreuve === eprFilter);
-  if (!allChecked && checkedSaisons.length > 0) {
-    rows = rows.filter(r => checkedSaisons.includes(r.saison));
+  if (saisonFilter) rows = rows.filter(r => r.saison === saisonFilter);
+  // For results without date, estimate from saison (e.g. "2022/2023" -> "2023-03-01")
+  function estimateDate(r) {
+    if (r.date) return r.date;
+    if (r.saison && r.saison.includes('/')) {
+      const year = r.saison.split('/')[1];
+      return year + '-06-01';  // mid-season estimate
+    }
+    return null;
   }
-  rows = rows.filter(r => r.date && r.performance && r.performance !== '—');
-  rows.sort((a, b) => a.date.localeCompare(b.date));
+  rows = rows.filter(r => estimateDate(r) && r.performance && r.performance !== '—');
+  rows.forEach(r => { if (!r.date) r._display_date = estimateDate(r); });
+  rows.sort((a, b) => (a.date || a._display_date).localeCompare(b.date || b._display_date));
 
   const canvas = document.getElementById('perf-chart');
   const noData = document.getElementById('no-data');
@@ -748,7 +766,7 @@ function updateChart() {
   canvas.style.display = 'block';
   noData.style.display = 'none';
 
-  const labels = rows.map(r => r.date);
+  const labels = rows.map(r => r.date || r._display_date);
   const values = rows.map(r => toSeconds(r.performance));
   const validValues = values.filter(v => v !== null);
 
@@ -816,7 +834,11 @@ function updateChart() {
               if (r.saison) lines.push(`Saison : ${r.saison}`);
               return lines;
             },
-            title: ctx => ctx[0]?.label || '',
+            title: ctx => {
+              const r = rows[ctx[0]?.dataIndex];
+              const d = r?.date || r?._display_date || '';
+              return r?.date ? d : `~${d} (date estimée)`;
+            },
           }
         }
       },

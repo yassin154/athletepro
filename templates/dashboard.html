@@ -52,13 +52,14 @@
     <table class="table" style="table-layout:fixed;width:100%">
       <thead>
         <tr>
-          <th style="width:22%">Nom & Prénom</th>
-          <th style="width:13%">N° Licence</th>
-          <th style="width:12%">Naissance</th>
-          <th style="width:6%">Sexe</th>
-          <th style="width:16%">Spécialité</th>
+          <th style="width:20%">Nom & Prénom</th>
+          <th style="width:12%">N° Licence</th>
+          <th style="width:7%">Classe</th>
+          <th style="width:11%">Naissance</th>
+          <th style="width:5%">Sexe</th>
+          <th style="width:14%">Spécialité</th>
+          <th style="width:9%"></th>
           <th style="width:10%"></th>
-          <th style="width:11%"></th>
         </tr>
       </thead>
       <tbody>
@@ -67,12 +68,12 @@
           <td style="font-weight:600;color:#1E2742">{{ a.nom_prenom }}</td>
           <td style="font-family:monospace;font-size:.82rem;color:#8A92A6">{{ a.numero_licence }}</td>
           <td style="text-align:center">
-              {% if a.classe and a.classe != 'Autre' %}
-              <span class="classe-badge classe-{{ a.classe }}">{{ a.classe }}</span>
-              {% else %}
-              <span style="color:#B0B8CC;font-size:.78rem">—</span>
-              {% endif %}
-            </td>
+            {% if a.classe and a.classe != 'Autre' %}
+            <span class="classe-badge classe-{{ a.classe }}">{{ a.classe }}</span>
+            {% else %}
+            <span style="color:#B0B8CC;font-size:.78rem">—</span>
+            {% endif %}
+          </td>
           <td style="font-size:.82rem;color:#8A92A6">{{ a.date_naissance[:10] if a.date_naissance else '—' }}</td>
           <td>
             <span style="font-size:.75rem;padding:2px 8px;border-radius:10px;

@@ -65,10 +65,12 @@
         {% for a in group %}
         <tr>
           <td style="font-weight:600;color:#1E2742">{{ a.nom_prenom }}</td>
-          <td>
-              <span style="font-family:monospace;font-size:.82rem;color:#8A92A6">{{ a.numero_licence }}</span>
+          <td style="font-family:monospace;font-size:.82rem;color:#8A92A6">{{ a.numero_licence }}</td>
+          <td style="text-align:center">
               {% if a.classe and a.classe != 'Autre' %}
-              <span class="classe-badge classe-{{ a.classe }}" style="margin-left:6px">{{ a.classe }}</span>
+              <span class="classe-badge classe-{{ a.classe }}">{{ a.classe }}</span>
+              {% else %}
+              <span style="color:#B0B8CC;font-size:.78rem">—</span>
               {% endif %}
             </td>
           <td style="font-size:.82rem;color:#8A92A6">{{ a.date_naissance[:10] if a.date_naissance else '—' }}</td>

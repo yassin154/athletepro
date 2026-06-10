@@ -136,6 +136,7 @@ def init_db():
         specialite TEXT, epreuves TEXT,
         club TEXT, statut TEXT,
         date_integration TEXT,
+        classe TEXT DEFAULT 'Autre',
         FOREIGN KEY(coach_id) REFERENCES users(id)
     )''')
 
@@ -214,6 +215,10 @@ def init_db():
     )''')
 
     # Seed admin
+    try:
+        ex(conn, "ALTER TABLE athletes ADD COLUMN IF NOT EXISTS classe TEXT DEFAULT 'Autre'")
+    except: pass
+
     ex(conn, '''INSERT INTO users (username,password,full_name,role)
                 VALUES (%s,%s,%s,%s) ON CONFLICT (username) DO NOTHING''',
        ('admin', hash_pw('Admin2026!'), 'Yassine Bouta', 'admin'))
@@ -243,7 +248,11 @@ def init_db():
         ('ZERAIDI EL MEHDI',   'zeraidi.elmehdi'),
     ]
     for full_name, username in coaches:
-        ex(conn, '''INSERT INTO users (username,password,full_name,role)
+        try:
+        ex(conn, "ALTER TABLE athletes ADD COLUMN IF NOT EXISTS classe TEXT DEFAULT 'Autre'")
+    except: pass
+
+    ex(conn, '''INSERT INTO users (username,password,full_name,role)
                     VALUES (%s,%s,%s,%s) ON CONFLICT (username) DO NOTHING''',
            (username, hash_pw('Coach2026'), full_name, 'coach'))
 
@@ -253,14 +262,16 @@ def init_db():
         if coach:
             epreuves_str = '/'.join(a.get('epreuves', []))
             ex(conn, '''INSERT INTO athletes
-                (centre,coach_id,nom_prenom,date_naissance,age,numero_licence,categorie,sexe,specialite,epreuves,club,statut,date_integration)
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                (centre,coach_id,nom_prenom,date_naissance,age,numero_licence,categorie,sexe,specialite,epreuves,club,statut,date_integration,classe)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                 ON CONFLICT (numero_licence) DO UPDATE SET
                     club=EXCLUDED.club, epreuves=EXCLUDED.epreuves,
-                    age=EXCLUDED.age, specialite=EXCLUDED.specialite''',
+                    age=EXCLUDED.age, specialite=EXCLUDED.specialite,
+                    classe=EXCLUDED.classe''',
                 (a['crf'], coach['id'], a['nom'], a['date_naissance'], a['age'],
                  a['licence'], a['categorie'], a['sexe'], a['specialite'],
-                 epreuves_str, a['club'], a['statut'], a['integration']))
+                 epreuves_str, a['club'], a['statut'], a['integration'],
+                 a.get('classe', 'Autre')))
 
     conn.close()
     print("✅ DB initialisée")
@@ -797,6 +808,34 @@ def valider_champ(cid):
 def rejeter_champ(cid):
     conn = get_db()
     ex(conn, "UPDATE objectifs_champ SET statut='rejeté' WHERE id=%s", (cid,))
+    conn.close()
+    return redirect(url_for('admin_dashboard'))
+
+@app.route('/admin/add_coach', methods=['POST'])
+@login_required
+@admin_required
+def add_coach():
+    full_name = request.form.get('full_name', '').strip().upper()
+    username  = request.form.get('username', '').strip().lower()
+    password  = request.form.get('password', 'Coach2026').strip()
+    if full_name and username:
+        conn = get_db()
+        try:
+        ex(conn, "ALTER TABLE athletes ADD COLUMN IF NOT EXISTS classe TEXT DEFAULT 'Autre'")
+    except: pass
+
+    ex(conn, '''INSERT INTO users (username,password,full_name,role)
+                    VALUES (%s,%s,%s,'coach') ON CONFLICT (username) DO NOTHING''',
+           (username, hash_pw(password), full_name))
+        conn.close()
+    return redirect(url_for('admin_dashboard'))
+
+@app.route('/admin/supprimer_coach/<int:uid>', methods=['POST'])
+@login_required
+@admin_required
+def supprimer_coach(uid):
+    conn = get_db()
+    ex(conn, "DELETE FROM users WHERE id=%s AND role='coach'", (uid,))
     conn.close()
     return redirect(url_for('admin_dashboard'))
 

@@ -50,7 +50,15 @@
       <span>{{ ath.centre }}</span>
       <span style="color:rgba(255,255,255,.3)">·</span>
       <span style="background:rgba(255,255,255,.15);padding:2px 10px;border-radius:10px;font-size:.78rem;font-weight:600">Cat. {{ ath.categorie }}</span>
-      <span style="background:rgba(244,162,97,.2);color:#F4A261;padding:2px 10px;border-radius:10px;font-size:.78rem;font-weight:700;border:1px solid rgba(244,162,97,.35)">Classe : —</span>
+      {% if ath.classe and ath.classe != 'Autre' %}
+      <span style="background:rgba(244,162,97,.35);color:#F4A261;padding:4px 14px;border-radius:8px;font-size:1rem;font-weight:800;border:2px solid rgba(244,162,97,.6);letter-spacing:1px">
+        Classe {{ ath.classe }}
+      </span>
+      {% else %}
+      <span style="background:rgba(255,255,255,.1);color:rgba(255,255,255,.45);padding:4px 14px;border-radius:8px;font-size:.85rem;font-weight:600;border:1px solid rgba(255,255,255,.2)">
+        Classe : Autre
+      </span>
+      {% endif %}
     </div>
   </div>
   <div style="margin-left:auto;text-align:right">

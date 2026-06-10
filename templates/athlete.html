@@ -702,21 +702,25 @@ function fmtTime(sec) {
 
 function buildChart() { updateChart(); }
 
-// Calculate category from date of birth and season START year
-// U12/M1, U14/M1, U16/M2, U17/M2, U18/C1, U19/C2, U20/J1, U21/J2, U23+/S
+// Calculate category from date of birth and season END year
+// Based on FRMATHLETISME 2025/2026 rules (effectif April 2026):
+// END_YEAR - birth_year: 14→M1, 15→M2, 16→C1, 17→C2, 18→J1, 19→J2, ≥20→S
 function calcCategorie(dob, saisonStr) {
   if (!dob || !saisonStr) return '—';
   const birthYear = parseInt(dob.split('-')[0]);
-  const startYear = parseInt(saisonStr.split('/')[0]);  // use START year of saison
-  if (!birthYear || !startYear) return '—';
-  const age = startYear - birthYear;
-  if (age <= 14)  return 'M1';   // U12 + U14
-  if (age <= 17)  return 'M2';   // U16 + U17
-  if (age === 18) return 'C1';   // U18
-  if (age === 19) return 'C2';   // U19
-  if (age === 20) return 'J1';   // U20
-  if (age <= 22)  return 'J2';   // U21 + U22
-  return 'S';                     // U23+
+  if (!birthYear) return '—';
+  // Use END year of saison (e.g. "2025/2026" → 2026)
+  const parts = saisonStr.includes('/') ? saisonStr.split('/') : saisonStr.split('-');
+  const endYear = parseInt(parts[parts.length - 1]);
+  if (!endYear) return '—';
+  const age = endYear - birthYear;
+  if (age <= 14) return 'M1';
+  if (age === 15) return 'M2';
+  if (age === 16) return 'C1';
+  if (age === 17) return 'C2';
+  if (age === 18) return 'J1';
+  if (age === 19) return 'J2';
+  return 'S';
 }
 
 const ATHLETE_DOB = "{{ ath.date_naissance or '' }}";

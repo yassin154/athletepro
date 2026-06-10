@@ -1,3 +1,37 @@
+<style>
+.header-classe-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 22px;
+  border-radius: 10px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.45rem;
+  font-weight: 900;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  animation: pulse-classe 1.2s ease-in-out infinite;
+  vertical-align: middle;
+}
+.header-classe-A {
+  background: linear-gradient(135deg, #F4A261, #E76F51);
+  color: #fff;
+  border: 2px solid rgba(244,162,97,.8);
+  box-shadow: 0 0 18px rgba(244,162,97,.7), 0 0 6px rgba(244,162,97,.4);
+  text-shadow: 0 1px 3px rgba(0,0,0,.3);
+}
+.header-classe-B {
+  background: linear-gradient(135deg, #2E86C1, #1A5276);
+  color: #fff;
+  border: 2px solid rgba(46,134,193,.8);
+  box-shadow: 0 0 18px rgba(46,134,193,.7), 0 0 6px rgba(46,134,193,.4);
+  text-shadow: 0 1px 3px rgba(0,0,0,.3);
+}
+@keyframes pulse-classe {
+  0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 18px rgba(244,162,97,.7); }
+  50%       { opacity: .65; transform: scale(.94); box-shadow: 0 0 6px rgba(244,162,97,.3); }
+}
+</style>
 {% extends "base.html" %}
 {% block title %}{{ ath.nom_prenom }}{% endblock %}
 {% block head %}
@@ -51,13 +85,9 @@
       <span style="color:rgba(255,255,255,.3)">·</span>
       <span style="background:rgba(255,255,255,.15);padding:2px 10px;border-radius:10px;font-size:.78rem;font-weight:600">Cat. {{ ath.categorie }}</span>
       {% if ath.classe and ath.classe != 'Autre' %}
-      <span style="background:rgba(244,162,97,.35);color:#F4A261;padding:4px 14px;border-radius:8px;font-size:1rem;font-weight:800;border:2px solid rgba(244,162,97,.6);letter-spacing:1px">
-        Classe {{ ath.classe }}
-      </span>
+      <span class="header-classe-badge header-classe-{{ ath.classe }}">CLASSE {{ ath.classe }}</span>
       {% else %}
-      <span style="background:rgba(255,255,255,.1);color:rgba(255,255,255,.45);padding:4px 14px;border-radius:8px;font-size:.85rem;font-weight:600;border:1px solid rgba(255,255,255,.2)">
-        Classe : Autre
-      </span>
+      <span style="background:rgba(255,255,255,.1);color:rgba(255,255,255,.45);padding:4px 14px;border-radius:8px;font-size:.85rem;font-weight:600;border:1px solid rgba(255,255,255,.2)">Autre</span>
       {% endif %}
     </div>
   </div>

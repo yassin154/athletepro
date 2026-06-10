@@ -670,21 +670,21 @@ function fmtTime(sec) {
 
 function buildChart() { updateChart(); }
 
-// Calculate category from date of birth and season year
+// Calculate category from date of birth and season START year
+// U12/M1, U14/M1, U16/M2, U17/M2, U18/C1, U19/C2, U20/J1, U21/J2, U23+/S
 function calcCategorie(dob, saisonStr) {
   if (!dob || !saisonStr) return '—';
   const birthYear = parseInt(dob.split('-')[0]);
-  // saison like "2022/2023" -> use end year
-  const saisonYear = parseInt(saisonStr.split('/')[1] || saisonStr.split('/')[0]);
-  if (!birthYear || !saisonYear) return '—';
-  const age = saisonYear - birthYear;
-  if (age <= 13) return 'M1';
-  if (age <= 15) return 'M2';
-  if (age <= 17) return 'C1';
-  if (age <= 19) return 'C2';  // Cadet
-  if (age <= 21) return 'J1';
-  if (age <= 23) return 'J2';
-  return 'S';
+  const startYear = parseInt(saisonStr.split('/')[0]);  // use START year of saison
+  if (!birthYear || !startYear) return '—';
+  const age = startYear - birthYear;
+  if (age <= 14)  return 'M1';   // U12 + U14
+  if (age <= 17)  return 'M2';   // U16 + U17
+  if (age === 18) return 'C1';   // U18
+  if (age === 19) return 'C2';   // U19
+  if (age === 20) return 'J1';   // U20
+  if (age <= 22)  return 'J2';   // U21 + U22
+  return 'S';                     // U23+
 }
 
 const ATHLETE_DOB = "{{ ath.date_naissance or '' }}";

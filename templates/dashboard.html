@@ -50,7 +50,13 @@
             </span>
           </td>
           <td style="font-size:.85rem">{{ a.specialite }}</td>
-          <td style="font-size:.85rem;color:#8A92A6">—</td>
+          <td style="font-size:.85rem;text-align:center">
+              {% if a.classe and a.classe != 'Autre' %}
+              <span style="background:{% if a.classe=='A' %}#FDE8D0{% else %}#D6EAF8{% endif %};color:{% if a.classe=='A' %}#B7500A{% else %}#1A5276{% endif %};padding:2px 10px;border-radius:4px;font-weight:700;font-size:.8rem">{{ a.classe }}</span>
+              {% else %}
+              <span style="color:#B0B8CC;font-size:.78rem">—</span>
+              {% endif %}
+            </td>
           <td>
             <span class="tag tag-grey" style="font-size:.65rem;cursor:pointer" onclick="window.location='/athlete/{{ a.id }}'">Voir fiche</span>
           </td>

@@ -721,6 +721,18 @@ function calcCategorie(dob, saisonStr) {
 
 const ATHLETE_DOB = "{{ ath.date_naissance or '' }}";
 
+function renderCatCell(cell) {
+  const saison = cell.dataset.saison;
+  const cat = calcCategorie(ATHLETE_DOB, saison);
+  const color = {'M1':'#E8F4FD','M2':'#D6EAF8','C1':'#D5F5E3','C2':'#A9DFBF',
+                 'J1':'#FEF9E7','J2':'#FDEBD0','S':'#FADBD8'};
+  const textColor = {'M1':'#1A5276','M2':'#1A5276','C1':'#1E8449','C2':'#117A65',
+                     'J1':'#7D6608','J2':'#784212','S':'#922B21'};
+  const bg = color[cat] || '#F0F5FF';
+  const tc = textColor[cat] || '#2471D6';
+  cell.innerHTML = `<span style="background:${bg};color:${tc};padding:2px 8px;border-radius:4px;font-size:.73rem;font-weight:700">${cat}</span>`;
+}
+
 function filterHistorique() {
   const saison = document.getElementById('filter-saison-hist').value;
   const epreuve = document.getElementById('filter-epreuve-hist').value;
@@ -740,11 +752,7 @@ function filterHistorique() {
 
 // Fill category cells based on DOB + saison
 document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.cat-cell').forEach(cell => {
-    const saison = cell.dataset.saison;
-    const cat = calcCategorie(ATHLETE_DOB, saison);
-    cell.innerHTML = `<span style="background:#F0F5FF;color:#2471D6;padding:2px 8px;border-radius:4px;font-size:.73rem;font-weight:700">${cat}</span>`;
-  });
+  document.querySelectorAll('.cat-cell').forEach(cell => renderCatCell(cell));
 });
 
 

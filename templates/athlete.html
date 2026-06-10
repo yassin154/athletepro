@@ -655,25 +655,37 @@ const OBJ_MAP_2526 = {{ obj_map_2526_json | tojson }};
 let chart = null;
 
 function toSeconds(t) {
-  if (!t || t === '—') return null;
+  if (!t || t === '—' || t === 'nan') return null;
   let p = t.toString().trim().replace(/\s/g,'');
-  // Normalize separators: 8.30.50 or 8:30.50 or 8:30:50
-  // Count dots to detect dot-separated time (e.g. 8.30.50 has 2 dots)
+
+  // Format: 8'23"56 or 8'23.56 (French apostrophe-quote style)
+  if (p.includes("'")) {
+    p = p.replace("'", ':').replace('"', '.').replace("'", ':');
+  }
+
+  // Format: 8.31.23 or 10.12.8 (dots as separators, 3 parts)
   const dots = (p.match(/\./g) || []).length;
   const colons = (p.match(/:/g) || []).length;
-  // If 2 dots and no colon => dot-separated time like 8.30.50
   if (dots === 2 && colons === 0) {
-    p = p.replace('.', ':').replace('.', ':');  // 8.30.50 → 8:30:50
-  } else if (dots === 1 && colons === 1) {
-    // already mixed like 8:30.50 — keep as is, last part is decimal seconds
-  } else if (dots >= 1 && colons === 0 && /^\d+\.\d+$/.test(p)) {
-    // simple decimal like 9.58 (seconds) — keep as float
+    // e.g. 8.31.23 → 8:31.23  or  10.12.8 → 10:12.8
+    const idx = p.indexOf('.');
+    p = p.substring(0, idx) + ':' + p.substring(idx + 1);
   }
+
+  // Now parse mm:ss.cc or h:mm:ss.cc
   if (p.includes(':')) {
     const parts = p.split(':');
-    if (parts.length === 2) return parseFloat(parts[0]) * 60 + parseFloat(parts[1]);
-    if (parts.length === 3) return parseFloat(parts[0]) * 3600 + parseFloat(parts[1]) * 60 + parseFloat(parts[2]);
+    if (parts.length === 2) {
+      const val = parseFloat(parts[0]) * 60 + parseFloat(parts[1]);
+      return isNaN(val) ? null : val;
+    }
+    if (parts.length === 3) {
+      const val = parseFloat(parts[0]) * 3600 + parseFloat(parts[1]) * 60 + parseFloat(parts[2]);
+      return isNaN(val) ? null : val;
+    }
   }
+
+  // Simple decimal or integer (field event like 7.50m, or time in seconds)
   const n = parseFloat(p);
   return isNaN(n) ? null : n;
 }

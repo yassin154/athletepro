@@ -656,7 +656,19 @@ let chart = null;
 
 function toSeconds(t) {
   if (!t || t === '—') return null;
-  const p = t.toString().trim().replace(',', '.').replace(/\s/g,'');
+  let p = t.toString().trim().replace(/\s/g,'');
+  // Normalize separators: 8.30.50 or 8:30.50 or 8:30:50
+  // Count dots to detect dot-separated time (e.g. 8.30.50 has 2 dots)
+  const dots = (p.match(/\./g) || []).length;
+  const colons = (p.match(/:/g) || []).length;
+  // If 2 dots and no colon => dot-separated time like 8.30.50
+  if (dots === 2 && colons === 0) {
+    p = p.replace('.', ':').replace('.', ':');  // 8.30.50 → 8:30:50
+  } else if (dots === 1 && colons === 1) {
+    // already mixed like 8:30.50 — keep as is, last part is decimal seconds
+  } else if (dots >= 1 && colons === 0 && /^\d+\.\d+$/.test(p)) {
+    // simple decimal like 9.58 (seconds) — keep as float
+  }
   if (p.includes(':')) {
     const parts = p.split(':');
     if (parts.length === 2) return parseFloat(parts[0]) * 60 + parseFloat(parts[1]);
@@ -757,7 +769,7 @@ function updateChart() {
     }
     return null;
   }
-  rows = rows.filter(r => estimateDate(r) && r.performance && r.performance !== '—');
+  rows = rows.filter(r => estimateDate(r) && r.performance && r.performance !== '—' && toSeconds(r.performance) !== null);
   rows.forEach(r => { if (!r.date) r._display_date = estimateDate(r); });
   rows.sort((a, b) => (a.date || a._display_date).localeCompare(b.date || b._display_date));
 

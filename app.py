@@ -247,12 +247,12 @@ def init_db():
         ('SKAH KHALID',        'skah.khalid'),
         ('ZERAIDI EL MEHDI',   'zeraidi.elmehdi'),
     ]
-    for full_name, username in coaches:
-        try:
+    try:
         ex(conn, "ALTER TABLE athletes ADD COLUMN IF NOT EXISTS classe TEXT DEFAULT 'Autre'")
     except: pass
 
-    ex(conn, '''INSERT INTO users (username,password,full_name,role)
+    for full_name, username in coaches:
+        ex(conn, '''INSERT INTO users (username,password,full_name,role)
                     VALUES (%s,%s,%s,%s) ON CONFLICT (username) DO NOTHING''',
            (username, hash_pw('Coach2026'), full_name, 'coach'))
 
@@ -820,11 +820,7 @@ def add_coach():
     password  = request.form.get('password', 'Coach2026').strip()
     if full_name and username:
         conn = get_db()
-        try:
-        ex(conn, "ALTER TABLE athletes ADD COLUMN IF NOT EXISTS classe TEXT DEFAULT 'Autre'")
-    except: pass
-
-    ex(conn, '''INSERT INTO users (username,password,full_name,role)
+        ex(conn, '''INSERT INTO users (username,password,full_name,role)
                     VALUES (%s,%s,%s,'coach') ON CONFLICT (username) DO NOTHING''',
            (username, hash_pw(password), full_name))
         conn.close()

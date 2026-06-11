@@ -473,6 +473,15 @@ def athlete(aid):
     def obj_map_to_json(m):
         return {k: dict(v) for k, v in m.items()}
 
+    # Build all-saisons obj map for JS chart: {saison: {epreuve: chrono}}
+    all_obj_map_json = {}
+    for o in objectifs:
+        if o.get('statut') == 'validé' and o.get('epreuve') and o.get('objectif_chrono'):
+            s = o.get('saison') or '2025/2026'
+            if s not in all_obj_map_json:
+                all_obj_map_json[s] = {}
+            all_obj_map_json[s][o['epreuve']] = o['objectif_chrono']
+
     # Get active tab from URL param (e.g. after form submit)
     active_tab = request.args.get('tab', 'tab-info')
 
@@ -487,6 +496,7 @@ def athlete(aid):
         obj_map_2526=obj_map_2526,
         obj_map_2425_json=obj_map_to_json(obj_map_2425),
         obj_map_2526_json=obj_map_to_json(obj_map_2526),
+        all_obj_map_json=all_obj_map_json,
         objectifs=objectifs,
         obj_champ_map=champ_map,
         validated_champs=validated_champs,

@@ -1069,6 +1069,104 @@ def admin_minimas():
     )
 
 
+@app.route('/admin/minimas/export')
+@login_required
+@admin_required
+def export_minimas():
+    """Export minimas results as Excel."""
+    conn = get_db()
+    all_athletes = q(conn, """
+        SELECT a.*, COALESCE(u.full_name,'—') as coach_name
+        FROM athletes a LEFT JOIN users u ON a.coach_id=u.id
+        WHERE a.numero_licence != '1082251'
+        ORDER BY a.categorie, a.nom_prenom
+    """)
+    conn.close()
+
+    saison_courante = '2025/2026'
+    resultats_saison = [r for r in RESULTATS_JSON if r.get('saison') == saison_courante]
+
+    best_by_ath = {}
+    for r in resultats_saison:
+        lic = str(r.get('licence',''))
+        ep  = str(r.get('epreuve','') or '')
+        if not ep: continue
+        perf_str = str(r.get('resultat') or r.get('performance') or '')
+        if perf_str in ('','nan','None','—'): continue
+        perf_sec = parse_perf(perf_str, ep)
+        if perf_sec is None: continue
+        if lic not in best_by_ath: best_by_ath[lic] = {}
+        existing = best_by_ath[lic].get(ep)
+        is_field = any(x in ep for x in ['Longueur','Triple','Hauteur','Poids','Disque','Javelot','Marteau'])
+        if existing is None: best_by_ath[lic][ep] = (perf_sec, perf_str)
+        elif is_field and perf_sec > existing[0]: best_by_ath[lic][ep] = (perf_sec, perf_str)
+        elif not is_field and perf_sec < existing[0]: best_by_ath[lic][ep] = (perf_sec, perf_str)
+
+    rows = []
+    for a in all_athletes:
+        lic = a['numero_licence']
+        cat = a['categorie']
+        sexe = a['sexe']
+        bests = best_by_ath.get(lic, {})
+        for ep, minima_cats in MINIMAS.items():
+            sexe_minimas = minima_cats.get(sexe, {})
+            next_cat = sexe_minimas.get(cat)
+            if not next_cat or ep not in bests: continue
+            perf_sec, perf_str = bests[ep]
+            min_sec = parse_perf(next_cat, ep)
+            if min_sec is None: continue
+            is_field = any(x in ep for x in ['Longueur','Triple','Hauteur','Poids','Disque','Javelot','Marteau'])
+            reached = perf_sec >= min_sec if is_field else perf_sec <= min_sec
+            if reached:
+                rows.append([
+                    a['nom_prenom'], a['numero_licence'], a['categorie'],
+                    a['centre'], a['coach_name'], ep, perf_str, next_cat, '✔ Minima atteint'
+                ])
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = f'Minimas {saison_courante}'
+
+    # Header
+    headers = ['Nom & Prénom','N° Licence','Catégorie','Centre','Entraineur',
+               'Épreuve','Meilleure Performance','Minima Requis','Statut']
+    hdr_font  = Font(bold=True, color='FFFFFF', size=10)
+    hdr_fill  = PatternFill(fill_type='solid', fgColor='1E2742')
+    ctr = Alignment(horizontal='center', vertical='center')
+    thin = Border(
+        left=Side(style='thin',color='DDDDDD'), right=Side(style='thin',color='DDDDDD'),
+        bottom=Side(style='thin',color='DDDDDD')
+    )
+    for col, h in enumerate(headers, 1):
+        cell = ws.cell(row=1, column=col, value=h)
+        cell.font = hdr_font; cell.fill = hdr_fill; cell.alignment = ctr
+    ws.row_dimensions[1].height = 20
+
+    # Data rows
+    alt_fill = PatternFill(fill_type='solid', fgColor='F0FFF4')
+    for i, row in enumerate(rows, 2):
+        bg = alt_fill if i % 2 == 0 else None
+        for col, val in enumerate(row, 1):
+            cell = ws.cell(row=i, column=col, value=val)
+            cell.border = thin
+            cell.alignment = Alignment(vertical='center')
+            if bg: cell.fill = bg
+            if col == 9:  # Statut
+                cell.font = Font(color='1E8449', bold=True)
+
+    # Widths
+    widths = [28,14,8,22,22,18,16,14,18]
+    for col, w in enumerate(widths, 1):
+        ws.column_dimensions[get_column_letter(col)].width = w
+    ws.freeze_panes = 'A2'
+
+    output = io.BytesIO()
+    wb.save(output); output.seek(0)
+    return send_file(output,
+        download_name=f'minimas_CRF_{saison_courante.replace("/","-")}.xlsx',
+        as_attachment=True,
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+
 @app.route('/admin/export')
 @login_required
 @admin_required

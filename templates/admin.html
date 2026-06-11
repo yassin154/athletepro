@@ -31,6 +31,7 @@
   <button class="tab-btn active" onclick="showTab('tab-validation',this)">⏳ Validation ({{ stats.en_attente }})</button>
   <button class="tab-btn" onclick="showTab('tab-athletes',this)">👥 Tous les athlètes</button>
   <button class="tab-btn" onclick="showTab('tab-coaches',this)">🏋️ Entraineurs</button>
+  <a href="/admin/minimas" class="tab-btn" style="text-decoration:none">🏅 Minimas CRF</a>
 </div>
 
 <!-- TAB VALIDATION -->
@@ -421,6 +422,68 @@ document.querySelectorAll('.field-cb').forEach(cb => {
   </div>
   {% endif %}
 </div>
+
+<!-- TAB MINIMAS (only shown when navigating to /admin/minimas) -->
+{% if active_admin_tab == 'tab-minimas' %}
+<div id="tab-minimas" style="display:block">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem">
+    <div>
+      <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:800;color:#1E2742">🏅 Athlètes ayant atteint les Minimas CRF</h2>
+      <p style="font-size:.85rem;color:#8A92A6;margin-top:.3rem">Saison {{ minimas_saison }} — résultats inférieurs ou égaux aux seuils d'accès</p>
+    </div>
+    <span class="tag tag-green" style="font-size:1rem">{{ minimas_results|length }} athlète(s)</span>
+  </div>
+
+  {% if not minimas_results %}
+  <div class="card" style="text-align:center;padding:3rem">
+    <div style="font-size:2rem;margin-bottom:.5rem">🏅</div>
+    <p style="color:#8A92A6">Aucun athlète n'a atteint les minimas cette saison.</p>
+  </div>
+  {% endif %}
+
+  {% for item in minimas_results %}
+  {% set a = item.athlete %}
+  <div class="card" style="margin-bottom:1.2rem">
+    <div class="card-header" style="background:linear-gradient(135deg,#1E2742,#2C3E6B)">
+      <div style="display:flex;align-items:center;gap:1rem">
+        <div style="width:42px;height:42px;border-radius:50%;background:#C0392B;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1rem;color:#fff;flex-shrink:0">
+          {{ a.nom_prenom[:2] }}
+        </div>
+        <div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.1rem;color:#fff">{{ a.nom_prenom }}</div>
+          <div style="font-size:.78rem;color:rgba(255,255,255,.6)">{{ a.coach_name }} · {{ a.centre }} · <span class="tag tag-grey" style="font-size:.6rem">{{ a.categorie }}</span></div>
+        </div>
+      </div>
+      <a href="/admin/athlete/{{ a.id }}" class="btn btn-ghost btn-sm" style="margin-left:auto">Voir fiche →</a>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Épreuve</th>
+            <th>Meilleure performance</th>
+            <th>Minima requis</th>
+            <th style="text-align:center">Statut</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for res in item.results %}
+          <tr>
+            <td style="font-weight:600;color:#2471D6">{{ res.epreuve }}</td>
+            <td style="font-weight:700;color:#1E2742;font-size:1rem">{{ res.perf }}</td>
+            <td style="color:#27AE60;font-weight:600">{{ res.minima }}</td>
+            <td style="text-align:center">
+              <span class="tag tag-green">✔ Minima atteint</span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
 
 <!-- TAB ATHLETES -->
 <div id="tab-athletes" style="display:none">

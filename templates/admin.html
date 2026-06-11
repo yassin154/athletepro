@@ -53,6 +53,7 @@
             <th>Centre</th>
             <th>Cat.</th>
             <th>Épreuve</th>
+            <th>Saison</th>
             <th>Obj. Chronométrique</th>
             <th>Soumis le</th>
             <th>Actions</th>
@@ -66,6 +67,7 @@
             <td style="font-size:.82rem;color:#8A92A6">{{ o.centre }}</td>
             <td><span class="tag tag-grey" style="font-size:.65rem">{{ o.categorie }}</span></td>
             <td style="font-weight:500">{{ o.epreuve }}</td>
+            <td><span class="tag tag-blue" style="font-size:.65rem">{{ o.saison or '2025/2026' }}</span></td>
             <td style="color:#2471D6;font-weight:600">{{ o.objectif_chrono or '—' }}</td>
             <td style="font-size:.78rem;color:#B0B8CC">{{ o.soumis_le }}</td>
             <td>
@@ -196,6 +198,7 @@
             <th>Centre</th>
             <th>Catégorie</th>
             <th>Épreuve</th>
+            <th>Saison</th>
             <th>Obj. Chronométrique</th>
             <th>Validé le</th>
             <th></th>
@@ -208,6 +211,7 @@
             <td style="font-size:.82rem;color:#8A92A6">{{ o.centre }}</td>
             <td><span class="tag tag-grey" style="font-size:.65rem">{{ o.categorie }}</span></td>
             <td style="font-weight:500">{{ o.epreuve }}</td>
+            <td><span class="tag tag-blue" style="font-size:.65rem">{{ o.saison or '2025/2026' }}</span></td>
             <td style="color:#27AE60;font-weight:600">{{ o.objectif_chrono or '—' }}</td>
             <td style="font-size:.78rem;color:#B0B8CC">{{ o.valide_le }}</td>
             <td>
@@ -303,6 +307,35 @@
 
 <!-- TAB COACHES -->
 <div id="tab-coaches" style="display:none">
+
+  <!-- Formulaire ajout entraineur -->
+  <div class="card" style="margin-bottom:1.5rem">
+    <div class="card-header" style="background:#F0F5FF">
+      <h2>➕ Ajouter un entraineur</h2>
+    </div>
+    <div style="padding:1.2rem">
+      <form method="POST" action="/admin/add_coach" style="display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-end">
+        <div class="field" style="min-width:220px">
+          <label>Nom complet <span style="color:#C0392B">*</span></label>
+          <input type="text" name="full_name" class="editable" placeholder="ex: DUPONT JEAN" required
+            style="text-transform:uppercase">
+        </div>
+        <div class="field" style="min-width:180px">
+          <label>Identifiant login <span style="color:#C0392B">*</span></label>
+          <input type="text" name="username" class="editable" placeholder="ex: dupont.jean" required>
+        </div>
+        <div class="field" style="min-width:160px">
+          <label>Mot de passe initial</label>
+          <input type="text" name="password" class="editable" placeholder="Coach2026" value="Coach2026">
+        </div>
+        <div style="padding-bottom:.2rem">
+          <button type="submit" class="btn btn-secondary">✅ Ajouter</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Liste des entraineurs -->
   <div class="card">
     <div class="card-header">
       <h2>Liste des entraineurs & identifiants</h2>
@@ -311,7 +344,7 @@
     <div style="overflow-x:auto">
       <table class="table">
         <thead>
-          <tr><th>Nom complet</th><th>Identifiant</th><th>Mot de passe initial</th><th>Athlètes</th></tr>
+          <tr><th>Nom complet</th><th>Identifiant</th><th>Mot de passe initial</th><th>Athlètes</th><th></th></tr>
         </thead>
         <tbody>
           {% for c in coaches %}
@@ -321,6 +354,16 @@
             <td style="font-family:monospace;color:#2471D6;font-size:.85rem">{{ c.username }}</td>
             <td style="font-family:monospace;color:#8A92A6;font-size:.82rem">Coach2026</td>
             <td><span class="tag tag-blue">{{ count }}</span></td>
+            <td>
+              {% if count == 0 %}
+              <form method="POST" action="/admin/supprimer_coach/{{ c.id }}" style="display:inline"
+                onsubmit="return confirm('Supprimer {{ c.full_name }} ?')">
+                <button type="submit" style="background:#fee2e2;color:#c0392b;border:none;border-radius:4px;padding:3px 10px;font-size:.72rem;cursor:pointer;font-weight:600">🗑 Suppr.</button>
+              </form>
+              {% else %}
+              <span style="font-size:.72rem;color:#B0B8CC">{{ count }} athlète(s)</span>
+              {% endif %}
+            </td>
           </tr>
           {% endfor %}
         </tbody>

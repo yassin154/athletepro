@@ -27,6 +27,14 @@
 {% extends "base.html" %}
 {% block title %}Mes Athlètes{% endblock %}
 {% block content %}
+{% if admin_view_coach %}
+<div style="background:#1E2742;color:#fff;padding:.7rem 1.5rem;border-radius:8px;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between">
+  <div style="font-size:.88rem">
+    👁 <strong>Mode Admin</strong> — Vous consultez le tableau de bord de <strong>{{ admin_view_coach }}</strong>
+  </div>
+  <a href="/admin#tab-coaches" style="color:#F4A261;font-size:.82rem;font-weight:600;text-decoration:none">← Retour Admin</a>
+</div>
+{% endif %}
 <div class="page-header">
   <h1>Mes Athlètes</h1>
   <p>{{ session.full_name }} — {{ athletes|length }} athlète(s) actif(s)</p>

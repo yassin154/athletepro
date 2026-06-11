@@ -435,13 +435,18 @@ document.querySelectorAll('.field-cb').forEach(cb => {
     <div style="overflow-x:auto">
       <table class="table">
         <thead>
-          <tr><th>Cat.</th><th>Nom & Prénom</th><th>Entraineur</th><th>Spécialité</th><th>Épreuves</th><th>Licence</th><th>Naissance</th><th></th></tr>
+          <tr><th>Cat.</th><th>Nom & Prénom</th><th>Classe</th><th>Entraineur</th><th>Spécialité</th><th>Épreuves</th><th>Licence</th><th>Naissance</th><th></th></tr>
         </thead>
         <tbody>
           {% for a in grp %}
           <tr>
             <td><span class="tag tag-grey" style="font-size:.65rem">{{ a.categorie }}</span></td>
             <td style="font-weight:600;color:#1E2742">{{ a.nom_prenom }}</td>
+            <td style="text-align:center">
+              {% if a.classe and a.classe != 'Autre' %}
+              <span class="classe-badge classe-{{ a.classe }}" style="font-size:.75rem;padding:2px 8px">{{ a.classe }}</span>
+              {% else %}<span style="color:#DDE2EC;font-size:.78rem">—</span>{% endif %}
+            </td>
             <td style="font-size:.82rem;color:#8A92A6">{{ a.coach_name }}</td>
             <td style="font-size:.83rem">{{ a.specialite }}</td>
             <td style="font-size:.82rem;color:#2471D6">{{ a.epreuves }}</td>

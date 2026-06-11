@@ -601,15 +601,18 @@
   {% endif %}
 
   <!-- Résultats saisis (DB) saison en cours -->
-  {% if res_by_epreuve %}
   <div class="card" style="margin-bottom:1.2rem">
     <div class="card-header"><h2>Résultats saisis — Saison en cours</h2><span class="tag tag-blue">Saison 2025/2026</span></div>
+    {% if res_by_epreuve %}
     {% for epreuve, res_list in res_by_epreuve.items() %}
     <div style="padding:.5rem 1.2rem .2rem;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#2471D6;background:#F8F9FF;border-top:1px solid #EEF1F8">{{ epreuve }}</div>
     {{ real_table(res_list, true, obj_map_2526) }}
     {% endfor %}
+    {% else %}
+    <div style="padding:1rem 1.5rem;color:#8A92A6;font-size:.85rem">Aucun résultat validé pour la saison en cours.</div>
+    {% endif %}
 
-    <!-- Ajouter résultat -->
+    <!-- Ajouter résultat — toujours visible -->
     <div style="background:#F0F5FF;border-top:1px solid rgba(36,113,214,.15);padding:1.2rem">
       <div style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#2471D6;margin-bottom:1rem">+ Ajouter un résultat de compétition</div>
       <form method="POST" action="/athlete/{{ ath.id }}/submit_resultat">
@@ -663,7 +666,6 @@
       </script>
     </div>
   </div>
-  {% endif %}
 
   </div><!-- /real-perf -->
 

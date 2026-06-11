@@ -811,27 +811,36 @@ function toggleObj(cb, selId) {
 }
 
 // Écart calculation
+function normTime(t) {
+  // Normalize any time format to colon-separated for parsing
+  let p = t.toString().trim().replace(',','.');
+  // apostrophe: 8'23"56 → 8:23.56
+  if (p.includes("'")) p = p.replace("'",':').replace('"','.');
+  // dot-separated: 6.10.00 → 6:10.00 (only if 2 dots and looks like time)
+  const dots = (p.match(/\.|\./g) || []).length;
+  const colons = (p.match(/:/g) || []).length;
+  if (dots >= 2 && colons === 0 && /^\d+\.\d+\.\d+$/.test(p)) {
+    const idx = p.indexOf('.');
+    p = p.substring(0, idx) + ':' + p.substring(idx + 1);
+  }
+  return p;
+}
+
 function toSec(t) {
   if (!t) return NaN;
-  const p = t.toString().trim().replace(',','.');
+  let p = normTime(t);
   if (p.includes(':')) {
     const parts = p.split(':');
     if (parts.length === 2) {
-      // mm:ss or mm:ss.cc
       return parseFloat(parts[0]) * 60 + parseFloat(parts[1]);
     }
     if (parts.length === 3) {
-      // Could be h:mm:ss OR m:ss:cc (bad format)
-      // In athletics, nobody runs h:mm:ss except marathon/walk (h >= 1)
-      // If first part <= 2, treat as m:ss:cc → m*60 + ss + cc/100
       const h = parseFloat(parts[0]);
       const m = parseFloat(parts[1]);
       const s = parseFloat(parts[2]);
       if (h <= 2 && m < 60 && s < 100) {
-        // Treat as m:ss.cc where parts[2] is centiseconds
         return h * 60 + m + s / 100;
       }
-      // Otherwise h:mm:ss
       return h * 3600 + m * 60 + s;
     }
   }

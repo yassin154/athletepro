@@ -942,7 +942,7 @@ def admin_athlete(aid):
     champs = q(conn, "SELECT * FROM objectifs_champ WHERE athlete_id=%s ORDER BY epreuve", (aid,))
     conn.close()
 
-    return render_template('admin_athlete.html', a=a, objectifs=objectifs, resultats=resultats, champs=champs)
+    return render_template('admin_athlete.html', a=a, ath=a, objectifs=objectifs, resultats=resultats, champs=champs)
 
 @app.route('/admin/export')
 @login_required

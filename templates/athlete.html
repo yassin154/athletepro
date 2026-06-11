@@ -99,7 +99,7 @@
 
 <!-- ONGLETS -->
 <div class="tab-nav">
-  <button class="tab-nav-btn {% if active_tab == 'tab-info' or not active_tab %}active{% endif %}" onclick="showTab('tab-info',this)">👤 Informations</button>
+  <button class="tab-nav-btn {% if active_tab in ['tab-info','info'] or not active_tab %}active{% endif %}" onclick="showTab('tab-info',this)">👤 Informations</button>
   <button class="tab-nav-btn" onclick="showTab('tab-objectifs',this)">🎯 Objectifs Performance</button>
   <button class="tab-nav-btn" onclick="showTab('tab-participation',this)">🏆 Objectifs Participation</button>
   <button class="tab-nav-btn" onclick="showTab('tab-realisations',this)">📊 Réalisations</button>
@@ -107,7 +107,7 @@
 </div>
 
 <!-- ══ ONGLET 1 : INFORMATIONS ══ -->
-<div id="tab-info" class="tab-pane {% if active_tab == 'info' or not active_tab %}active{% endif %}">
+<div id="tab-info" class="tab-pane {% if active_tab in ['tab-info','info'] or not active_tab %}active{% endif %}">
   <div class="card">
     <div class="card-header"><h2>Informations personnelles</h2><span class="tag tag-grey">Lecture seule</span></div>
     <div class="card-body">
@@ -162,7 +162,7 @@
 </div>
 
 <!-- ══ ONGLET 2 : OBJECTIFS PERFORMANCE ══ -->
-<div id="tab-objectifs" class="tab-pane {% if active_tab == 'objectifs' %}active{% endif %}">
+<div id="tab-objectifs" class="tab-pane {% if active_tab in ['tab-objectifs','objectifs'] %}active{% endif %}">
 
   {% macro objectif_form(saison_label, saison_val, tag_color) %}
   <div class="card" style="margin-bottom:1.2rem">
@@ -263,7 +263,7 @@
 </div>
 
 <!-- ══ ONGLET 3 : RÉALISATIONS ══ -->
-<div id="tab-realisations" class="tab-pane {% if active_tab == 'realisations' %}active{% endif %}">
+<div id="tab-realisations" class="tab-pane {% if active_tab in ['tab-realisations','realisations'] %}active{% endif %}">
 
   <!-- Build objectif maps per saison -->
   {% set obj_map_2425 = {} %}
@@ -372,7 +372,9 @@
           {% set saison_r = r.get('saison','') %}
           {% set epr = r.get('epreuve','') %}
           {% set perf = (r.get('performance') or r.get('resultat') or '') | string %}
-          {% set obj = obj_map_2425.get(epr,'') if saison_r == '2024/2025' else obj_map_2526.get(epr,'') %}
+          {% if saison_r == '2024/2025' %}{% set obj = obj_map_2425.get(epr,'') %}
+          {% elif saison_r == '2025/2026' %}{% set obj = obj_map_2526.get(epr,'') %}
+          {% else %}{% set obj = '' %}{% endif %}
           {% set cl = (r.get('classement','') or '') | string %}
           <tr data-saison="{{ saison_r }}" data-epreuve="{{ epr }}">
             <td><span style="background:#EEF1F8;padding:2px 8px;border-radius:4px;font-size:.75rem;font-weight:600;color:#1E2742">{{ saison_r or '—' }}</span></td>
@@ -482,7 +484,7 @@
 </div>
 
 <!-- ══ ONGLET 4 : OBJECTIFS PARTICIPATION ══ -->
-<div id="tab-participation" class="tab-pane {% if active_tab == 'participation' %}active{% endif %}">
+<div id="tab-participation" class="tab-pane {% if active_tab in ['tab-participation','participation'] %}active{% endif %}">
   <div class="card">
     <div class="card-header"><h2>Objectifs Participation aux Championnats</h2><span class="tag tag-blue">À saisir</span></div>
     <div class="card-body">
@@ -557,7 +559,7 @@
 </div>
 
 <!-- ══ ONGLET 5 : ÉVOLUTION ══ -->
-<div id="tab-evolution" class="tab-pane {% if active_tab == 'evolution' %}active{% endif %}">
+<div id="tab-evolution" class="tab-pane {% if active_tab in ['tab-evolution','evolution'] %}active{% endif %}">
   <div class="card">
     <div class="card-header">
       <h2>Évolution des performances</h2>

@@ -645,6 +645,39 @@ def submit_champ(aid):
     conn.close()
     return redirect(url_for('athlete', aid=aid))
 
+@app.route('/athlete/<int:aid>/submit_champ_bulk', methods=['POST'])
+@login_required
+def submit_champ_bulk(aid):
+    conn = get_db()
+    a = q(conn, "SELECT * FROM athletes WHERE id=%s", (aid,), one=True)
+    if not a or (session['role'] != 'admin' and a['coach_id'] != session['user_id']):
+        conn.close()
+        return "Accès refusé", 403
+
+    now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    epreuves = request.form.getlist('epreuve[]')
+
+    for epr_idx, epreuve in enumerate(epreuves, 1):
+        champ_count = int(request.form.get(f'champ_count_{epr_idx}', 0))
+        for c_idx in range(1, champ_count + 1):
+            champ_nom = request.form.get(f'champ_nom_{epr_idx}_{c_idx}', '').strip()
+            participe = 1 if request.form.get(f'champ_participe_{epr_idx}_{c_idx}') else 0
+            objectif = request.form.get(f'champ_objectif_{epr_idx}_{c_idx}', '').strip()
+            if not champ_nom:
+                continue
+            existing = q(conn, "SELECT id FROM objectifs_champ WHERE athlete_id=%s AND epreuve=%s AND championnat=%s",
+                         (aid, epreuve, champ_nom), one=True)
+            if participe or existing:
+                upd = "UPDATE objectifs_champ SET participe=%s, objectif=%s, statut='en_attente', soumis_le=%s WHERE id=%s"
+                ins = "INSERT INTO objectifs_champ (athlete_id,epreuve,championnat,participe,objectif,statut,soumis_le) VALUES (%s,%s,%s,%s,%s,'en_attente',%s)"
+                if existing:
+                    ex(conn, upd, (participe, objectif, now, existing['id']))
+                else:
+                    ex(conn, ins, (aid, epreuve, champ_nom, participe, objectif, now))
+
+    conn.close()
+    return redirect(url_for('athlete', aid=aid))
+
 @app.route('/admin')
 @login_required
 @admin_required

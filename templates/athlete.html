@@ -775,8 +775,24 @@ function toSec(t) {
   const p = t.toString().trim().replace(',','.');
   if (p.includes(':')) {
     const parts = p.split(':');
-    if (parts.length === 2) return parseFloat(parts[0])*60 + parseFloat(parts[1]);
-    if (parts.length === 3) return parseFloat(parts[0])*3600 + parseFloat(parts[1])*60 + parseFloat(parts[2]);
+    if (parts.length === 2) {
+      // mm:ss or mm:ss.cc
+      return parseFloat(parts[0]) * 60 + parseFloat(parts[1]);
+    }
+    if (parts.length === 3) {
+      // Could be h:mm:ss OR m:ss:cc (bad format)
+      // In athletics, nobody runs h:mm:ss except marathon/walk (h >= 1)
+      // If first part <= 2, treat as m:ss:cc → m*60 + ss + cc/100
+      const h = parseFloat(parts[0]);
+      const m = parseFloat(parts[1]);
+      const s = parseFloat(parts[2]);
+      if (h <= 2 && m < 60 && s < 100) {
+        // Treat as m:ss.cc where parts[2] is centiseconds
+        return h * 60 + m + s / 100;
+      }
+      // Otherwise h:mm:ss
+      return h * 3600 + m * 60 + s;
+    }
   }
   return parseFloat(p);
 }
@@ -808,6 +824,9 @@ document.addEventListener('DOMContentLoaded', () => {
 const ALL_RESULTS = {{ chart_data | tojson }};
 const OBJ_MAP_2425 = {{ obj_map_2425_json | tojson }};
 const OBJ_MAP_2526 = {{ obj_map_2526_json | tojson }};
+
+// Full objective map: {saison: {epreuve: objectif_chrono}} — all validated saisons
+const ALL_OBJ_MAP = {{ all_obj_map_json | tojson }};
 
 let chart = null;
 
@@ -988,13 +1007,27 @@ function updateChart() {
   const values = rows.map(r => toSeconds(r.performance));
   const validValues = values.filter(v => v !== null);
 
-  // Objectif line
+  // Objectif line — per-point based on saison+epreuve
+  // Build a point-by-point objective value
+  const objPerPoint = rows.map(r => {
+    const epr = eprFilter || r.epreuve;
+    const saisonMap = ALL_OBJ_MAP[r.saison] || OBJ_MAP_2526;
+    const o = saisonMap[epr];
+    return o ? toSeconds(o) : null;
+  });
+
+  // For chart: use a single horizontal line if filtering by epreuve
+  // Otherwise show per-point dots
   let objVal = null;
   if (eprFilter) {
+    // Find the most recent objective for this epreuve
     const o = OBJ_MAP_2526[eprFilter] || OBJ_MAP_2425[eprFilter];
     if (o) objVal = toSeconds(o);
   }
-  const objLine = labels.map(() => objVal);
+  // Use per-point if we have mixed saisons, else flat line
+  const hasMultiObj = new Set(objPerPoint.filter(v => v !== null)).size > 1;
+  const objLine = hasMultiObj ? objPerPoint : labels.map(() => objVal);
+  const showObjLine = objPerPoint.some(v => v !== null);
 
   const datasets = [{
     label: 'Performance',
@@ -1019,7 +1052,7 @@ function updateChart() {
     spanGaps: true,
   }];
 
-  if (objVal !== null) {
+  if (showObjLine) {
     datasets.push({
       label: 'Objectif',
       data: objLine,

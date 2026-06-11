@@ -1013,15 +1013,23 @@ def admin_minimas():
     resultats_saison = [r for r in RESULTATS_JSON if r.get('saison') == saison_courante]
 
     # Build best result per athlete per epreuve this season
-    best_by_ath = {}  # licence -> {epreuve -> best_perf_seconds}
+    best_by_ath = {}  # licence -> {epreuve -> (best_sec, perf_str)}
     for r in resultats_saison:
-        lic = r['licence']
-        ep = r.get('epreuve', '')
+        lic = str(r.get('licence', ''))
+        ep  = str(r.get('epreuve', '') or '')
+        if not ep: continue
         perf_str = str(r.get('resultat') or r.get('performance') or '')
+        if perf_str in ('', 'nan', 'None', '—'): continue
         perf_sec = parse_perf(perf_str, ep)
         if perf_sec is None: continue
         if lic not in best_by_ath: best_by_ath[lic] = {}
-        if ep not in best_by_ath[lic] or perf_sec < best_by_ath[lic][ep]:
+        existing = best_by_ath[lic].get(ep)
+        is_field = any(x in ep for x in ['Longueur','Triple','Hauteur','Poids','Disque','Javelot','Marteau'])
+        if existing is None:
+            best_by_ath[lic][ep] = (perf_sec, perf_str)
+        elif is_field and perf_sec > existing[0]:
+            best_by_ath[lic][ep] = (perf_sec, perf_str)
+        elif not is_field and perf_sec < existing[0]:
             best_by_ath[lic][ep] = (perf_sec, perf_str)
 
     results = []

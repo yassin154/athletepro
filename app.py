@@ -957,6 +957,38 @@ def admin_athlete(aid):
 
     return render_template('admin_athlete.html', a=a, ath=a, objectifs=objectifs, resultats=resultats, champs=champs)
 
+def parse_perf(perf_str, epreuve=''):
+    """Convert performance string to seconds (or meters for field events)."""
+    if not perf_str or perf_str in ('nan','None','—',''): return None
+    s = str(perf_str).strip().upper().replace(',','.')
+    import re as _re
+    # Field events: remove M, KG, G suffix
+    field_match = _re.match(r'^([0-9.]+)\s*(M|KG|G)$', s)
+    if field_match:
+        return float(field_match.group(1))
+    # Time: convert to seconds
+    s = s.lower()
+    # apostrophe format: 8'23"56
+    if "'" in s:
+        s = s.replace("'",':').replace('"','.')
+    # 3-part dot: 1.59.00
+    dots = s.count('.')
+    colons = s.count(':')
+    if dots == 2 and colons == 0:
+        parts = s.split('.')
+        s = parts[0]+':'+parts[1]+'.'+parts[2]
+    if ':' in s:
+        parts = s.split(':')
+        if len(parts) == 2:
+            return float(parts[0])*60 + float(parts[1])
+        if len(parts) == 3:
+            h,m,sec = float(parts[0]),float(parts[1]),float(parts[2])
+            if h<=2 and m<60 and sec<100:
+                return h*60 + m + sec/100
+            return h*3600 + m*60 + sec
+    try: return float(s)
+    except: return None
+
 @app.route('/admin/minimas')
 @login_required
 @admin_required
@@ -1015,46 +1047,12 @@ def admin_minimas():
         if athlete_results:
             results.append({'athlete': a, 'results': athlete_results})
 
-    return render_template('admin.html',
+    return render_template('admin_minimas.html',
         minimas_results=results,
         minimas_saison=saison_courante,
-        stats={'total_athletes': len(all_athletes), 'total_coaches': 0, 'en_attente': 0},
-        pending_obj=[], pending_res=[], pending_champ=[], pending_perf=[],
-        athletes=all_athletes, coaches=[], validated_obj=[], validated_res=[],
-        active_admin_tab='tab-minimas'
+        n_athletes=len(all_athletes),
     )
 
-def parse_perf(perf_str, epreuve=''):
-    """Convert performance string to seconds (or meters for field events)."""
-    if not perf_str or perf_str in ('nan','None','—',''): return None
-    s = str(perf_str).strip().upper().replace(',','.')
-    import re as _re
-    # Field events: remove M, KG, G suffix
-    field_match = _re.match(r'^([0-9.]+)\s*(M|KG|G)$', s)
-    if field_match:
-        return float(field_match.group(1))
-    # Time: convert to seconds
-    s = s.lower()
-    # apostrophe format: 8'23"56
-    if "'" in s:
-        s = s.replace("'",':').replace('"','.')
-    # 3-part dot: 1.59.00
-    dots = s.count('.')
-    colons = s.count(':')
-    if dots == 2 and colons == 0:
-        parts = s.split('.')
-        s = parts[0]+':'+parts[1]+'.'+parts[2]
-    if ':' in s:
-        parts = s.split(':')
-        if len(parts) == 2:
-            return float(parts[0])*60 + float(parts[1])
-        if len(parts) == 3:
-            h,m,sec = float(parts[0]),float(parts[1]),float(parts[2])
-            if h<=2 and m<60 and sec<100:
-                return h*60 + m + sec/100
-            return h*3600 + m*60 + sec
-    try: return float(s)
-    except: return None
 
 @app.route('/admin/export')
 @login_required

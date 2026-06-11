@@ -2,9 +2,10 @@
 {% block title %}Minimas CRF{% endblock %}
 {% block content %}
 
-<div style="max-width:1200px;margin:2rem auto;padding:0 1.5rem">
+<div style="max-width:1300px;margin:2rem auto;padding:0 1.5rem">
 
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem">
+  <!-- Header -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;flex-wrap:wrap;gap:1rem">
     <div>
       <a href="/admin" style="font-size:.82rem;color:#8A92A6;text-decoration:none">← Retour Admin</a>
       <h1 style="font-family:'Barlow Condensed',sans-serif;font-size:1.8rem;font-weight:800;color:#1E2742;margin-top:.3rem">
@@ -14,60 +15,126 @@
         Saison <strong>{{ minimas_saison }}</strong> · {{ n_athletes }} athlètes analysés
       </p>
     </div>
-    <span style="background:#EAFAF1;color:#1E8449;padding:8px 20px;border-radius:8px;font-weight:700;font-size:1rem;border:1.5px solid #A9DFBF">
-      {{ minimas_results|length }} athlète(s) qualifié(s)
-    </span>
+    <div style="display:flex;gap:.8rem;align-items:center;flex-wrap:wrap">
+      <span id="count-badge" style="background:#EAFAF1;color:#1E8449;padding:8px 20px;border-radius:8px;font-weight:700;font-size:1rem;border:1.5px solid #A9DFBF">
+        {{ minimas_results|length }} athlète(s)
+      </span>
+      <a href="/admin/minimas/export" style="display:inline-flex;align-items:center;gap:6px;padding:9px 18px;background:#27AE60;color:#fff;border-radius:7px;font-weight:700;font-size:.85rem;text-decoration:none">
+        ⬇ Exporter Excel
+      </a>
+    </div>
   </div>
 
   {% if not minimas_results %}
   <div style="background:#fff;border-radius:12px;padding:4rem;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,.06)">
     <div style="font-size:3rem;margin-bottom:1rem">🏅</div>
     <h2 style="color:#8A92A6;font-family:'Barlow Condensed',sans-serif">Aucun athlète n'a atteint les minimas cette saison</h2>
-    <p style="color:#B0B8CC;margin-top:.5rem;font-size:.85rem">Les résultats de la saison {{ minimas_saison }} sont analysés automatiquement.</p>
   </div>
 
   {% else %}
 
-  <div style="background:#fff;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.06);overflow:hidden">
-    <div style="background:#1E2742;padding:1rem 1.5rem">
-      <h2 style="color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:1.2rem;font-weight:800">📋 Tableau récapitulatif</h2>
+  <!-- Filtres -->
+  <div style="background:#fff;border-radius:10px;padding:.9rem 1.2rem;margin-bottom:1rem;box-shadow:0 2px 8px rgba(0,0,0,.05);display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-end">
+    <div>
+      <label style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#8A92A6;display:block;margin-bottom:4px">Recherche</label>
+      <input id="f-search" oninput="filterTable()" placeholder="Nom ou licence..."
+        style="padding:7px 12px;border:1.5px solid #DDE2EC;border-radius:5px;font-family:'Barlow',sans-serif;font-size:.85rem;color:#2C3345;outline:none;min-width:200px">
     </div>
+    <div>
+      <label style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#8A92A6;display:block;margin-bottom:4px">Catégorie</label>
+      <select id="f-cat" onchange="filterTable()"
+        style="padding:7px 12px;border:1.5px solid #DDE2EC;border-radius:5px;font-family:'Barlow',sans-serif;font-size:.85rem;color:#2C3345;outline:none">
+        <option value="">— Toutes —</option>
+        {% set seen_cats = [] %}
+        {% for item in minimas_results %}
+          {% if item.athlete.categorie not in seen_cats %}
+            {% if seen_cats.append(item.athlete.categorie) %}{% endif %}
+            <option value="{{ item.athlete.categorie }}">{{ item.athlete.categorie }}</option>
+          {% endif %}
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#8A92A6;display:block;margin-bottom:4px">Centre</label>
+      <select id="f-centre" onchange="filterTable()"
+        style="padding:7px 12px;border:1.5px solid #DDE2EC;border-radius:5px;font-family:'Barlow',sans-serif;font-size:.85rem;color:#2C3345;outline:none">
+        <option value="">— Tous —</option>
+        {% set seen_ctr = [] %}
+        {% for item in minimas_results %}
+          {% if item.athlete.centre not in seen_ctr %}
+            {% if seen_ctr.append(item.athlete.centre) %}{% endif %}
+            <option value="{{ item.athlete.centre }}">{{ item.athlete.centre }}</option>
+          {% endif %}
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#8A92A6;display:block;margin-bottom:4px">Épreuve</label>
+      <select id="f-epreuve" onchange="filterTable()"
+        style="padding:7px 12px;border:1.5px solid #DDE2EC;border-radius:5px;font-family:'Barlow',sans-serif;font-size:.85rem;color:#2C3345;outline:none">
+        <option value="">— Toutes —</option>
+        {% set seen_ep = [] %}
+        {% for item in minimas_results %}
+          {% for res in item.results %}
+            {% if res.epreuve not in seen_ep %}
+              {% if seen_ep.append(res.epreuve) %}{% endif %}
+              <option value="{{ res.epreuve }}">{{ res.epreuve }}</option>
+            {% endif %}
+          {% endfor %}
+        {% endfor %}
+      </select>
+    </div>
+    <button onclick="resetFilters()"
+      style="padding:7px 14px;border:1.5px solid #DDE2EC;border-radius:5px;background:#fff;color:#8A92A6;font-size:.83rem;cursor:pointer;font-weight:600">
+      ✕ Réinitialiser
+    </button>
+    <span id="visible-count" style="font-size:.82rem;color:#8A92A6;align-self:center"></span>
+  </div>
+
+  <!-- Tableau -->
+  <div style="background:#fff;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.06);overflow:hidden">
     <div style="overflow-x:auto">
-      <table style="width:100%;border-collapse:collapse">
+      <table style="width:100%;border-collapse:collapse" id="minimas-table">
         <thead>
-          <tr style="background:#F8F9FC">
-            <th style="padding:10px 16px;text-align:left;font-size:.7rem;text-transform:uppercase;letter-spacing:1.2px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:700">Athlète</th>
-            <th style="padding:10px 16px;text-align:center;font-size:.7rem;text-transform:uppercase;letter-spacing:1.2px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:700">Cat.</th>
-            <th style="padding:10px 16px;text-align:left;font-size:.7rem;text-transform:uppercase;letter-spacing:1.2px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:700">Centre</th>
-            <th style="padding:10px 16px;text-align:left;font-size:.7rem;text-transform:uppercase;letter-spacing:1.2px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:700">Entraineur</th>
-            <th style="padding:10px 16px;text-align:left;font-size:.7rem;text-transform:uppercase;letter-spacing:1.2px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:700">Épreuve</th>
-            <th style="padding:10px 16px;text-align:left;font-size:.7rem;text-transform:uppercase;letter-spacing:1.2px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:700">Meilleure perf.</th>
-            <th style="padding:10px 16px;text-align:left;font-size:.7rem;text-transform:uppercase;letter-spacing:1.2px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:700">Minima requis</th>
-            <th style="padding:10px 16px;border-bottom:1px solid #DDE2EC"></th>
+          <tr style="background:#1E2742">
+            <th style="padding:11px 14px;text-align:left;font-size:.7rem;text-transform:uppercase;letter-spacing:1.2px;color:rgba(255,255,255,.7);font-weight:700">Athlète</th>
+            <th style="padding:11px 14px;text-align:left;font-size:.7rem;text-transform:uppercase;letter-spacing:1.2px;color:rgba(255,255,255,.7);font-weight:700">Licence</th>
+            <th style="padding:11px 14px;text-align:center;font-size:.7rem;text-transform:uppercase;letter-spacing:1.2px;color:rgba(255,255,255,.7);font-weight:700">Cat.</th>
+            <th style="padding:11px 14px;text-align:left;font-size:.7rem;text-transform:uppercase;letter-spacing:1.2px;color:rgba(255,255,255,.7);font-weight:700">Centre</th>
+            <th style="padding:11px 14px;text-align:left;font-size:.7rem;text-transform:uppercase;letter-spacing:1.2px;color:rgba(255,255,255,.7);font-weight:700">Entraineur</th>
+            <th style="padding:11px 14px;text-align:left;font-size:.7rem;text-transform:uppercase;letter-spacing:1.2px;color:rgba(255,255,255,.7);font-weight:700">Épreuve</th>
+            <th style="padding:11px 14px;text-align:center;font-size:.7rem;text-transform:uppercase;letter-spacing:1.2px;color:rgba(255,255,255,.7);font-weight:700">Meilleure perf.</th>
+            <th style="padding:11px 14px;text-align:center;font-size:.7rem;text-transform:uppercase;letter-spacing:1.2px;color:rgba(255,255,255,.7);font-weight:700">Minima requis</th>
+            <th style="padding:11px 14px;text-align:center;font-size:.7rem;text-transform:uppercase;letter-spacing:1.2px;color:rgba(255,255,255,.7);font-weight:700">Statut</th>
+            <th style="padding:11px 14px;border-bottom:none"></th>
           </tr>
         </thead>
-        <tbody>
+        <tbody id="minimas-tbody">
           {% for item in minimas_results %}
           {% set a = item.athlete %}
           {% for res in item.results %}
-          <tr style="border-bottom:1px solid #EEF1F8;background:{% if loop.index % 2 == 0 %}#FAFFFD{% else %}#fff{% endif %}">
-            <td style="padding:10px 16px;font-weight:700;color:#1E2742">
-              {% if loop.first %}{{ a.nom_prenom }}{% endif %}
+          <tr class="min-row"
+              data-nom="{{ a.nom_prenom | upper }}"
+              data-licence="{{ a.numero_licence }}"
+              data-cat="{{ a.categorie }}"
+              data-centre="{{ a.centre }}"
+              data-epreuve="{{ res.epreuve }}"
+              style="border-bottom:1px solid #EEF1F8;background:{{ '#F9FFFB' if loop.index0 % 2 == 0 else '#fff' }}">
+            <td style="padding:10px 14px;font-weight:700;color:#1E2742">{{ a.nom_prenom }}</td>
+            <td style="padding:10px 14px;font-family:monospace;font-size:.82rem;color:#8A92A6">{{ a.numero_licence }}</td>
+            <td style="padding:10px 14px;text-align:center">
+              <span style="background:#EEF1F8;padding:2px 9px;border-radius:4px;font-size:.72rem;font-weight:700;color:#1E2742">{{ a.categorie }}</span>
             </td>
-            <td style="padding:10px 16px;text-align:center">
-              {% if loop.first %}
-              <span style="background:#EEF1F8;padding:3px 10px;border-radius:4px;font-size:.72rem;font-weight:700;color:#1E2742">{{ a.categorie }}</span>
-              {% endif %}
+            <td style="padding:10px 14px;font-size:.82rem;color:#8A92A6">{{ a.centre }}</td>
+            <td style="padding:10px 14px;font-size:.82rem;color:#8A92A6">{{ a.coach_name }}</td>
+            <td style="padding:10px 14px;color:#2471D6;font-weight:600">{{ res.epreuve }}</td>
+            <td style="padding:10px 14px;text-align:center;font-weight:800;color:#1E2742;font-size:1rem">{{ res.perf }}</td>
+            <td style="padding:10px 14px;text-align:center;color:#27AE60;font-weight:600">{{ res.minima }}</td>
+            <td style="padding:10px 14px;text-align:center">
+              <span style="background:#EAFAF1;color:#1E8449;padding:3px 10px;border-radius:4px;font-size:.72rem;font-weight:700;border:1px solid #A9DFBF">✔ Minima atteint</span>
             </td>
-            <td style="padding:10px 16px;font-size:.82rem;color:#8A92A6">{% if loop.first %}{{ a.centre }}{% endif %}</td>
-            <td style="padding:10px 16px;font-size:.82rem;color:#8A92A6">{% if loop.first %}{{ a.coach_name }}{% endif %}</td>
-            <td style="padding:10px 16px;color:#2471D6;font-weight:600">{{ res.epreuve }}</td>
-            <td style="padding:10px 16px;font-weight:800;color:#1E2742;font-size:1.05rem">{{ res.perf }}</td>
-            <td style="padding:10px 16px;color:#27AE60;font-weight:600">{{ res.minima }}</td>
-            <td style="padding:10px 16px;text-align:center">
-              {% if loop.first %}
-              <a href="/admin/athlete/{{ a.id }}" style="display:inline-block;padding:5px 12px;background:#1E2742;color:#fff;border-radius:5px;font-size:.75rem;font-weight:600;text-decoration:none">Fiche →</a>
-              {% endif %}
+            <td style="padding:10px 14px;text-align:center">
+              <a href="/admin/athlete/{{ a.id }}" style="display:inline-block;padding:4px 10px;background:#1E2742;color:#fff;border-radius:4px;font-size:.72rem;font-weight:600;text-decoration:none">Fiche →</a>
             </td>
           </tr>
           {% endfor %}
@@ -75,9 +142,52 @@
         </tbody>
       </table>
     </div>
+    <div id="empty-msg" style="display:none;text-align:center;padding:2rem;color:#8A92A6">Aucun résultat pour cette sélection.</div>
   </div>
 
   {% endif %}
 
 </div>
+
+<script>
+function filterTable() {
+  const search  = document.getElementById('f-search').value.toUpperCase().trim();
+  const cat     = document.getElementById('f-cat').value;
+  const centre  = document.getElementById('f-centre').value;
+  const epreuve = document.getElementById('f-epreuve').value;
+  const rows    = document.querySelectorAll('#minimas-tbody .min-row');
+  let visible   = 0;
+
+  rows.forEach(row => {
+    const matchSearch  = !search  || row.dataset.nom.includes(search) || row.dataset.licence.includes(search);
+    const matchCat     = !cat     || row.dataset.cat === cat;
+    const matchCentre  = !centre  || row.dataset.centre === centre;
+    const matchEpreuve = !epreuve || row.dataset.epreuve === epreuve;
+    const show = matchSearch && matchCat && matchCentre && matchEpreuve;
+    row.style.display = show ? '' : 'none';
+    if (show) visible++;
+  });
+
+  const cnt = document.getElementById('visible-count');
+  if (cnt) cnt.textContent = visible + ' ligne(s) affichée(s)';
+  const empty = document.getElementById('empty-msg');
+  if (empty) empty.style.display = visible === 0 ? 'block' : 'none';
+}
+
+function resetFilters() {
+  ['f-search','f-cat','f-centre','f-epreuve'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  filterTable();
+}
+
+// Init count
+document.addEventListener('DOMContentLoaded', () => {
+  const rows = document.querySelectorAll('#minimas-tbody .min-row');
+  const cnt = document.getElementById('visible-count');
+  if (cnt) cnt.textContent = rows.length + ' ligne(s) affichée(s)';
+});
+</script>
+
 {% endblock %}

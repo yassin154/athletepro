@@ -194,7 +194,8 @@
             {% elif obj_statut == 'en_attente' %}<span class="tag tag-grey" style="margin-left:auto">⏳ En attente</span>
             {% elif obj_statut == 'rejeté' %}<span class="tag tag-red" style="margin-left:auto">✗ Rejeté</span>{% endif %}
           </div>
-          <div style="padding:1rem 1.2rem;display:flex;align-items:center;gap:2rem;flex-wrap:wrap;background:{% if obj_statut == 'validé' %}#EAFAF1{% elif obj_statut == 'rejeté' %}#FDF0EF{% else %}#fff{% endif %}">
+          <div style="padding:1rem 1.2rem;display:flex;align-items:center;gap:2rem;flex-wrap:wrap;
+            background:{% if obj_statut == 'validé' %}#EAFAF1{% elif obj_statut == 'rejeté' %}#FDF0EF{% elif obj_statut == 'en_attente' %}#FFF8E1{% else %}#fff{% endif %}">
             <input type="hidden" name="epreuve[]" value="{{ epr_clean }}">
             <input type="hidden" name="saison[]" value="{{ saison_val }}">
             <input type="hidden" name="champ_count_{{ epr_idx }}" value="0">
@@ -203,10 +204,21 @@
               <input type="text" name="objectif_chrono[]" class="editable"
                      placeholder="ex: 3:29.00 ou 52.50"
                      value="{{ obj_val }}"
-                     {% if obj_statut == 'validé' %}style="background:#EAFAF1;color:#27AE60;border-color:#27AE60;font-weight:600"{% endif %}>
+                     {% if obj_statut == 'validé' %}style="background:#EAFAF1;color:#27AE60;border-color:#27AE60;font-weight:600"
+                     {% elif obj_statut == 'en_attente' %}style="background:#FFF8E1;color:#B7770D;border-color:#F0C040;font-weight:600"
+                     {% elif obj_statut == 'rejeté' %}style="background:#FDF0EF;color:#C0392B;border-color:#C0392B"{% endif %}>
             </div>
-            {% if obj_val and obj_statut == 'validé' %}
-            <div style="font-size:.82rem;color:#27AE60">✔ Validé — visible dans Réalisations {{ saison_label }}</div>
+            {% if obj_statut == 'validé' %}
+            <div style="font-size:.82rem;color:#27AE60;font-weight:600">
+              ✔ Validé — visible dans Réalisations {{ saison_label }} et dans la courbe Évolution
+            </div>
+            {% elif obj_statut == 'en_attente' %}
+            <div style="font-size:.82rem;color:#B7770D;font-weight:600;display:flex;align-items:center;gap:.4rem">
+              <span style="animation:blink-classe 1.2s ease-in-out infinite;display:inline-block">⏳</span>
+              En attente de validation par l'admin
+            </div>
+            {% elif obj_statut == 'rejeté' %}
+            <div style="font-size:.82rem;color:#C0392B;font-weight:600">✗ Rejeté — vous pouvez modifier et renvoyer</div>
             {% endif %}
           </div>
         </div>

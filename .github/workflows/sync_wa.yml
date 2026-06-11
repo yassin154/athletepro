@@ -1,0 +1,34 @@
+name: Sync World Athletics Results
+
+on:
+  schedule:
+    # Chaque lundi à 06:00 UTC (07:00 heure Maroc)
+    - cron: '0 6 * * 1'
+  workflow_dispatch:  # déclenchement manuel depuis GitHub UI
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run sync
+        run: python sync_worldathletics.py
+        timeout-minutes: 45
+
+      - name: Commit results
+        run: |
+          git config user.name  "AthléPro Bot"
+          git config user.email "bot@athletepro.ma"
+          git add resultats.json wa_ids.json wa_rankings.json || true
+          git diff --staged --quiet || git commit -m "🔄 Sync WA $(date +'%Y-%m-%d')"
+          git push

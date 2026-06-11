@@ -889,6 +889,42 @@ def supprimer_res(rid):
     conn.close()
     return redirect(url_for('admin_dashboard'))
 
+@app.route('/admin/coach/<int:uid>/dashboard')
+@login_required
+@admin_required
+def admin_coach_dashboard(uid):
+    """Admin views a coach's dashboard without login — read-only impersonation."""
+    conn = get_db()
+    coach = q(conn, "SELECT * FROM users WHERE id=%s AND role='coach'", (uid,), one=True)
+    if not coach:
+        conn.close()
+        return "Entraineur introuvable", 404
+
+    athletes = q(conn, """
+        SELECT a.*, u.full_name as coach_name
+        FROM athletes a JOIN users u ON a.coach_id=u.id
+        WHERE a.coach_id=%s
+        ORDER BY
+            CASE a.categorie
+                WHEN 'M1' THEN 1 WHEN 'M2' THEN 2
+                WHEN 'C1' THEN 3 WHEN 'C2' THEN 4
+                WHEN 'J1' THEN 5 WHEN 'J2' THEN 6
+                WHEN 'S'  THEN 7 ELSE 8 END,
+            a.nom_prenom
+    """, (uid,))
+    conn.close()
+
+    cats = {'M1':[],'M2':[],'C1':[],'C2':[],'J1':[],'J2':[],'S':[],'Autre':[]}
+    for a in athletes:
+        cat = a['categorie'] if a['categorie'] in cats else 'Autre'
+        cats[cat].append(a)
+
+    return render_template('dashboard.html',
+        categories=cats,
+        athletes=athletes,
+        admin_view_coach=coach['full_name'],
+    )
+
 @app.route('/admin/athlete/<int:aid>')
 @login_required
 @admin_required

@@ -36,7 +36,159 @@
 <!-- TAB VALIDATION -->
 <div id="tab-validation">
   <div style="display:flex;justify-content:flex-end;margin-bottom:1rem">
-    <a href="/admin/export" class="btn btn-success">⬇ Exporter Excel</a>
+    <button class="btn btn-success" onclick="document.getElementById('export-modal').style.display='flex'">⬇ Exporter Excel</button>
+
+<!-- EXPORT MODAL -->
+<div id="export-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:12px;padding:2rem;width:700px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
+      <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:800;color:#1E2742">⬇ Configurer l'export Excel</h2>
+      <button onclick="document.getElementById('export-modal').style.display='none'" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:#8A92A6">✕</button>
+    </div>
+
+    <form action="/admin/export" method="GET" id="export-form">
+
+      <!-- Sélectionner tout -->
+      <div style="background:#F8F9FC;border-radius:8px;padding:.8rem 1rem;margin-bottom:1.2rem;display:flex;gap:1rem">
+        <label style="cursor:pointer;font-size:.85rem;font-weight:600;color:#2471D6">
+          <input type="checkbox" id="select-all" onchange="toggleAll(this)" checked style="margin-right:5px">
+          Tout sélectionner / désélectionner
+        </label>
+      </div>
+
+      <!-- GROUPE 1 : Infos athlète -->
+      <div style="margin-bottom:1.2rem">
+        <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#1E2742;background:#EEF1F8;padding:6px 12px;border-radius:6px;margin-bottom:.6rem">
+          📋 Informations athlète
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.4rem .8rem;padding:0 .5rem">
+          {% for field, label in [
+            ('nom','Nom & Prénom'), ('licence','N° Licence'), ('centre','Centre / CRF'),
+            ('entraineur','Entraineur'), ('categorie','Catégorie'), ('sexe','Sexe'),
+            ('specialite','Spécialité'), ('club','Club'), ('statut','Statut'),
+            ('date_naissance','Date de naissance'), ('age','Âge'), ('integration','Date intégration'),
+            ('classe','Classe (A/B)')
+          ] %}
+          <label style="display:flex;align-items:center;gap:6px;font-size:.83rem;cursor:pointer;padding:4px 0">
+            <input type="checkbox" name="fields" value="{{ field }}" checked class="field-cb"> {{ label }}
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- GROUPE 2 : Objectifs performance -->
+      <div style="margin-bottom:1.2rem">
+        <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#27AE60;background:#EAFAF1;padding:6px 12px;border-radius:6px;margin-bottom:.6rem">
+          🎯 Objectifs Performance
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.4rem .8rem;padding:0 .5rem">
+          {% for field, label in [
+            ('obj_epreuve','Épreuve'), ('obj_saison','Saison'), ('obj_chrono','Objectif chrono'),
+            ('obj_statut','Statut'), ('obj_date_validation','Date validation')
+          ] %}
+          <label style="display:flex;align-items:center;gap:6px;font-size:.83rem;cursor:pointer;padding:4px 0">
+            <input type="checkbox" name="fields" value="{{ field }}" checked class="field-cb"> {{ label }}
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- GROUPE 3 : Résultats saisis -->
+      <div style="margin-bottom:1.2rem">
+        <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#C0392B;background:#FDF0EF;padding:6px 12px;border-radius:6px;margin-bottom:.6rem">
+          📊 Résultats saisis (validés)
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.4rem .8rem;padding:0 .5rem">
+          {% for field, label in [
+            ('res_epreuve','Épreuve'), ('res_competition','Compétition'), ('res_lieu','Lieu'),
+            ('res_date','Date'), ('res_classement','Classement'), ('res_performance','Performance'),
+            ('res_date_validation','Date validation')
+          ] %}
+          <label style="display:flex;align-items:center;gap:6px;font-size:.83rem;cursor:pointer;padding:4px 0">
+            <input type="checkbox" name="fields" value="{{ field }}" checked class="field-cb"> {{ label }}
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- GROUPE 4 : Historique -->
+      <div style="margin-bottom:1.5rem">
+        <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#B7500A;background:#FDE8D0;padding:6px 12px;border-radius:6px;margin-bottom:.6rem">
+          📁 Résultats historiques
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.4rem .8rem;padding:0 .5rem">
+          {% for field, label in [
+            ('hist_saison','Saison'), ('hist_competition','Compétition'), ('hist_lieu','Lieu'),
+            ('hist_date','Date'), ('hist_epreuve','Épreuve'), ('hist_classement','Classement'),
+            ('hist_resultat','Résultat')
+          ] %}
+          <label style="display:flex;align-items:center;gap:6px;font-size:.83rem;cursor:pointer;padding:4px 0">
+            <input type="checkbox" name="fields" value="{{ field }}" checked class="field-cb"> {{ label }}
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Filtre optionnel -->
+      <div style="background:#F8F9FC;border-radius:8px;padding:1rem;margin-bottom:1.5rem">
+        <div style="font-size:.75rem;font-weight:700;color:#8A92A6;margin-bottom:.6rem">FILTRER PAR</div>
+        <div style="display:flex;gap:1rem;flex-wrap:wrap">
+          <div>
+            <label style="font-size:.8rem;color:#2C3345;font-weight:600">Entraineur</label><br>
+            <select name="filter_coach" style="padding:6px 10px;border:1.5px solid #DDE2EC;border-radius:5px;font-size:.83rem;min-width:160px;margin-top:3px">
+              <option value="">— Tous —</option>
+              {% for c in coaches %}
+              <option value="{{ c.full_name }}">{{ c.full_name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label style="font-size:.8rem;color:#2C3345;font-weight:600">Catégorie</label><br>
+            <select name="filter_cat" style="padding:6px 10px;border:1.5px solid #DDE2EC;border-radius:5px;font-size:.83rem;min-width:100px;margin-top:3px">
+              <option value="">— Toutes —</option>
+              {% for cat in ['M1','M2','C1','C2','J1','J2','S'] %}
+              <option value="{{ cat }}">{{ cat }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label style="font-size:.8rem;color:#2C3345;font-weight:600">Classe</label><br>
+            <select name="filter_classe" style="padding:6px 10px;border:1.5px solid #DDE2EC;border-radius:5px;font-size:.83rem;min-width:100px;margin-top:3px">
+              <option value="">— Toutes —</option>
+              <option value="A">Classe A</option>
+              <option value="B">Classe B</option>
+              <option value="Autre">Autre</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:1rem;justify-content:flex-end">
+        <button type="button" onclick="document.getElementById('export-modal').style.display='none'"
+          style="padding:10px 24px;border:1.5px solid #DDE2EC;border-radius:6px;background:#fff;color:#8A92A6;font-weight:600;cursor:pointer">
+          Annuler
+        </button>
+        <button type="submit" class="btn btn-success" style="padding:10px 28px">
+          ⬇ Générer Excel
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function toggleAll(cb) {
+  document.querySelectorAll('.field-cb').forEach(c => c.checked = cb.checked);
+}
+document.querySelectorAll('.field-cb').forEach(cb => {
+  cb.addEventListener('change', () => {
+    const all = document.querySelectorAll('.field-cb');
+    const checked = document.querySelectorAll('.field-cb:checked');
+    document.getElementById('select-all').checked = all.length === checked.length;
+    document.getElementById('select-all').indeterminate = checked.length > 0 && checked.length < all.length;
+  });
+});
+</script>
   </div>
   {% if pending_obj or pending_res or pending_champ %}
   <div class="card">

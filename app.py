@@ -735,7 +735,7 @@ def admin_dashboard():
         validated_res=validated_res,
     )
 
-@app.route('/admin/valider_obj/<int:oid>')
+@app.route('/admin/valider_obj/<int:oid>', methods=['GET','POST'])
 @login_required
 @admin_required
 def valider_objectif(oid):
@@ -745,7 +745,7 @@ def valider_objectif(oid):
     conn.close()
     return redirect(url_for('admin_dashboard'))
 
-@app.route('/admin/rejeter_obj/<int:oid>')
+@app.route('/admin/rejeter_obj/<int:oid>', methods=['GET','POST'])
 @login_required
 @admin_required
 def rejeter_objectif(oid):
@@ -754,7 +754,7 @@ def rejeter_objectif(oid):
     conn.close()
     return redirect(url_for('admin_dashboard'))
 
-@app.route('/admin/valider_res/<int:rid>')
+@app.route('/admin/valider_res/<int:rid>', methods=['GET','POST'])
 @login_required
 @admin_required
 def valider_resultat(rid):
@@ -764,7 +764,7 @@ def valider_resultat(rid):
     conn.close()
     return redirect(url_for('admin_dashboard'))
 
-@app.route('/admin/rejeter_res/<int:rid>')
+@app.route('/admin/rejeter_res/<int:rid>', methods=['GET','POST'])
 @login_required
 @admin_required
 def rejeter_resultat(rid):
@@ -773,7 +773,7 @@ def rejeter_resultat(rid):
     conn.close()
     return redirect(url_for('admin_dashboard'))
 
-@app.route('/admin/valider_perf/<int:pid>')
+@app.route('/admin/valider_perf/<int:pid>', methods=['GET','POST'])
 @login_required
 @admin_required
 def valider_perf_obj(pid):
@@ -783,7 +783,7 @@ def valider_perf_obj(pid):
     conn.close()
     return redirect(url_for('admin_dashboard'))
 
-@app.route('/admin/rejeter_perf/<int:pid>')
+@app.route('/admin/rejeter_perf/<int:pid>', methods=['GET','POST'])
 @login_required
 @admin_required
 def rejeter_perf_obj(pid):
@@ -792,7 +792,7 @@ def rejeter_perf_obj(pid):
     conn.close()
     return redirect(url_for('admin_dashboard'))
 
-@app.route('/admin/valider_champ/<int:cid>')
+@app.route('/admin/valider_champ/<int:cid>', methods=['GET','POST'])
 @login_required
 @admin_required
 def valider_champ(cid):
@@ -802,7 +802,7 @@ def valider_champ(cid):
     conn.close()
     return redirect(url_for('admin_dashboard'))
 
-@app.route('/admin/rejeter_champ/<int:cid>')
+@app.route('/admin/rejeter_champ/<int:cid>', methods=['GET','POST'])
 @login_required
 @admin_required
 def rejeter_champ(cid):

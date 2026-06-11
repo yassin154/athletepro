@@ -696,10 +696,16 @@ function calcEcarts() {
     const os = toSec(td.dataset.obj);
     if (isNaN(ps) || isNaN(os) || !td.dataset.obj) return;
     const diff = ps - os;
-    const abs  = Math.abs(diff).toFixed(2);
-    if (diff < 0)       { td.textContent = '−' + abs + 's'; td.className = 'ecart-cell ecart-neg'; }
-    else if (diff === 0){ td.textContent = '= Objectif atteint'; td.className = 'ecart-cell ecart-eq'; }
-    else                { td.textContent = '+' + abs + 's'; td.className = 'ecart-cell ecart-pos'; }
+    function fmtEcart(sec) {
+      const abs = Math.abs(sec);
+      if (abs < 60) return abs.toFixed(2) + 's';
+      const m = Math.floor(abs / 60);
+      const s = (abs % 60).toFixed(2).padStart(5,'0');
+      return m + ':' + s;
+    }
+    if (Math.abs(diff) < 0.01) { td.textContent = '= Objectif'; td.className = 'ecart-cell ecart-eq'; }
+    else if (diff < 0) { td.textContent = '−' + fmtEcart(diff); td.className = 'ecart-cell ecart-neg'; }
+    else               { td.textContent = '+' + fmtEcart(diff); td.className = 'ecart-cell ecart-pos'; }
   });
 }
 document.addEventListener('DOMContentLoaded', () => {

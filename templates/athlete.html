@@ -164,6 +164,22 @@
 <!-- ══ ONGLET 2 : OBJECTIFS PERFORMANCE ══ -->
 <div id="tab-objectifs" class="tab-pane {% if active_tab in ['tab-objectifs','objectifs'] %}active{% endif %}">
 
+  <!-- Résumé des objectifs en attente -->
+  {% set pending_count = objectifs | selectattr('statut','equalto','en_attente') | list | length %}
+  {% if pending_count > 0 %}
+  <div style="background:#FFF8E1;border:1.5px solid #F0C040;border-radius:8px;padding:1rem 1.4rem;margin-bottom:1.2rem;display:flex;align-items:center;gap:1rem">
+    <span style="font-size:1.4rem">⏳</span>
+    <div>
+      <div style="font-weight:700;color:#B7770D;font-size:.92rem">{{ pending_count }} objectif(s) en attente de validation</div>
+      <div style="font-size:.8rem;color:#9A6800;margin-top:2px">
+        {% for o in objectifs %}{% if o.statut == 'en_attente' %}
+        <span style="display:inline-block;background:#FEE9A0;padding:1px 8px;border-radius:4px;margin:2px">{{ o.epreuve }} ({{ o.saison }})</span>
+        {% endif %}{% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
   {% macro objectif_form(saison_label, saison_val, tag_color) %}
   <div class="card" style="margin-bottom:1.2rem">
     <div class="card-header">
@@ -492,7 +508,7 @@
         Pour chaque championnat, indiquez si l'athlète participe et son objectif.
         Une fois validé par l'admin, il sera injecté dans <strong>Réalisations</strong>.
       </p>
-      <form method="POST" action="/athlete/{{ ath.id }}/submit_objectifs">
+      <form method="POST" action="/athlete/{{ ath.id }}/submit_champ_bulk">
         {% for epr_clean in all_epreuves %}
         {% set epr_idx = loop.index %}
         <div class="epreuve-card" style="margin-bottom:1.2rem">

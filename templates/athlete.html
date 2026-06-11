@@ -328,6 +328,45 @@
 
   <!-- SUB-TAB Participation -->
   <div id="sub-partic" style="display:none">
+
+  <!-- Objectifs participation validés en haut -->
+  {% set champs_valides = validated_champs %}
+  {% if champs_valides %}
+  <div class="card" style="margin-bottom:1.2rem;border-left:4px solid #27AE60">
+    <div class="card-header" style="background:#EAFAF1">
+      <h2 style="color:#1E8449">✔ Objectifs Participation validés</h2>
+      <span class="tag tag-green">{{ champs_valides|length }}</span>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="table">
+        <thead>
+          <tr><th>Épreuve</th><th>Championnat</th><th>Participation</th><th>Objectif</th></tr>
+        </thead>
+        <tbody>
+          {% for c in champs_valides %}
+          <tr>
+            <td style="color:#2471D6;font-weight:500">{{ c.epreuve }}</td>
+            <td style="font-weight:600;color:#1E2742">{{ c.championnat }}</td>
+            <td style="text-align:center">{% if c.participe %}<span class="tag tag-green" style="font-size:.7rem">✔ Oui</span>{% else %}<span class="tag tag-grey" style="font-size:.7rem">Non</span>{% endif %}</td>
+            <td>{{ c.objectif or '—' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Objectifs en attente -->
+  {% set champs_attente = [] %}
+  {% for k, v in obj_champ_map.items() %}{% if v.get('statut') == 'en_attente' %}{% if champs_attente.append(v) %}{% endif %}{% endif %}{% endfor %}
+  {% if champs_attente %}
+  <div style="background:#FFF8E1;border:1.5px solid #F0C040;border-radius:8px;padding:.8rem 1.2rem;margin-bottom:1rem;display:flex;align-items:center;gap:.8rem">
+    <span style="font-size:1.2rem">⏳</span>
+    <span style="font-weight:700;color:#B7770D;font-size:.88rem">{{ champs_attente|length }} objectif(s) de participation en attente de validation</span>
+  </div>
+  {% endif %}
+
 <div id="tab-participation-legacy">
   <div class="card">
     <div class="card-header"><h2>Objectifs Participation aux Championnats</h2><span class="tag tag-blue">À saisir</span></div>
@@ -1007,27 +1046,26 @@ function updateChart() {
   const values = rows.map(r => toSeconds(r.performance));
   const validValues = values.filter(v => v !== null);
 
-  // Objectif line — per-point based on saison+epreuve
-  // Build a point-by-point objective value
+  // Objectif line — per-point using ALL_OBJ_MAP
+  // For each result point, find its objective by saison+epreuve
   const objPerPoint = rows.map(r => {
     const epr = eprFilter || r.epreuve;
-    const saisonMap = ALL_OBJ_MAP[r.saison] || OBJ_MAP_2526;
-    const o = saisonMap[epr];
-    return o ? toSeconds(o) : null;
+    // Check all saison maps, prioritise exact saison match
+    const saisonMap = ALL_OBJ_MAP[r.saison] || {};
+    const o = saisonMap[epr] || OBJ_MAP_2526[epr] || OBJ_MAP_2425[epr];
+    if (!o) return null;
+    const v = toSec(o);  // use toSec (faster, handles all formats)
+    return isNaN(v) ? null : v;
   });
 
-  // For chart: use a single horizontal line if filtering by epreuve
-  // Otherwise show per-point dots
-  let objVal = null;
-  if (eprFilter) {
-    // Find the most recent objective for this epreuve
-    const o = OBJ_MAP_2526[eprFilter] || OBJ_MAP_2425[eprFilter];
-    if (o) objVal = toSeconds(o);
-  }
-  // Use per-point if we have mixed saisons, else flat line
-  const hasMultiObj = new Set(objPerPoint.filter(v => v !== null)).size > 1;
-  const objLine = hasMultiObj ? objPerPoint : labels.map(() => objVal);
   const showObjLine = objPerPoint.some(v => v !== null);
+  // Flat line: fill gaps with nearest non-null value (connect segments)
+  const objLine = objPerPoint.map((v, i) => {
+    if (v !== null) return v;
+    // look ahead for next non-null
+    for (let j = i+1; j < objPerPoint.length; j++) if (objPerPoint[j] !== null) return objPerPoint[j];
+    return null;
+  });
 
   const datasets = [{
     label: 'Performance',

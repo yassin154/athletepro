@@ -506,14 +506,17 @@ document.querySelectorAll('.field-cb').forEach(cb => {
             <td style="font-family:monospace;color:#2471D6;font-size:.85rem">{{ c.username }}</td>
             <td style="font-family:monospace;color:#8A92A6;font-size:.82rem">Coach2026</td>
             <td><span class="tag tag-blue">{{ count }}</span></td>
-            <td>
+            <td style="display:flex;gap:.5rem;align-items:center">
+              {% if count > 0 %}
+              <a href="/admin/coach/{{ c.id }}/dashboard" class="btn btn-ghost btn-sm">👁 Voir ses athlètes</a>
+              {% endif %}
               {% if count == 0 %}
               <form method="POST" action="/admin/supprimer_coach/{{ c.id }}" style="display:inline"
                 onsubmit="return confirm('Supprimer {{ c.full_name }} ?')">
                 <button type="submit" style="background:#fee2e2;color:#c0392b;border:none;border-radius:4px;padding:3px 10px;font-size:.72rem;cursor:pointer;font-weight:600">🗑 Suppr.</button>
               </form>
               {% else %}
-              <span style="font-size:.72rem;color:#B0B8CC">{{ count }} athlète(s)</span>
+              <span style="font-size:.72rem;color:#B0B8CC"></span>
               {% endif %}
             </td>
           </tr>

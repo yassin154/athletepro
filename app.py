@@ -473,6 +473,9 @@ def athlete(aid):
     def obj_map_to_json(m):
         return {k: dict(v) for k, v in m.items()}
 
+    # Get active tab from URL param (e.g. after form submit)
+    active_tab = request.args.get('tab', 'tab-info')
+
     return render_template('athlete.html',
         a=a, ath=a,
         all_epreuves=all_epreuves,
@@ -491,7 +494,7 @@ def athlete(aid):
         championnats=CHAMPIONNATS,
         chart_data=all_hist,
         chart_epreuves=all_epreuves_chart,
-        active_tab='tab-info',
+        active_tab=active_tab,
         epreuves_ref=epreuves_ref_list,
         specialite_norm=specialite_norm,
         epreuves_ref_all=EPREUVES_REF,
@@ -544,7 +547,7 @@ def submit_objectifs(aid):
                             VALUES (%s,%s,%s,%s,'en_attente',%s)""", (aid, ep, saison, obj, now))
 
     conn.close()
-    return redirect(url_for('athlete', aid=aid))
+    return redirect(url_for('athlete', aid=aid) + '?tab=objectifs')
 
 @app.route('/athlete/<int:aid>/submit_resultat', methods=['POST'])
 @login_required

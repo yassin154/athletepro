@@ -100,10 +100,9 @@
 <!-- ONGLETS -->
 <div class="tab-nav">
   <button class="tab-nav-btn {% if active_tab in ['tab-info','info'] or not active_tab %}active{% endif %}" onclick="showTab('tab-info',this)">👤 Informations</button>
-  <button class="tab-nav-btn" onclick="showTab('tab-objectifs',this)">🎯 Objectifs Performance</button>
-  <button class="tab-nav-btn" onclick="showTab('tab-participation',this)">🏆 Objectifs Participation</button>
-  <button class="tab-nav-btn" onclick="showTab('tab-realisations',this)">📊 Réalisations</button>
-  <button class="tab-nav-btn" onclick="showTab('tab-evolution',this)">📈 Évolution</button>
+  <button class="tab-nav-btn {% if active_tab in ['tab-objectifs','objectifs','tab-participation','participation'] %}active{% endif %}" onclick="showTab('tab-objectifs',this)">🎯 Objectifs</button>
+  <button class="tab-nav-btn {% if active_tab in ['tab-realisations','realisations'] %}active{% endif %}" onclick="showTab('tab-realisations',this)">📊 Réalisations</button>
+  <button class="tab-nav-btn {% if active_tab in ['tab-evolution','evolution'] %}active{% endif %}" onclick="showTab('tab-evolution',this)">📈 Évolution</button>
 </div>
 
 <!-- ══ ONGLET 1 : INFORMATIONS ══ -->
@@ -162,7 +161,56 @@
 </div>
 
 <!-- ══ ONGLET 2 : OBJECTIFS PERFORMANCE ══ -->
-<div id="tab-objectifs" class="tab-pane {% if active_tab in ['tab-objectifs','objectifs'] %}active{% endif %}">
+<div id="tab-objectifs" class="tab-pane {% if active_tab in ['tab-objectifs','objectifs','tab-participation','participation'] %}active{% endif %}">
+
+  <!-- Sous-onglets Objectifs -->
+  <div style="display:flex;gap:0;margin-bottom:1.5rem;border-bottom:2px solid #DDE2EC">
+    <button id="subbtn-perf" onclick="showSubTab('sub-perf','sub-partic',this)"
+      style="padding:10px 24px;border:none;background:none;font-family:'Barlow',sans-serif;font-size:.88rem;font-weight:700;color:#2471D6;cursor:pointer;border-bottom:2px solid #2471D6;margin-bottom:-2px">
+      🎯 Objectifs Performance
+    </button>
+    <button id="subbtn-partic" onclick="showSubTab('sub-partic','sub-perf',this)"
+      style="padding:10px 24px;border:none;background:none;font-family:'Barlow',sans-serif;font-size:.88rem;font-weight:700;color:#8A92A6;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px">
+      🏆 Objectifs Participation
+    </button>
+  </div>
+
+  <!-- SUB-TAB Performance -->
+  <div id="sub-perf">
+
+  <!-- Tableau récapitulatif des objectifs soumis -->
+  {% set has_any_obj = objectifs | selectattr('statut','in',['validé','en_attente','rejeté']) | list %}
+  {% if has_any_obj %}
+  <div class="card" style="margin-bottom:1.2rem;border-left:4px solid #2471D6">
+    <div class="card-header" style="background:#F0F5FF">
+      <h2 style="color:#2471D6">📋 Objectifs soumis</h2>
+      <span class="tag tag-blue">{{ has_any_obj|length }}</span>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="table">
+        <thead>
+          <tr><th>Saison</th><th>Épreuve</th><th>Objectif chrono</th><th>Statut</th></tr>
+        </thead>
+        <tbody>
+          {% for o in objectifs | sort(attribute='saison', reverse=true) %}
+          {% if o.statut in ['validé','en_attente','rejeté'] %}
+          <tr>
+            <td><span class="tag tag-grey" style="font-size:.65rem">{{ o.saison or '—' }}</span></td>
+            <td style="font-weight:600;color:#1E2742">{{ o.epreuve }}</td>
+            <td style="font-weight:700;color:#2471D6">{{ o.objectif_chrono or '—' }}</td>
+            <td>
+              {% if o.statut == 'validé' %}<span class="tag tag-green" style="font-size:.7rem">✔ Validé</span>
+              {% elif o.statut == 'en_attente' %}<span style="background:#FFF8E1;color:#B7770D;padding:2px 10px;border-radius:4px;font-size:.72rem;font-weight:700;animation:blink-classe 1.2s ease-in-out infinite;display:inline-block">⏳ En attente</span>
+              {% elif o.statut == 'rejeté' %}<span class="tag tag-red" style="font-size:.7rem">✗ Rejeté</span>{% endif %}
+            </td>
+          </tr>
+          {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
 
   <!-- Résumé des objectifs en attente -->
   {% set pending_count = objectifs | selectattr('statut','equalto','en_attente') | list | length %}
@@ -276,231 +324,11 @@
       </form>
     </div>
   </div>
-</div>
+</div><!-- /sub-perf -->
 
-<!-- ══ ONGLET 3 : RÉALISATIONS ══ -->
-<div id="tab-realisations" class="tab-pane {% if active_tab in ['tab-realisations','realisations'] %}active{% endif %}">
-
-  <!-- Build objectif maps per saison -->
-  {% set obj_map_2425 = {} %}
-  {% set obj_map_2526 = {} %}
-  {% for o in objectifs %}
-    {% if o.statut == 'validé' %}
-      {% if o.saison == '2024/2025' %}{% set _ = obj_map_2425.update({o.epreuve: o.objectif_chrono}) %}{% endif %}
-      {% if o.saison == '2025/2026' or not o.saison %}{% set _ = obj_map_2526.update({o.epreuve: o.objectif_chrono}) %}{% endif %}
-    {% endif %}
-  {% endfor %}
-
-  {% macro real_table(rows, show_classement, obj_map) %}
-  <div style="overflow-x:auto">
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Date</th><th>Compétition</th><th>Lieu</th><th>Épreuve</th>
-          {% if show_classement %}<th>Classement</th>{% endif %}
-          <th>Performance</th>
-          <th style="color:#2471D6">Obj. Performance</th>
-          <th>Écart</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for r in rows %}
-        {% set epr = r.get('epreuve','') %}
-        {% set obj = obj_map.get(epr, '') %}
-        {% set perf = (r.get('performance') or r.get('resultat') or r.get('Resultats') or '') | string %}
-        <tr>
-          <td style="font-size:.83rem;color:#8A92A6;white-space:nowrap">{{ r.get('date') or r.get('date_competition') or '—' }}</td>
-          <td style="font-weight:500">{{ r.get('competition') or r.get('nom_competition') or '—' }}</td>
-          <td style="font-size:.82rem;color:#8A92A6">{{ r.get('lieu') or '—' }}</td>
-          <td style="color:#2471D6;font-size:.85rem;white-space:nowrap">{{ epr or '—' }}</td>
-          {% if show_classement %}
-          <td style="text-align:center">
-            {% set cl = (r.get('classement','') or '') | string %}
-            {% if cl and cl not in ['nan','None','—',''] %}
-              {% if cl == '1' %}<span class="perf-badge perf-gold">🥇 1er</span>
-              {% elif cl == '2' %}<span class="perf-badge perf-silver">🥈 2e</span>
-              {% elif cl == '3' %}<span class="perf-badge perf-bronze">🥉 3e</span>
-              {% else %}<span class="perf-badge perf-normal">{{ cl }}</span>{% endif %}
-            {% else %}—{% endif %}
-          </td>
-          {% endif %}
-          <td style="font-weight:700;color:#1E2742;font-size:.95rem">{{ perf or '—' }}</td>
-          <td style="color:#2471D6;font-weight:500;font-size:.85rem">
-            {% if obj %}{{ obj }}{% else %}<span style="color:#DDE2EC;font-size:.8rem">Non défini</span>{% endif %}
-          </td>
-          <td class="ecart-cell" data-perf="{{ perf }}" data-obj="{{ obj or '' }}">—</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-  {% endmacro %}
-
-  <!-- Résultats historiques avec filtre saison -->
-  {% set all_hist_rows = [] %}
-  {% for r in hist_autres.values() | sum(start=[]) %}{% if all_hist_rows.append(r) %}{% endif %}{% endfor %}
-  {% for r in historique_2425 %}{% if all_hist_rows.append(r) %}{% endif %}{% endfor %}
-  {% for r in historique_2526 %}{% if all_hist_rows.append(r) %}{% endif %}{% endfor %}
-
-  {% if all_hist_rows %}
-  <div class="card" style="margin-bottom:1.2rem">
-    <div class="card-header" style="flex-wrap:wrap;gap:.8rem">
-      <h2>Résultats historiques</h2>
-      <span class="tag tag-grey" id="hist-count">{{ all_hist_rows|length }} résultat(s)</span>
-      <div style="margin-left:auto;display:flex;align-items:center;gap:.8rem;flex-wrap:wrap">
-        <select id="filter-saison-hist" onchange="filterHistorique()"
-          style="padding:7px 12px;border:1.5px solid #DDE2EC;border-radius:5px;font-family:'Barlow',sans-serif;font-size:.85rem;color:#2C3345;background:#F8F9FC;outline:none">
-          <option value="">— Toutes les saisons —</option>
-          {% set seen_s = [] %}
-          {% for r in all_hist_rows | sort(attribute='saison', reverse=true) %}
-            {% set s = r.get('saison','') %}
-            {% if s and s not in seen_s %}
-              {% if seen_s.append(s) %}{% endif %}
-              <option value="{{ s }}">{{ s }}</option>
-            {% endif %}
-          {% endfor %}
-        </select>
-        <select id="filter-epreuve-hist" onchange="filterHistorique()"
-          style="padding:7px 12px;border:1.5px solid #DDE2EC;border-radius:5px;font-family:'Barlow',sans-serif;font-size:.85rem;color:#2C3345;background:#F8F9FC;outline:none">
-          <option value="">— Toutes les épreuves —</option>
-          {% set seen_ep = [] %}
-          {% for r in all_hist_rows %}
-            {% set ep = r.get('epreuve','') %}
-            {% if ep and ep not in seen_ep %}
-              {% if seen_ep.append(ep) %}{% endif %}
-              <option value="{{ ep }}">{{ ep }}</option>
-            {% endif %}
-          {% endfor %}
-        </select>
-      </div>
-    </div>
-    <div style="overflow-x:auto">
-      <table class="table" id="hist-table">
-        <thead>
-          <tr>
-            <th>Saison</th><th>Catégorie</th><th>Date</th><th>Compétition</th><th>Lieu</th><th>Épreuve</th>
-            <th>Classement</th><th>Performance</th>
-            <th style="color:#2471D6">Obj. Performance</th><th>Écart</th>
-          </tr>
-        </thead>
-        <tbody id="hist-tbody">
-          {% for r in all_hist_rows | sort(attribute='saison', reverse=true) %}
-          {% set saison_r = r.get('saison','') %}
-          {% set epr = r.get('epreuve','') %}
-          {% set perf = (r.get('performance') or r.get('resultat') or '') | string %}
-          {% if saison_r == '2024/2025' %}{% set obj = obj_map_2425.get(epr,'') %}
-          {% elif saison_r == '2025/2026' %}{% set obj = obj_map_2526.get(epr,'') %}
-          {% else %}{% set obj = '' %}{% endif %}
-          {% set cl = (r.get('classement','') or '') | string %}
-          <tr data-saison="{{ saison_r }}" data-epreuve="{{ epr }}">
-            <td><span style="background:#EEF1F8;padding:2px 8px;border-radius:4px;font-size:.75rem;font-weight:600;color:#1E2742">{{ saison_r or '—' }}</span></td>
-            <td class="cat-cell" data-saison="{{ saison_r }}">
-              <span style="background:#F0F5FF;color:#2471D6;padding:2px 8px;border-radius:4px;font-size:.73rem;font-weight:700">—</span>
-            </td>
-            <td style="font-size:.82rem;color:#8A92A6;white-space:nowrap">{{ r.get('date') or r.get('date_competition') or '—' }}</td>
-            <td style="font-weight:500;font-size:.85rem">{{ r.get('competition') or r.get('nom_competition') or '—' }}</td>
-            <td style="font-size:.82rem;color:#8A92A6">{{ r.get('lieu') or '—' }}</td>
-            <td style="color:#2471D6;font-size:.85rem;white-space:nowrap">{{ epr or '—' }}</td>
-            <td style="text-align:center">
-              {% if cl and cl not in ['nan','None','—',''] %}
-                {% if cl == '1' %}<span class="perf-badge perf-gold">🥇 1er</span>
-                {% elif cl == '2' %}<span class="perf-badge perf-silver">🥈 2e</span>
-                {% elif cl == '3' %}<span class="perf-badge perf-bronze">🥉 3e</span>
-                {% else %}<span class="perf-badge perf-normal">{{ cl }}</span>{% endif %}
-              {% else %}—{% endif %}
-            </td>
-            <td style="font-weight:700;color:#1E2742;font-size:.95rem">{{ perf or '—' }}</td>
-            <td style="color:#2471D6;font-weight:500;font-size:.85rem">
-              {% if obj %}{{ obj }}{% else %}<span style="color:#DDE2EC;font-size:.8rem">—</span>{% endif %}
-            </td>
-            <td class="ecart-cell" data-perf="{{ perf }}" data-obj="{{ obj or '' }}">—</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    <div id="hist-empty" style="display:none;text-align:center;padding:2rem;color:#8A92A6;font-size:.85rem">Aucun résultat pour cette sélection.</div>
-  </div>
-  {% endif %}
-
-  <!-- Saison en cours -->
-  <div class="card">
-    <div class="card-header"><h2>Résultats saisis — Saison en cours</h2><span class="tag tag-blue">À compléter</span></div>
-    <div class="card-body" style="padding:0">
-      {% if res_by_epreuve %}
-        {% for epreuve, res_list in res_by_epreuve.items() %}
-        <div style="border-bottom:1px solid #EEF1F8">
-          <div style="padding:.7rem 1.2rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.88rem;text-transform:uppercase;letter-spacing:1px;color:#1E2742;display:flex;align-items:center;gap:8px;background:#FAFBFC">
-            <span style="width:7px;height:7px;border-radius:50%;background:#2471D6;display:inline-block"></span>{{ epreuve }}
-            {% set obj_e = obj_map_2526.get(epreuve,'') %}
-            {% if obj_e %}<span style="font-size:.75rem;color:#2471D6;font-weight:400;margin-left:.5rem">Objectif : {{ obj_e }}</span>{% endif %}
-          </div>
-          {{ real_table(res_list, true, obj_map_2526) }}
-        </div>
-        {% endfor %}
-      {% else %}
-      <div style="text-align:center;padding:2rem;color:#8A92A6;font-size:.85rem">Aucun résultat saisi pour la saison en cours.</div>
-      {% endif %}
-
-      <!-- Formulaire ajout résultat -->
-      <div style="background:#F0F5FF;border-top:1px solid rgba(36,113,214,.15);padding:1.2rem">
-        <div style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#2471D6;margin-bottom:1rem">+ Ajouter un résultat de compétition</div>
-        <form method="POST" action="/athlete/{{ ath.id }}/submit_resultat">
-          <table style="width:100%;border-collapse:collapse;margin-bottom:1rem">
-            <thead>
-              <tr style="background:#F0F5FF">
-                <th style="padding:9px 12px;font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:600;text-align:left">Compétition *</th>
-                <th style="padding:9px 12px;font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:600;text-align:left">Lieu</th>
-                <th style="padding:9px 12px;font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:600;text-align:left">Date</th>
-                <th style="padding:9px 12px;font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:600;text-align:left">Épreuve *</th>
-                <th style="padding:9px 12px;font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:600;text-align:left">Classement</th>
-                <th style="padding:9px 12px;font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:600;text-align:left">Performance *</th>
-                <th style="padding:9px 12px;font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:600;text-align:left">Obj. Performance</th>
-                <th style="padding:9px 12px;font-size:.68rem;border-bottom:1px solid #DDE2EC"></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td style="padding:8px 6px"><input type="text" name="nom_competition" class="editable" placeholder="ex: Ch. National" required style="width:100%;min-width:120px"></td>
-                <td style="padding:8px 6px"><input type="text" name="lieu" class="editable" placeholder="ex: Rabat" style="width:100%;min-width:90px"></td>
-                <td style="padding:8px 6px"><input type="date" name="date_competition" class="editable" style="width:100%;min-width:120px"></td>
-                <td style="padding:8px 6px">
-                  <select name="epreuve" id="epreuve_select_res" required style="padding:7px 10px;border:1.5px solid rgba(36,113,214,.4);border-radius:5px;background:#F0F5FF;font-family:'Barlow',sans-serif;font-size:.85rem;color:#2C3345;outline:none;width:100%;min-width:130px">
-                    <option value="">— Sélectionner —</option>
-                    {% for epr in epreuves_ref %}
-                    <option value="{{ epr }}">{{ epr }}</option>
-                    {% endfor %}
-                    {% for epr in all_epreuves %}
-                    {% if epr not in epreuves_ref %}
-                    <option value="{{ epr }}">{{ epr }}</option>
-                    {% endif %}
-                    {% endfor %}
-                    <option value="__new__">✚ Autre épreuve...</option>
-                  </select>
-                  <input type="text" name="new_epreuve" id="new_epreuve_res" class="editable" placeholder="Saisir l'épreuve" style="display:none;margin-top:5px;width:100%">
-                </td>
-                <td style="padding:8px 6px"><input type="text" name="classement" class="editable" placeholder="ex: 1" style="width:60px"></td>
-                <td style="padding:8px 6px"><input type="text" name="performance" class="editable" placeholder="ex: 3:28.50" required style="width:100%;min-width:90px"></td>
-                <td style="padding:8px 6px"><input type="text" name="objectif_perf_inline" class="editable" placeholder="ex: 3:25.00" style="width:100%;min-width:90px"></td>
-                <td style="padding:8px 6px;text-align:center">
-                  <button type="submit" class="btn btn-secondary" style="white-space:nowrap">✉ Soumettre</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </form>
-        <script>
-        document.getElementById('epreuve_select_res').addEventListener('change', function(){
-          document.getElementById('new_epreuve_res').style.display = this.value === '__new__' ? 'block' : 'none';
-        });
-        </script>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ══ ONGLET 4 : OBJECTIFS PARTICIPATION ══ -->
-<div id="tab-participation" class="tab-pane {% if active_tab in ['tab-participation','participation'] %}active{% endif %}">
+  <!-- SUB-TAB Participation -->
+  <div id="sub-partic" style="display:none">
+<div id="tab-participation-legacy" style="display:none">
   <div class="card">
     <div class="card-header"><h2>Objectifs Participation aux Championnats</h2><span class="tag tag-blue">À saisir</span></div>
     <div class="card-body">
@@ -572,7 +400,270 @@
       </form>
     </div>
   </div>
-</div>
+</div><!-- /tab-participation-legacy content wrapper -->
+  </div><!-- /sub-partic -->
+</div><!-- /tab-objectifs -->
+
+
+</div><!-- /tab-objectifs -->
+
+<!-- ══ ONGLET 3 : RÉALISATIONS ══ -->
+<div id="tab-realisations" class="tab-pane {% if active_tab in ['tab-realisations','realisations'] %}active{% endif %}">
+
+  <!-- Sous-onglets Réalisations -->
+  <div style="display:flex;gap:0;margin-bottom:1.5rem;border-bottom:2px solid #DDE2EC">
+    <button id="realbtn-perf" onclick="showRealSubTab('real-perf','real-partic',this)"
+      style="padding:10px 24px;border:none;background:none;font-family:'Barlow',sans-serif;font-size:.88rem;font-weight:700;color:#2471D6;cursor:pointer;border-bottom:2px solid #2471D6;margin-bottom:-2px">
+      📊 Réalisations Performance
+    </button>
+    <button id="realbtn-partic" onclick="showRealSubTab('real-partic','real-perf',this)"
+      style="padding:10px 24px;border:none;background:none;font-family:'Barlow',sans-serif;font-size:.88rem;font-weight:700;color:#8A92A6;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px">
+      🏆 Réalisations Participation
+    </button>
+  </div>
+
+  <!-- SUB-TAB : Réalisations Performance -->
+  <div id="real-perf">
+
+  <!-- Build objectif maps per saison -->
+  {% set obj_map_2425 = {} %}
+  {% set obj_map_2526 = {} %}
+  {% for o in objectifs %}
+    {% if o.statut == 'validé' %}
+      {% if o.saison == '2024/2025' %}{% set _ = obj_map_2425.update({o.epreuve: o.objectif_chrono}) %}{% endif %}
+      {% if o.saison == '2025/2026' or not o.saison %}{% set _ = obj_map_2526.update({o.epreuve: o.objectif_chrono}) %}{% endif %}
+    {% endif %}
+  {% endfor %}
+
+  {% macro real_table(rows, show_classement, obj_map) %}
+  <div style="overflow-x:auto">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Date</th><th>Compétition</th><th>Lieu</th><th>Épreuve</th>
+          {% if show_classement %}<th>Classement</th>{% endif %}
+          <th>Performance</th>
+          <th style="color:#2471D6">Obj. Performance</th>
+          <th>Écart</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+        {% set epr = r.get('epreuve','') %}
+        {% set perf = (r.get('performance') or r.get('resultat') or '') | string %}
+        <tr>
+          <td style="font-size:.82rem;color:#8A92A6;white-space:nowrap">{{ r.get('date') or r.get('date_competition') or '—' }}</td>
+          <td style="font-weight:500">{{ r.get('competition') or r.get('nom_competition') or '—' }}</td>
+          <td style="font-size:.82rem;color:#8A92A6">{{ r.get('lieu') or '—' }}</td>
+          <td style="color:#2471D6;white-space:nowrap">{{ epr or '—' }}</td>
+          {% if show_classement %}
+          <td style="text-align:center">
+            {% set cl = (r.get('classement','') or '') | string %}
+            {% if cl and cl not in ['nan','None','—',''] %}
+              {% if cl == '1' %}<span class="perf-badge perf-gold">🥇 1er</span>
+              {% elif cl == '2' %}<span class="perf-badge perf-silver">🥈 2e</span>
+              {% elif cl == '3' %}<span class="perf-badge perf-bronze">🥉 3e</span>
+              {% else %}<span class="perf-badge perf-normal">{{ cl }}</span>{% endif %}
+            {% else %}—{% endif %}
+          </td>
+          {% endif %}
+          <td style="font-weight:700;font-size:.95rem">{{ perf or '—' }}</td>
+          <td style="color:#2471D6;font-weight:500;font-size:.85rem">
+            {% set obj_val = obj_map.get(epr,'') %}
+            {{ obj_val or '—' }}
+          </td>
+          <td class="ecart-cell" data-perf="{{ perf }}" data-obj="{{ obj_map.get(epr,'') }}">—</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endmacro %}
+
+  <!-- Saisons historiques -->
+  {% set all_hist_rows = [] %}
+  {% for r in hist_autres.values() | sum(start=[]) %}{% if all_hist_rows.append(r) %}{% endif %}{% endfor %}
+  {% for r in historique_2425 %}{% if all_hist_rows.append(r) %}{% endif %}{% endfor %}
+  {% for r in historique_2526 %}{% if all_hist_rows.append(r) %}{% endif %}{% endfor %}
+
+  {% if all_hist_rows %}
+  <div class="card" style="margin-bottom:1.2rem">
+    <div class="card-header" style="flex-wrap:wrap;gap:.8rem">
+      <h2>Résultats historiques</h2>
+      <span class="tag tag-grey" id="hist-count">{{ all_hist_rows|length }} résultat(s)</span>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:.8rem;flex-wrap:wrap">
+        <select id="filter-saison-hist" onchange="filterHistorique()"
+          style="padding:7px 12px;border:1.5px solid #DDE2EC;border-radius:5px;font-family:'Barlow',sans-serif;font-size:.85rem;color:#2C3345;background:#F8F9FC;outline:none">
+          <option value="">— Toutes les saisons —</option>
+          {% set seen_s = [] %}
+          {% for r in all_hist_rows | sort(attribute='saison', reverse=true) %}
+            {% set s = r.get('saison','') %}
+            {% if s and s not in seen_s %}{% if seen_s.append(s) %}{% endif %}
+              <option value="{{ s }}">{{ s }}</option>
+            {% endif %}
+          {% endfor %}
+        </select>
+        <select id="filter-epreuve-hist" onchange="filterHistorique()"
+          style="padding:7px 12px;border:1.5px solid #DDE2EC;border-radius:5px;font-family:'Barlow',sans-serif;font-size:.85rem;color:#2C3345;background:#F8F9FC;outline:none">
+          <option value="">— Toutes les épreuves —</option>
+          {% set seen_ep = [] %}
+          {% for r in all_hist_rows %}
+            {% set ep = r.get('epreuve','') %}
+            {% if ep and ep not in seen_ep %}{% if seen_ep.append(ep) %}{% endif %}
+              <option value="{{ ep }}">{{ ep }}</option>
+            {% endif %}
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="table" id="hist-table">
+        <thead>
+          <tr>
+            <th>Saison</th><th>Catégorie</th><th>Date</th><th>Compétition</th><th>Lieu</th><th>Épreuve</th>
+            <th>Classement</th><th>Performance</th>
+            <th style="color:#2471D6">Obj. Performance</th><th>Écart</th>
+          </tr>
+        </thead>
+        <tbody id="hist-tbody">
+          {% for r in all_hist_rows | sort(attribute='saison', reverse=true) %}
+          {% set saison_r = r.get('saison','') %}
+          {% set epr = r.get('epreuve','') %}
+          {% set perf = (r.get('performance') or r.get('resultat') or '') | string %}
+          {% if saison_r == '2024/2025' %}{% set obj = obj_map_2425.get(epr,'') %}
+          {% elif saison_r == '2025/2026' %}{% set obj = obj_map_2526.get(epr,'') %}
+          {% else %}{% set obj = '' %}{% endif %}
+          {% set cl = (r.get('classement','') or '') | string %}
+          <tr data-saison="{{ saison_r }}" data-epreuve="{{ epr }}">
+            <td><span style="background:#EEF1F8;padding:2px 8px;border-radius:4px;font-size:.75rem;font-weight:600;color:#1E2742">{{ saison_r or '—' }}</span></td>
+            <td class="cat-cell" data-saison="{{ saison_r }}"><span style="background:#F0F5FF;color:#2471D6;padding:2px 8px;border-radius:4px;font-size:.73rem;font-weight:700">—</span></td>
+            <td style="font-size:.82rem;color:#8A92A6;white-space:nowrap">{{ r.get('date') or r.get('date_competition') or '—' }}</td>
+            <td style="font-weight:500;font-size:.85rem">{{ r.get('competition') or r.get('nom_competition') or '—' }}</td>
+            <td style="font-size:.82rem;color:#8A92A6">{{ r.get('lieu') or '—' }}</td>
+            <td style="color:#2471D6;font-size:.85rem;white-space:nowrap">{{ epr or '—' }}</td>
+            <td style="text-align:center">
+              {% if cl and cl not in ['nan','None','—',''] %}
+                {% if cl == '1' %}<span class="perf-badge perf-gold">🥇 1er</span>
+                {% elif cl == '2' %}<span class="perf-badge perf-silver">🥈 2e</span>
+                {% elif cl == '3' %}<span class="perf-badge perf-bronze">🥉 3e</span>
+                {% else %}<span class="perf-badge perf-normal">{{ cl }}</span>{% endif %}
+              {% else %}—{% endif %}
+            </td>
+            <td style="font-weight:700;color:#1E2742;font-size:.95rem">{{ perf or '—' }}</td>
+            <td style="color:#2471D6;font-weight:500;font-size:.85rem">{% if obj %}{{ obj }}{% else %}<span style="color:#DDE2EC">—</span>{% endif %}</td>
+            <td class="ecart-cell" data-perf="{{ perf }}" data-obj="{{ obj or '' }}">—</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div id="hist-empty" style="display:none;text-align:center;padding:2rem;color:#8A92A6;font-size:.85rem">Aucun résultat pour cette sélection.</div>
+  </div>
+  {% endif %}
+
+  <!-- Résultats saisis (DB) saison en cours -->
+  {% if res_by_epreuve %}
+  <div class="card" style="margin-bottom:1.2rem">
+    <div class="card-header"><h2>Résultats saisis — Saison en cours</h2><span class="tag tag-blue">Saison 2025/2026</span></div>
+    {% for epreuve, res_list in res_by_epreuve.items() %}
+    <div style="padding:.5rem 1.2rem .2rem;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#2471D6;background:#F8F9FF;border-top:1px solid #EEF1F8">{{ epreuve }}</div>
+    {{ real_table(res_list, true, obj_map_2526) }}
+    {% endfor %}
+
+    <!-- Ajouter résultat -->
+    <div style="background:#F0F5FF;border-top:1px solid rgba(36,113,214,.15);padding:1.2rem">
+      <div style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#2471D6;margin-bottom:1rem">+ Ajouter un résultat de compétition</div>
+      <form method="POST" action="/athlete/{{ ath.id }}/submit_resultat">
+        <table style="width:100%;border-collapse:collapse;margin-bottom:1rem">
+          <thead>
+            <tr style="background:#F0F5FF">
+              <th style="padding:9px 12px;font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:600;text-align:left">Compétition *</th>
+              <th style="padding:9px 12px;font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:600;text-align:left">Lieu</th>
+              <th style="padding:9px 12px;font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:600;text-align:left">Date</th>
+              <th style="padding:9px 12px;font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:600;text-align:left">Épreuve *</th>
+              <th style="padding:9px 12px;font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:600;text-align:left">Classement</th>
+              <th style="padding:9px 12px;font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:600;text-align:left">Performance *</th>
+              <th style="padding:9px 12px;font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:600;text-align:left">Obj. Performance</th>
+              <th style="padding:9px 12px;font-size:.68rem;border-bottom:1px solid #DDE2EC"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="padding:8px 6px"><input type="text" name="nom_competition" class="editable" placeholder="ex: Ch. National" required style="width:100%;min-width:120px"></td>
+              <td style="padding:8px 6px"><input type="text" name="lieu" class="editable" placeholder="ex: Rabat" style="width:100%;min-width:90px"></td>
+              <td style="padding:8px 6px"><input type="date" name="date_competition" class="editable" style="width:100%;min-width:120px"></td>
+              <td style="padding:8px 6px">
+                <select name="epreuve" id="epreuve_select_res" required style="padding:7px 10px;border:1.5px solid rgba(36,113,214,.4);border-radius:5px;background:#F0F5FF;font-family:'Barlow',sans-serif;font-size:.85rem;color:#2C3345;outline:none;width:100%;min-width:130px">
+                  <option value="">— Sélectionner —</option>
+                  {% for epr in epreuves_ref %}
+                  <option value="{{ epr }}">{{ epr }}</option>
+                  {% endfor %}
+                  {% for epr in all_epreuves %}
+                  {% if epr not in epreuves_ref %}
+                  <option value="{{ epr }}">{{ epr }}</option>
+                  {% endif %}
+                  {% endfor %}
+                  <option value="__new__">✚ Autre épreuve...</option>
+                </select>
+                <input type="text" name="new_epreuve" id="new_epreuve_res" class="editable" placeholder="Saisir l'épreuve" style="display:none;margin-top:5px;width:100%">
+              </td>
+              <td style="padding:8px 6px"><input type="text" name="classement" class="editable" placeholder="ex: 1" style="width:60px"></td>
+              <td style="padding:8px 6px"><input type="text" name="performance" class="editable" placeholder="ex: 3:28.50" required style="width:100%;min-width:90px"></td>
+              <td style="padding:8px 6px"><input type="text" name="objectif_perf_inline" class="editable" placeholder="ex: 3:25.00" style="width:100%;min-width:90px"></td>
+              <td style="padding:8px 6px;text-align:center">
+                <button type="submit" class="btn btn-secondary" style="white-space:nowrap">✉ Soumettre</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </form>
+      <script>
+      document.getElementById('epreuve_select_res').addEventListener('change', function(){
+        document.getElementById('new_epreuve_res').style.display = this.value === '__new__' ? 'block' : 'none';
+      });
+      </script>
+    </div>
+  </div>
+  {% endif %}
+
+  </div><!-- /real-perf -->
+
+  <!-- SUB-TAB : Réalisations Participation -->
+  <div id="real-partic" style="display:none">
+    {% if validated_champs %}
+    <div class="card">
+      <div class="card-header"><h2>Objectifs Participation validés</h2><span class="tag tag-green">{{ validated_champs|length }}</span></div>
+      <div style="overflow-x:auto">
+        <table class="table">
+          <thead>
+            <tr><th>Épreuve</th><th>Championnat</th><th>Participation</th><th>Objectif</th><th>Statut</th></tr>
+          </thead>
+          <tbody>
+            {% for c in validated_champs %}
+            <tr>
+              <td style="color:#2471D6;font-weight:500">{{ c.epreuve }}</td>
+              <td style="font-weight:600;color:#1E2742">{{ c.championnat }}</td>
+              <td style="text-align:center">
+                {% if c.participe %}<span class="tag tag-green" style="font-size:.7rem">✔ Oui</span>
+                {% else %}<span class="tag tag-grey" style="font-size:.7rem">Non</span>{% endif %}
+              </td>
+              <td>{{ c.objectif or '—' }}</td>
+              <td><span class="tag tag-green" style="font-size:.7rem">✔ Validé</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% else %}
+    <div style="text-align:center;padding:3rem;color:#8A92A6">
+      <div style="font-size:2rem;margin-bottom:.5rem">🏆</div>
+      <p>Aucun objectif de participation validé pour le moment.</p>
+    </div>
+    {% endif %}
+  </div><!-- /real-partic -->
+
+</div><!-- /tab-realisations -->
 
 <!-- ══ ONGLET 5 : ÉVOLUTION ══ -->
 <div id="tab-evolution" class="tab-pane {% if active_tab in ['tab-evolution','evolution'] %}active{% endif %}">
@@ -651,7 +742,7 @@
 
 <script>
 // Tab management
-const TABS = ['tab-info','tab-objectifs','tab-realisations','tab-participation','tab-evolution'];
+const TABS = ['tab-info','tab-objectifs','tab-realisations','tab-evolution'];
 function showTab(id, btn) {
   TABS.forEach(t => document.getElementById(t).classList.remove('active'));
   document.querySelectorAll('.tab-nav-btn').forEach(b => b.classList.remove('active'));
@@ -801,6 +892,23 @@ function renderCatCell(cell) {
   const bg = color[cat] || '#F0F5FF';
   const tc = textColor[cat] || '#2471D6';
   cell.innerHTML = `<span style="background:${bg};color:${tc};padding:2px 8px;border-radius:4px;font-size:.73rem;font-weight:700">${cat}</span>`;
+}
+
+function showSubTab(showId, hideId, btn) {
+  document.getElementById(showId).style.display = 'block';
+  document.getElementById(hideId).style.display = 'none';
+  // Update button styles
+  ['subbtn-perf','subbtn-partic'].forEach(id => {
+    const b = document.getElementById(id);
+    if (b) {
+      b.style.color = '#8A92A6';
+      b.style.borderBottomColor = 'transparent';
+    }
+  });
+  if (btn) {
+    btn.style.color = '#2471D6';
+    btn.style.borderBottomColor = '#2471D6';
+  }
 }
 
 function filterHistorique() {

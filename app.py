@@ -259,6 +259,9 @@ def init_db():
                     VALUES (%s,%s,%s,%s) ON CONFLICT (username) DO NOTHING''',
            (username, hash_pw('Coach2026'), full_name, 'coach'))
 
+    # Fix: remove old duplicate BOUSAAD licence before seed
+    ex(conn, "DELETE FROM athletes WHERE numero_licence='1082251'")
+
     # Seed athletes from JSON
     for a in ATHLETES_JSON:
         coach = q(conn, "SELECT id FROM users WHERE full_name=%s", (a['entraineur'],), one=True)
@@ -326,10 +329,12 @@ def logout():
 @login_required
 def dashboard():
     conn = get_db()
+    ex(conn, "DELETE FROM athletes WHERE numero_licence='1082251'")
     if session['role'] == 'admin':
         athletes = q(conn, """
-            SELECT a.*, u.full_name as coach_name
-            FROM athletes a JOIN users u ON a.coach_id=u.id
+            SELECT a.*, COALESCE(u.full_name,'—') as coach_name
+            FROM athletes a LEFT JOIN users u ON a.coach_id=u.id
+            WHERE a.numero_licence != '1082251'
             ORDER BY
                 CASE a.categorie
                     WHEN 'M1' THEN 1 WHEN 'M2' THEN 2
@@ -340,9 +345,9 @@ def dashboard():
         """)
     else:
         athletes = q(conn, """
-            SELECT a.*, u.full_name as coach_name
-            FROM athletes a JOIN users u ON a.coach_id=u.id
-            WHERE a.coach_id=%s
+            SELECT a.*, COALESCE(u.full_name,'—') as coach_name
+            FROM athletes a LEFT JOIN users u ON a.coach_id=u.id
+            WHERE a.coach_id=%s AND a.numero_licence != '1082251'
             ORDER BY
                 CASE a.categorie
                     WHEN 'M1' THEN 1 WHEN 'M2' THEN 2
@@ -995,9 +1000,11 @@ def parse_perf(perf_str, epreuve=''):
 def admin_minimas():
     """Show athletes who have reached CRF access thresholds this season."""
     conn = get_db()
+    ex(conn, "DELETE FROM athletes WHERE numero_licence='1082251'")
     all_athletes = q(conn, """
-        SELECT a.*, u.full_name as coach_name
-        FROM athletes a JOIN users u ON a.coach_id=u.id
+        SELECT a.*, COALESCE(u.full_name,'—') as coach_name
+        FROM athletes a LEFT JOIN users u ON a.coach_id=u.id
+        WHERE a.numero_licence != '1082251'
         ORDER BY a.categorie, a.nom_prenom
     """)
     conn.close()

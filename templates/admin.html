@@ -424,22 +424,80 @@ document.querySelectorAll('.field-cb').forEach(cb => {
 
 <!-- TAB ATHLETES -->
 <div id="tab-athletes" style="display:none">
-  {% set centres = athletes|map(attribute='centre')|unique|list|sort %}
-  {% for centre in centres %}
-  {% set grp = athletes|selectattr('centre','equalto',centre)|list %}
-  <div class="card" style="margin-bottom:1.2rem">
-    <div class="card-header">
-      <h2>{{ centre }}</h2>
-      <span class="tag tag-blue">{{ grp|length }} athlètes</span>
+
+  <!-- Filtres -->
+  <div class="card" style="margin-bottom:1rem;padding:.8rem 1.2rem">
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-end">
+      <div>
+        <label style="font-size:.72rem;font-weight:700;text-transform:uppercase;color:#8A92A6;display:block;margin-bottom:4px">Recherche</label>
+        <input type="text" id="filter-ath-name" oninput="filterAthletes()"
+          placeholder="Nom ou licence..."
+          style="padding:7px 12px;border:1.5px solid #DDE2EC;border-radius:5px;font-family:'Barlow',sans-serif;font-size:.85rem;color:#2C3345;background:#F8F9FC;outline:none;min-width:200px">
+      </div>
+      <div>
+        <label style="font-size:.72rem;font-weight:700;text-transform:uppercase;color:#8A92A6;display:block;margin-bottom:4px">Centre</label>
+        <select id="filter-ath-centre" onchange="filterAthletes()"
+          style="padding:7px 12px;border:1.5px solid #DDE2EC;border-radius:5px;font-family:'Barlow',sans-serif;font-size:.85rem;color:#2C3345;background:#F8F9FC;outline:none">
+          <option value="">— Tous —</option>
+          {% for centre in athletes|map(attribute='centre')|unique|sort %}
+          <option value="{{ centre }}">{{ centre }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label style="font-size:.72rem;font-weight:700;text-transform:uppercase;color:#8A92A6;display:block;margin-bottom:4px">Classe</label>
+        <select id="filter-ath-classe" onchange="filterAthletes()"
+          style="padding:7px 12px;border:1.5px solid #DDE2EC;border-radius:5px;font-family:'Barlow',sans-serif;font-size:.85rem;color:#2C3345;background:#F8F9FC;outline:none">
+          <option value="">— Toutes —</option>
+          <option value="A">Classe A</option>
+          <option value="B">Classe B</option>
+          <option value="Autre">Autre</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:.72rem;font-weight:700;text-transform:uppercase;color:#8A92A6;display:block;margin-bottom:4px">Catégorie</label>
+        <select id="filter-ath-cat" onchange="filterAthletes()"
+          style="padding:7px 12px;border:1.5px solid #DDE2EC;border-radius:5px;font-family:'Barlow',sans-serif;font-size:.85rem;color:#2C3345;background:#F8F9FC;outline:none">
+          <option value="">— Toutes —</option>
+          {% for cat in ['M1','M2','C1','C2','J1','J2','S'] %}
+          <option value="{{ cat }}">{{ cat }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button onclick="resetFilters()"
+        style="padding:7px 14px;border:1.5px solid #DDE2EC;border-radius:5px;background:#fff;color:#8A92A6;font-size:.83rem;cursor:pointer;font-weight:600">
+        ✕ Réinitialiser
+      </button>
+      <span id="ath-count" style="font-size:.82rem;color:#8A92A6;align-self:center">
+        {{ athletes|length }} athlète(s)
+      </span>
     </div>
+  </div>
+
+  <!-- Tableau unique -->
+  <div class="card">
     <div style="overflow-x:auto">
-      <table class="table">
+      <table class="table" id="ath-table">
         <thead>
-          <tr><th>Cat.</th><th>Nom & Prénom</th><th>Classe</th><th>Entraineur</th><th>Spécialité</th><th>Épreuves</th><th>Licence</th><th>Naissance</th><th></th></tr>
-        </thead>
-        <tbody>
-          {% for a in grp %}
           <tr>
+            <th>Cat.</th>
+            <th>Nom & Prénom</th>
+            <th>Classe</th>
+            <th>Centre</th>
+            <th>Entraineur</th>
+            <th>Spécialité</th>
+            <th>Licence</th>
+            <th>Naissance</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="ath-tbody">
+          {% for a in athletes %}
+          <tr data-nom="{{ a.nom_prenom|upper }}"
+              data-licence="{{ a.numero_licence }}"
+              data-centre="{{ a.centre }}"
+              data-classe="{{ a.classe or 'Autre' }}"
+              data-cat="{{ a.categorie }}">
             <td><span class="tag tag-grey" style="font-size:.65rem">{{ a.categorie }}</span></td>
             <td style="font-weight:600;color:#1E2742">{{ a.nom_prenom }}</td>
             <td style="text-align:center">
@@ -447,9 +505,9 @@ document.querySelectorAll('.field-cb').forEach(cb => {
               <span class="classe-badge classe-{{ a.classe }}" style="font-size:.75rem;padding:2px 8px">{{ a.classe }}</span>
               {% else %}<span style="color:#DDE2EC;font-size:.78rem">—</span>{% endif %}
             </td>
+            <td style="font-size:.82rem;color:#8A92A6">{{ a.centre }}</td>
             <td style="font-size:.82rem;color:#8A92A6">{{ a.coach_name }}</td>
             <td style="font-size:.83rem">{{ a.specialite }}</td>
-            <td style="font-size:.82rem;color:#2471D6">{{ a.epreuves }}</td>
             <td style="font-family:monospace;font-size:.78rem;color:#8A92A6">{{ a.numero_licence }}</td>
             <td style="font-size:.78rem;color:#8A92A6">{{ a.date_naissance[:10] if a.date_naissance else '—' }}</td>
             <td><a href="/admin/athlete/{{ a.id }}" class="btn btn-ghost btn-sm">Voir →</a></td>
@@ -458,8 +516,37 @@ document.querySelectorAll('.field-cb').forEach(cb => {
         </tbody>
       </table>
     </div>
+    <div id="ath-empty" style="display:none;text-align:center;padding:2rem;color:#8A92A6">Aucun athlète trouvé.</div>
   </div>
-  {% endfor %}
+
+  <script>
+  function filterAthletes() {
+    const name   = document.getElementById('filter-ath-name').value.toUpperCase().trim();
+    const centre = document.getElementById('filter-ath-centre').value;
+    const classe = document.getElementById('filter-ath-classe').value;
+    const cat    = document.getElementById('filter-ath-cat').value;
+    const rows   = document.querySelectorAll('#ath-tbody tr');
+    let visible  = 0;
+    rows.forEach(row => {
+      const matchName   = !name   || row.dataset.nom.includes(name) || row.dataset.licence.includes(name);
+      const matchCentre = !centre || row.dataset.centre === centre;
+      const matchClasse = !classe || row.dataset.classe === classe;
+      const matchCat    = !cat    || row.dataset.cat === cat;
+      const show = matchName && matchCentre && matchClasse && matchCat;
+      row.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+    document.getElementById('ath-count').textContent = visible + ' athlète(s)';
+    document.getElementById('ath-empty').style.display = visible === 0 ? 'block' : 'none';
+  }
+  function resetFilters() {
+    document.getElementById('filter-ath-name').value = '';
+    document.getElementById('filter-ath-centre').value = '';
+    document.getElementById('filter-ath-classe').value = '';
+    document.getElementById('filter-ath-cat').value = '';
+    filterAthletes();
+  }
+  </script>
 </div>
 
 <!-- TAB COACHES -->

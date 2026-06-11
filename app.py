@@ -44,6 +44,8 @@ def load_resultats_json():
 try:
     with open(os.path.join(BASE_DIR, 'epreuves_ref.json'), encoding='utf-8') as _f:
         EPREUVES_REF = json.load(_f)
+    with open(os.path.join(BASE_DIR, 'minimas.json'), encoding='utf-8') as _f:
+        MINIMAS = json.load(_f)
     with open(os.path.join(BASE_DIR, 'epreuve_to_specialite.json'), encoding='utf-8') as _f:
         EPREUVE_TO_SPECIALITE = json.load(_f)
     ATHLETES_JSON = load_athletes_json()
@@ -65,6 +67,7 @@ except Exception as e:
     RESULTATS_BY_LICENCE = {}
     EPREUVES_REF = {}
     EPREUVE_TO_SPECIALITE = {}
+    MINIMAS = {}
 
 # ── DB ─────────────────────────────────────────────────────
 def get_db():
@@ -953,6 +956,105 @@ def admin_athlete(aid):
     conn.close()
 
     return render_template('admin_athlete.html', a=a, ath=a, objectifs=objectifs, resultats=resultats, champs=champs)
+
+@app.route('/admin/minimas')
+@login_required
+@admin_required
+def admin_minimas():
+    """Show athletes who have reached CRF access thresholds this season."""
+    conn = get_db()
+    all_athletes = q(conn, """
+        SELECT a.*, u.full_name as coach_name
+        FROM athletes a JOIN users u ON a.coach_id=u.id
+        ORDER BY a.categorie, a.nom_prenom
+    """)
+    conn.close()
+
+    saison_courante = '2025/2026'
+    resultats_saison = [r for r in RESULTATS_JSON if r.get('saison') == saison_courante]
+
+    # Build best result per athlete per epreuve this season
+    best_by_ath = {}  # licence -> {epreuve -> best_perf_seconds}
+    for r in resultats_saison:
+        lic = r['licence']
+        ep = r.get('epreuve', '')
+        perf_str = str(r.get('resultat') or r.get('performance') or '')
+        perf_sec = parse_perf(perf_str, ep)
+        if perf_sec is None: continue
+        if lic not in best_by_ath: best_by_ath[lic] = {}
+        if ep not in best_by_ath[lic] or perf_sec < best_by_ath[lic][ep]:
+            best_by_ath[lic][ep] = (perf_sec, perf_str)
+
+    results = []
+    for a in all_athletes:
+        lic = a['numero_licence']
+        cat = a['categorie']
+        sexe = a['sexe']
+        bests = best_by_ath.get(lic, {})
+        athlete_results = []
+        for ep, minima_cats in MINIMAS.items():
+            sexe_minimas = minima_cats.get(sexe, {})
+            # Next cat minima
+            next_cat = sexe_minimas.get(cat)
+            if not next_cat: continue
+            if ep not in bests: continue
+            perf_sec, perf_str = bests[ep]
+            min_sec = parse_perf(next_cat, ep)
+            if min_sec is None: continue
+            # For track: lower is better; for field: higher is better
+            is_field = any(x in ep for x in ['Longueur','Triple','Hauteur','Poids','Disque','Javelot','Marteau'])
+            if is_field:
+                reached = perf_sec >= min_sec
+            else:
+                reached = perf_sec <= min_sec
+            if reached:
+                athlete_results.append({
+                    'epreuve': ep, 'perf': perf_str,
+                    'minima': next_cat, 'reached': True
+                })
+        if athlete_results:
+            results.append({'athlete': a, 'results': athlete_results})
+
+    return render_template('admin.html',
+        minimas_results=results,
+        minimas_saison=saison_courante,
+        stats={'total_athletes': len(all_athletes), 'total_coaches': 0, 'en_attente': 0},
+        pending_obj=[], pending_res=[], pending_champ=[], pending_perf=[],
+        athletes=all_athletes, coaches=[], validated_obj=[], validated_res=[],
+        active_admin_tab='tab-minimas'
+    )
+
+def parse_perf(perf_str, epreuve=''):
+    """Convert performance string to seconds (or meters for field events)."""
+    if not perf_str or perf_str in ('nan','None','—',''): return None
+    s = str(perf_str).strip().upper().replace(',','.')
+    import re as _re
+    # Field events: remove M, KG, G suffix
+    field_match = _re.match(r'^([0-9.]+)\s*(M|KG|G)$', s)
+    if field_match:
+        return float(field_match.group(1))
+    # Time: convert to seconds
+    s = s.lower()
+    # apostrophe format: 8'23"56
+    if "'" in s:
+        s = s.replace("'",':').replace('"','.')
+    # 3-part dot: 1.59.00
+    dots = s.count('.')
+    colons = s.count(':')
+    if dots == 2 and colons == 0:
+        parts = s.split('.')
+        s = parts[0]+':'+parts[1]+'.'+parts[2]
+    if ':' in s:
+        parts = s.split(':')
+        if len(parts) == 2:
+            return float(parts[0])*60 + float(parts[1])
+        if len(parts) == 3:
+            h,m,sec = float(parts[0]),float(parts[1]),float(parts[2])
+            if h<=2 and m<60 and sec<100:
+                return h*60 + m + sec/100
+            return h*3600 + m*60 + sec
+    try: return float(s)
+    except: return None
 
 @app.route('/admin/export')
 @login_required

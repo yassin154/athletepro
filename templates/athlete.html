@@ -165,11 +165,11 @@
 
   <!-- Sous-onglets Objectifs -->
   <div style="display:flex;gap:0;margin-bottom:1.5rem;border-bottom:2px solid #DDE2EC">
-    <button id="subbtn-perf" onclick="showSubTab('sub-perf','sub-partic',this)"
+    <button id="subbtn-perf" onclick="document.getElementById('sub-perf').style.display='block';document.getElementById('sub-partic').style.display='none';document.getElementById('subbtn-partic').style.color='#8A92A6';document.getElementById('subbtn-partic').style.borderBottomColor='transparent';this.style.color='#2471D6';this.style.borderBottomColor='#2471D6';"
       style="padding:10px 24px;border:none;background:none;font-family:'Barlow',sans-serif;font-size:.88rem;font-weight:700;color:#2471D6;cursor:pointer;border-bottom:2px solid #2471D6;margin-bottom:-2px">
       🎯 Objectifs Performance
     </button>
-    <button id="subbtn-partic" onclick="showSubTab('sub-partic','sub-perf',this)"
+    <button id="subbtn-partic" onclick="document.getElementById('sub-partic').style.display='block';document.getElementById('sub-perf').style.display='none';document.getElementById('subbtn-perf').style.color='#8A92A6';document.getElementById('subbtn-perf').style.borderBottomColor='transparent';this.style.color='#2471D6';this.style.borderBottomColor='#2471D6';"
       style="padding:10px 24px;border:none;background:none;font-family:'Barlow',sans-serif;font-size:.88rem;font-weight:700;color:#8A92A6;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px">
       🏆 Objectifs Participation
     </button>
@@ -328,7 +328,7 @@
 
   <!-- SUB-TAB Participation -->
   <div id="sub-partic" style="display:none">
-<div id="tab-participation-legacy" style="display:none">
+<div id="tab-participation-legacy">
   <div class="card">
     <div class="card-header"><h2>Objectifs Participation aux Championnats</h2><span class="tag tag-blue">À saisir</span></div>
     <div class="card-body">
@@ -412,11 +412,11 @@
 
   <!-- Sous-onglets Réalisations -->
   <div style="display:flex;gap:0;margin-bottom:1.5rem;border-bottom:2px solid #DDE2EC">
-    <button id="realbtn-perf" onclick="showRealSubTab('real-perf','real-partic',this)"
+    <button id="realbtn-perf" onclick="document.getElementById('real-perf').style.display='block';document.getElementById('real-partic').style.display='none';document.getElementById('realbtn-partic').style.color='#8A92A6';document.getElementById('realbtn-partic').style.borderBottomColor='transparent';this.style.color='#2471D6';this.style.borderBottomColor='#2471D6';"
       style="padding:10px 24px;border:none;background:none;font-family:'Barlow',sans-serif;font-size:.88rem;font-weight:700;color:#2471D6;cursor:pointer;border-bottom:2px solid #2471D6;margin-bottom:-2px">
       📊 Réalisations Performance
     </button>
-    <button id="realbtn-partic" onclick="showRealSubTab('real-partic','real-perf',this)"
+    <button id="realbtn-partic" onclick="document.getElementById('real-partic').style.display='block';document.getElementById('real-perf').style.display='none';document.getElementById('realbtn-perf').style.color='#8A92A6';document.getElementById('realbtn-perf').style.borderBottomColor='transparent';this.style.color='#2471D6';this.style.borderBottomColor='#2471D6';"
       style="padding:10px 24px;border:none;background:none;font-family:'Barlow',sans-serif;font-size:.88rem;font-weight:700;color:#8A92A6;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px">
       🏆 Réalisations Participation
     </button>

@@ -4,7 +4,10 @@ on:
   schedule:
     # Chaque lundi à 06:00 UTC (07:00 heure Maroc)
     - cron: '0 6 * * 1'
-  workflow_dispatch:  # déclenchement manuel depuis GitHub UI
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   sync:
@@ -14,10 +17,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.2.2
 
       - name: Python 3.11
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v5.6.0
         with:
           python-version: '3.11'
 

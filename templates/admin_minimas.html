@@ -4,7 +4,6 @@
 
 <div style="max-width:1200px;margin:2rem auto;padding:0 1.5rem">
 
-  <!-- Header -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem">
     <div>
       <a href="/admin" style="font-size:.82rem;color:#8A92A6;text-decoration:none">← Retour Admin</a>
@@ -12,8 +11,7 @@
         🏅 Athlètes ayant atteint les Minimas CRF
       </h1>
       <p style="font-size:.85rem;color:#8A92A6;margin-top:.3rem">
-        Saison <strong>{{ minimas_saison }}</strong> · Résultats issus des compétitions officielles
-        · {{ n_athletes }} athlètes analysés
+        Saison <strong>{{ minimas_saison }}</strong> · {{ n_athletes }} athlètes analysés
       </p>
     </div>
     <span style="background:#EAFAF1;color:#1E8449;padding:8px 20px;border-radius:8px;font-weight:700;font-size:1rem;border:1.5px solid #A9DFBF">
@@ -25,14 +23,13 @@
   <div style="background:#fff;border-radius:12px;padding:4rem;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,.06)">
     <div style="font-size:3rem;margin-bottom:1rem">🏅</div>
     <h2 style="color:#8A92A6;font-family:'Barlow Condensed',sans-serif">Aucun athlète n'a atteint les minimas cette saison</h2>
-    <p style="color:#B0B8CC;margin-top:.5rem;font-size:.85rem">Les résultats de la saison {{ minimas_saison }} seront comparés automatiquement.</p>
+    <p style="color:#B0B8CC;margin-top:.5rem;font-size:.85rem">Les résultats de la saison {{ minimas_saison }} sont analysés automatiquement.</p>
   </div>
 
   {% else %}
 
-  <!-- Summary table -->
-  <div style="background:#fff;border-radius:12px;margin-bottom:1.5rem;box-shadow:0 2px 12px rgba(0,0,0,.06);overflow:hidden">
-    <div style="background:#1E2742;padding:1rem 1.5rem;display:flex;align-items:center;gap:1rem">
+  <div style="background:#fff;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.06);overflow:hidden">
+    <div style="background:#1E2742;padding:1rem 1.5rem">
       <h2 style="color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:1.2rem;font-weight:800">📋 Tableau récapitulatif</h2>
     </div>
     <div style="overflow-x:auto">
@@ -40,12 +37,12 @@
         <thead>
           <tr style="background:#F8F9FC">
             <th style="padding:10px 16px;text-align:left;font-size:.7rem;text-transform:uppercase;letter-spacing:1.2px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:700">Athlète</th>
+            <th style="padding:10px 16px;text-align:center;font-size:.7rem;text-transform:uppercase;letter-spacing:1.2px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:700">Cat.</th>
             <th style="padding:10px 16px;text-align:left;font-size:.7rem;text-transform:uppercase;letter-spacing:1.2px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:700">Centre</th>
             <th style="padding:10px 16px;text-align:left;font-size:.7rem;text-transform:uppercase;letter-spacing:1.2px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:700">Entraineur</th>
-            <th style="padding:10px 16px;text-align:center;font-size:.7rem;text-transform:uppercase;letter-spacing:1.2px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:700">Cat.</th>
-            <th style="padding:10px 16px;text-align:left;font-size:.7rem;text-transform:uppercase;letter-spacing:1.2px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:700">Épreuve(s)</th>
-            <th style="padding:10px 16px;text-align:left;font-size:.7rem;text-transform:uppercase;letter-spacing:1.2px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:700">Meilleure Perf.</th>
-            <th style="padding:10px 16px;text-align:left;font-size:.7rem;text-transform:uppercase;letter-spacing:1.2px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:700">Minima</th>
+            <th style="padding:10px 16px;text-align:left;font-size:.7rem;text-transform:uppercase;letter-spacing:1.2px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:700">Épreuve</th>
+            <th style="padding:10px 16px;text-align:left;font-size:.7rem;text-transform:uppercase;letter-spacing:1.2px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:700">Meilleure perf.</th>
+            <th style="padding:10px 16px;text-align:left;font-size:.7rem;text-transform:uppercase;letter-spacing:1.2px;color:#8A92A6;border-bottom:1px solid #DDE2EC;font-weight:700">Minima requis</th>
             <th style="padding:10px 16px;border-bottom:1px solid #DDE2EC"></th>
           </tr>
         </thead>
@@ -53,24 +50,25 @@
           {% for item in minimas_results %}
           {% set a = item.athlete %}
           {% for res in item.results %}
-          <tr style="border-bottom:1px solid #EEF1F8;{% if loop.first %}background:#FAFFFD{% endif %}">
-            {% if loop.first %}
-            <td rowspan="{{ item.results|length }}" style="padding:10px 16px;font-weight:700;color:#1E2742;vertical-align:middle">{{ a.nom_prenom }}</td>
-            <td rowspan="{{ item.results|length }}" style="padding:10px 16px;font-size:.82rem;color:#8A92A6;vertical-align:middle">{{ a.centre }}</td>
-            <td rowspan="{{ item.results|length }}" style="padding:10px 16px;font-size:.82rem;color:#8A92A6;vertical-align:middle">{{ a.coach_name }}</td>
-            <td rowspan="{{ item.results|length }}" style="padding:10px 16px;text-align:center;vertical-align:middle">
-              <span style="background:#EEF1F8;padding:3px 10px;border-radius:4px;font-size:.72rem;font-weight:700;color:#1E2742">{{ a.categorie }}</span>
+          <tr style="border-bottom:1px solid #EEF1F8;background:{% if loop.index % 2 == 0 %}#FAFFFD{% else %}#fff{% endif %}">
+            <td style="padding:10px 16px;font-weight:700;color:#1E2742">
+              {% if loop.first %}{{ a.nom_prenom }}{% endif %}
             </td>
-            {% else %}
-            {% endif %}
+            <td style="padding:10px 16px;text-align:center">
+              {% if loop.first %}
+              <span style="background:#EEF1F8;padding:3px 10px;border-radius:4px;font-size:.72rem;font-weight:700;color:#1E2742">{{ a.categorie }}</span>
+              {% endif %}
+            </td>
+            <td style="padding:10px 16px;font-size:.82rem;color:#8A92A6">{% if loop.first %}{{ a.centre }}{% endif %}</td>
+            <td style="padding:10px 16px;font-size:.82rem;color:#8A92A6">{% if loop.first %}{{ a.coach_name }}{% endif %}</td>
             <td style="padding:10px 16px;color:#2471D6;font-weight:600">{{ res.epreuve }}</td>
             <td style="padding:10px 16px;font-weight:800;color:#1E2742;font-size:1.05rem">{{ res.perf }}</td>
-            <td style="padding:10px 16px;color:#27AE60;font-weight:600">≤ {{ res.minima }}</td>
-            {% if loop.first %}
-            <td rowspan="{{ item.results|length }}" style="padding:10px 16px;vertical-align:middle;text-align:center">
+            <td style="padding:10px 16px;color:#27AE60;font-weight:600">{{ res.minima }}</td>
+            <td style="padding:10px 16px;text-align:center">
+              {% if loop.first %}
               <a href="/admin/athlete/{{ a.id }}" style="display:inline-block;padding:5px 12px;background:#1E2742;color:#fff;border-radius:5px;font-size:.75rem;font-weight:600;text-decoration:none">Fiche →</a>
+              {% endif %}
             </td>
-            {% endif %}
           </tr>
           {% endfor %}
           {% endfor %}

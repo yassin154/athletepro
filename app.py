@@ -46,6 +46,10 @@ try:
         EPREUVES_REF = json.load(_f)
     with open(os.path.join(BASE_DIR, 'minimas.json'), encoding='utf-8') as _f:
         MINIMAS = json.load(_f)
+    nabaoui_ath_path = os.path.join(BASE_DIR, 'nabaoui_athletes.json')
+    nabaoui_res_path = os.path.join(BASE_DIR, 'nabaoui_results.json')
+    NABAOUI_ATHLETES = json.load(open(nabaoui_ath_path, encoding='utf-8')) if os.path.exists(nabaoui_ath_path) else []
+    NABAOUI_RESULTS  = json.load(open(nabaoui_res_path, encoding='utf-8')) if os.path.exists(nabaoui_res_path) else []
     with open(os.path.join(BASE_DIR, 'epreuve_to_specialite.json'), encoding='utf-8') as _f:
         EPREUVE_TO_SPECIALITE = json.load(_f)
     ATHLETES_JSON = load_athletes_json()
@@ -68,6 +72,8 @@ except Exception as e:
     EPREUVES_REF = {}
     EPREUVE_TO_SPECIALITE = {}
     MINIMAS = {}
+    NABAOUI_ATHLETES = []
+    NABAOUI_RESULTS  = []
 
 # ── DB ─────────────────────────────────────────────────────
 def get_db():
@@ -1001,16 +1007,55 @@ def admin_minimas():
     """Show athletes who have reached CRF access thresholds this season."""
     conn = get_db()
     ex(conn, "DELETE FROM athletes WHERE numero_licence='1082251'")
-    all_athletes = q(conn, """
-        SELECT a.*, COALESCE(u.full_name,'—') as coach_name
+    db_athletes = q(conn, """
+        SELECT a.*, COALESCE(u.full_name, NULL) as coach_name
         FROM athletes a LEFT JOIN users u ON a.coach_id=u.id
         WHERE a.numero_licence != '1082251'
         ORDER BY a.categorie, a.nom_prenom
     """)
     conn.close()
 
+    # Merge: DB athletes (CRF) + JSON athletes + Nabaoui external athletes
+    db_by_lic = {a['numero_licence']: a for a in db_athletes}
+    all_athletes = list(db_athletes)
+    seen_lics = set(db_by_lic.keys())
+    for a in ATHLETES_JSON:
+        lic = a['licence']
+        if lic != '1082251' and lic not in seen_lics:
+            all_athletes.append({
+                'id': None,
+                'numero_licence': lic,
+                'nom_prenom': a['nom'],
+                'categorie': a['categorie'],
+                'sexe': a['sexe'],
+                'centre': a['crf'],
+                'coach_name': a.get('entraineur', '—') or '—',
+                'specialite': a.get('specialite',''),
+                'classe': a.get('classe','Autre'),
+            })
+            seen_lics.add(lic)
+    # Add external athletes from Nabaoui (not in CRF)
+    for a in NABAOUI_ATHLETES:
+        lic = a['licence']
+        if lic not in seen_lics:
+            all_athletes.append({
+                'id': None,
+                'numero_licence': lic,
+                'nom_prenom': a['nom'],
+                'categorie': a['categorie'],
+                'sexe': a['sexe'],
+                'centre': a.get('crf','') or '—',
+                'coach_name': a.get('entraineur','') or '—',
+                'specialite': a.get('specialite',''),
+                'classe': 'Autre',
+            })
+            seen_lics.add(lic)
+
     saison_courante = '2025/2026'
-    resultats_saison = [r for r in RESULTATS_JSON if r.get('saison') == saison_courante]
+    resultats_saison = (
+        [r for r in RESULTATS_JSON   if r.get('saison') == saison_courante] +
+        [r for r in NABAOUI_RESULTS  if r.get('saison') == saison_courante]
+    )
 
     # Build best result per athlete per epreuve this season
     best_by_ath = {}  # licence -> {epreuve -> (best_sec, perf_str)}

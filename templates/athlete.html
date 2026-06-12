@@ -675,35 +675,67 @@
 
   <!-- SUB-TAB : Réalisations Participation -->
   <div id="real-partic" style="display:none">
-    {% if validated_champs %}
-    <div class="card">
-      <div class="card-header"><h2>Objectifs Participation validés</h2><span class="tag tag-green">{{ validated_champs|length }}</span></div>
+    {% if resultats_champ %}
+    <div class="card" style="margin-bottom:1.2rem">
+      <div class="card-header"><h2>Résultats Participation</h2><span class="tag tag-green">{{ resultats_champ|length }}</span></div>
       <div style="overflow-x:auto">
         <table class="table">
           <thead>
-            <tr><th>Épreuve</th><th>Championnat</th><th>Participation</th><th>Objectif</th><th>Statut</th></tr>
+            <tr><th>Championnat</th><th>Épreuve</th><th>Date</th><th>Lieu</th><th>Classement</th><th>Performance</th><th>Objectif</th><th>Notes</th></tr>
           </thead>
           <tbody>
-            {% for c in validated_champs %}
+            {% for r in resultats_champ %}
             <tr>
-              <td style="color:#2471D6;font-weight:500">{{ c.epreuve }}</td>
-              <td style="font-weight:600;color:#1E2742">{{ c.championnat }}</td>
-              <td style="text-align:center">
-                {% if c.participe %}<span class="tag tag-green" style="font-size:.7rem">✔ Oui</span>
-                {% else %}<span class="tag tag-grey" style="font-size:.7rem">Non</span>{% endif %}
-              </td>
-              <td>{{ c.objectif or '—' }}</td>
-              <td><span class="tag tag-green" style="font-size:.7rem">✔ Validé</span></td>
+              <td style="font-weight:600;color:#1E2742">{{ r.championnat }}</td>
+              <td style="color:#2471D6">{{ r.epreuve }}</td>
+              <td style="font-size:.82rem;color:#8A92A6">{{ r.date_competition or '—' }}</td>
+              <td style="font-size:.82rem;color:#8A92A6">{{ r.lieu or '—' }}</td>
+              <td style="text-align:center">{% set cl = r.classement|string %}{% if cl=='1' %}<span class="perf-badge perf-gold">🥇 1er</span>{% elif cl=='2' %}<span class="perf-badge perf-silver">🥈 2e</span>{% elif cl=='3' %}<span class="perf-badge perf-bronze">🥉 3e</span>{% elif r.classement %}<span class="perf-badge perf-normal">{{ cl }}</span>{% else %}—{% endif %}</td>
+              <td style="font-weight:700;font-size:.95rem">{{ r.performance or '—' }}</td>
+              <td style="color:#27AE60;font-size:.85rem">{{ r.objectif or '—' }}</td>
+              <td style="font-size:.82rem;color:#8A92A6">{{ r.notes or '' }}</td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
       </div>
     </div>
+    {% endif %}
+    {% if validated_champs %}
+    <div class="card">
+      <div class="card-header"><h2>+ Saisir un résultat de participation</h2></div>
+      <div style="padding:1.2rem">
+        <form method="POST" action="/athlete/{{ ath.id }}/submit_resultat_champ">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1rem">
+            <div><label style="font-size:.72rem;font-weight:700;text-transform:uppercase;color:#8A92A6;display:block;margin-bottom:4px">Championnat *</label>
+              <select name="championnat" required style="width:100%;padding:8px 10px;border:1.5px solid #DDE2EC;border-radius:5px;font-family:'Barlow',sans-serif;font-size:.85rem">
+                <option value="">— Sélectionner —</option>
+                {% for c in validated_champs %}<option value="{{ c.championnat }}">{{ c.championnat }} — {{ c.epreuve }}</option>{% endfor %}
+              </select></div>
+            <div><label style="font-size:.72rem;font-weight:700;text-transform:uppercase;color:#8A92A6;display:block;margin-bottom:4px">Épreuve *</label>
+              <select name="epreuve" required style="width:100%;padding:8px 10px;border:1.5px solid #DDE2EC;border-radius:5px;font-family:'Barlow',sans-serif;font-size:.85rem">
+                <option value="">— Sélectionner —</option>
+                {% set seen_ep=[] %}{% for c in validated_champs %}{% if c.epreuve not in seen_ep %}{% if seen_ep.append(c.epreuve) %}{% endif %}<option value="{{ c.epreuve }}">{{ c.epreuve }}</option>{% endif %}{% endfor %}
+              </select></div>
+            <div><label style="font-size:.72rem;font-weight:700;text-transform:uppercase;color:#8A92A6;display:block;margin-bottom:4px">Date</label>
+              <input type="date" name="date_competition" style="width:100%;padding:8px 10px;border:1.5px solid #DDE2EC;border-radius:5px;font-family:'Barlow',sans-serif;font-size:.85rem"></div>
+            <div><label style="font-size:.72rem;font-weight:700;text-transform:uppercase;color:#8A92A6;display:block;margin-bottom:4px">Lieu</label>
+              <input type="text" name="lieu" placeholder="ex: Tokyo" style="width:100%;padding:8px 10px;border:1.5px solid #DDE2EC;border-radius:5px;font-family:'Barlow',sans-serif;font-size:.85rem"></div>
+            <div><label style="font-size:.72rem;font-weight:700;text-transform:uppercase;color:#8A92A6;display:block;margin-bottom:4px">Classement</label>
+              <input type="number" name="classement" placeholder="ex: 3" min="1" style="width:100%;padding:8px 10px;border:1.5px solid #DDE2EC;border-radius:5px;font-family:'Barlow',sans-serif;font-size:.85rem"></div>
+            <div><label style="font-size:.72rem;font-weight:700;text-transform:uppercase;color:#8A92A6;display:block;margin-bottom:4px">Performance</label>
+              <input type="text" name="performance" placeholder="ex: 8:25.40" style="width:100%;padding:8px 10px;border:1.5px solid #DDE2EC;border-radius:5px;font-family:'Barlow',sans-serif;font-size:.85rem"></div>
+          </div>
+          <div style="margin-bottom:1rem"><label style="font-size:.72rem;font-weight:700;text-transform:uppercase;color:#8A92A6;display:block;margin-bottom:4px">Notes</label>
+            <input type="text" name="notes" placeholder="Remarques..." style="width:100%;padding:8px 10px;border:1.5px solid #DDE2EC;border-radius:5px;font-family:'Barlow',sans-serif;font-size:.85rem"></div>
+          <button type="submit" class="btn btn-secondary">✉ Enregistrer le résultat</button>
+        </form>
+      </div>
+    </div>
     {% else %}
     <div style="text-align:center;padding:3rem;color:#8A92A6">
       <div style="font-size:2rem;margin-bottom:.5rem">🏆</div>
-      <p>Aucun objectif de participation validé pour le moment.</p>
+      <p>Aucun objectif de participation validé — les résultats apparaîtront ici après les compétitions.</p>
     </div>
     {% endif %}
   </div><!-- /real-partic -->

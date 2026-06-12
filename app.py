@@ -477,6 +477,12 @@ def athlete(aid):
     for p in perf_objs:
         perf_obj_map[(p['source'], p['source_id'])] = p
 
+    # Fetch resultats_champ BEFORE closing connection
+    resultats_champ = q(conn, """SELECT rc.*, oc.objectif, oc.epreuve as obj_epreuve
+        FROM resultats_champ rc
+        LEFT JOIN objectifs_champ oc ON rc.objectif_champ_id=oc.id
+        WHERE rc.athlete_id=%s ORDER BY rc.date_competition DESC""", (aid,))
+
     conn.close()
 
     # Build chart data for evolution tab — include ALL historical results
@@ -552,10 +558,7 @@ def athlete(aid):
         objectifs=objectifs,
         obj_champ_map=champ_map,
         validated_champs=validated_champs,
-        resultats_champ=q(conn, """SELECT rc.*, oc.objectif, oc.epreuve as obj_epreuve
-            FROM resultats_champ rc
-            LEFT JOIN objectifs_champ oc ON rc.objectif_champ_id=oc.id
-            WHERE rc.athlete_id=%s ORDER BY rc.date_competition DESC""", (aid,)),
+        resultats_champ=resultats_champ,
         perf_obj_map=perf_obj_map,
         championnats=CHAMPIONNATS,
         chart_data=all_hist,

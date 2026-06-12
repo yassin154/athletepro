@@ -11,19 +11,20 @@ app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'athletepro_secret_2026')
 DATABASE_URL = os.environ.get('DATABASE_URL', 'postgresql://postgres.djdochmdplkfcpwyogou:AthlePro2026!@aws-0-eu-west-1.pooler.supabase.com:6543/postgres')
 
-# ── CHAMPIONNATS PROVISOIRES ──────────────────────────────
+# ── CHAMPIONNATS ──────────────────────────────────────────
 CHAMPIONNATS = [
-    {'nom': 'Championnat Régional',       'date': '2026-02-15', 'lieu': 'À définir'},
-    {'nom': 'Championnat National Indoor','date': '2026-03-10', 'lieu': 'À définir'},
-    {'nom': 'Championnat National',       'date': '2026-05-20', 'lieu': 'À définir'},
-    {'nom': 'Ch. Arabe Senior',           'date': '2026-06-15', 'lieu': 'À définir'},
-    {'nom': 'Jeux Méditerranéens',        'date': '2026-07-01', 'lieu': 'À définir'},
-    {'nom': 'Jeux Panarabes',             'date': '2026-08-10', 'lieu': 'À définir'},
-    {'nom': 'Jeux Francophonie',          'date': '2026-09-01', 'lieu': 'À définir'},
-    {'nom': 'Ch. Afrique Senior',         'date': '2026-10-05', 'lieu': 'À définir'},
-    {'nom': 'Ch. Monde Junior',           'date': '2026-11-01', 'lieu': 'À définir'},
-    {'nom': 'Ch. Senior Monde 2027',      'date': '2027-08-01', 'lieu': 'À définir'},
-    {'nom': 'Ch. Monde Indoor 2028',      'date': '2028-03-01', 'lieu': 'À définir'},
+    {'nom': 'Champ National',             'date': '', 'lieu': 'À définir'},
+    {'nom': 'Champ du Monde U20',         'date': '', 'lieu': 'À définir'},
+    {'nom': 'Champ Arabe U20',            'date': '', 'lieu': 'À définir'},
+    {'nom': 'Champ Arabe U18',            'date': '', 'lieu': 'À définir'},
+    {'nom': 'Champ du Monde Junior',      'date': '', 'lieu': 'À définir'},
+    {'nom': 'Jeux Méditerranéens',        'date': '', 'lieu': 'À définir'},
+    {'nom': 'Champ Arabe Senior',         'date': '', 'lieu': 'À définir'},
+    {'nom': 'Jeux Panarabes',             'date': '', 'lieu': 'À définir'},
+    {'nom': 'Jeux Francophonie',          'date': '', 'lieu': 'À définir'},
+    {'nom': 'Champ du Monde 2027',        'date': '2027-08-01', 'lieu': 'À définir'},
+    {'nom': 'Champ du Monde Indoor 2028', 'date': '2028-03-01', 'lieu': 'À définir'},
+    {'nom': 'Champ Afrique Senior 2028',  'date': '2028-06-01', 'lieu': 'À définir'},
     {'nom': 'JO 2028',                    'date': '2028-07-15', 'lieu': 'Los Angeles'},
 ]
 

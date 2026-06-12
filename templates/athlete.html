@@ -890,15 +890,17 @@ function toSec(t) {
   if (p.includes(':')) {
     const parts = p.split(':');
     if (parts.length === 2) {
-      return parseFloat(parts[0]) * 60 + parseFloat(parts[1]);
+      const h = parseFloat(parts[0]);
+      const s = parseFloat(parts[1]);
+      // e.g. 56:91 → s=91 > 59, no dot → sec:centisec format
+      if (!parts[1].includes('.') && s > 59) return h + s / 100;
+      return h * 60 + s;
     }
     if (parts.length === 3) {
       const h = parseFloat(parts[0]);
       const m = parseFloat(parts[1]);
       const s = parseFloat(parts[2]);
-      if (h <= 2 && m < 60 && s < 100) {
-        return h * 60 + m + s / 100;
-      }
+      if (h <= 2 && m < 60 && s < 100) return h * 60 + m + s / 100;
       return h * 3600 + m * 60 + s;
     }
   }

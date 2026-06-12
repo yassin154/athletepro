@@ -274,6 +274,9 @@ def init_db():
     # Fix: remove old duplicate BOUSAAD licence before seed
     ex(conn, "DELETE FROM athletes WHERE numero_licence='1082251'")
 
+    # Remove ELMOUADEN coach account
+    ex(conn, "DELETE FROM users WHERE username='elmouaden' OR full_name ILIKE '%ELMOUADEN%'")
+
     # Seed athletes from JSON
     for a in ATHLETES_JSON:
         coach = q(conn, "SELECT id FROM users WHERE full_name=%s", (a['entraineur'],), one=True)
@@ -294,6 +297,14 @@ def init_db():
                  a.get('classe', 'Autre'),
                  a.get('nom_famille', a['nom'].strip().split()[0]),
                  a.get('prenom', ' '.join(a['nom'].strip().split()[1:]))))
+
+    # Fix: EL HADDAD SOUAD → AIT EL HAJ KARIM (ELMOUADEN no longer in federation)
+    ex(conn, """
+        UPDATE athletes SET
+            coach_id = (SELECT id FROM users WHERE full_name='AIT EL HAJ KARIM' LIMIT 1),
+            centre = 'INA Ifrane'
+        WHERE numero_licence = '1095530'
+    """)
 
     conn.close()
     print("✅ DB initialisée")
@@ -1130,7 +1141,7 @@ def admin_minimas():
 def export_minimas():
     """Export minimas results as Excel."""
     conn = get_db()
-    all_athletes = q(conn, """
+    db_athletes = q(conn, """
         SELECT a.*, COALESCE(u.full_name,'—') as coach_name
         FROM athletes a LEFT JOIN users u ON a.coach_id=u.id
         WHERE a.numero_licence != '1082251'
@@ -1138,8 +1149,33 @@ def export_minimas():
     """)
     conn.close()
 
+    # Merge CRF + JSON + Nabaoui athletes
+    seen_lics = set(a['numero_licence'] for a in db_athletes)
+    all_athletes = list(db_athletes)
+    for a in ATHLETES_JSON:
+        if a['licence'] != '1082251' and a['licence'] not in seen_lics:
+            all_athletes.append({
+                'numero_licence': a['licence'], 'nom_prenom': a['nom'],
+                'categorie': a['categorie'], 'sexe': a['sexe'],
+                'centre': a['crf'], 'coach_name': a.get('entraineur','—') or '—',
+                'nom_famille': a.get('nom_famille',''), 'prenom': a.get('prenom',''),
+            })
+            seen_lics.add(a['licence'])
+    for a in NABAOUI_ATHLETES:
+        if a['licence'] not in seen_lics:
+            all_athletes.append({
+                'numero_licence': a['licence'], 'nom_prenom': a['nom'],
+                'categorie': a['categorie'], 'sexe': a['sexe'],
+                'centre': '', 'coach_name': '—',
+                'nom_famille': a.get('nom_famille',''), 'prenom': a.get('prenom',''),
+            })
+            seen_lics.add(a['licence'])
+
     saison_courante = '2025/2026'
-    resultats_saison = [r for r in RESULTATS_JSON if r.get('saison') == saison_courante]
+    resultats_saison = (
+        [r for r in RESULTATS_JSON  if r.get('saison') == saison_courante] +
+        [r for r in NABAOUI_RESULTS if r.get('saison') == saison_courante]
+    )
 
     best_by_ath = {}
     for r in resultats_saison:
@@ -1173,8 +1209,10 @@ def export_minimas():
             is_field = any(x in ep for x in ['Longueur','Triple','Hauteur','Poids','Disque','Javelot','Marteau'])
             reached = perf_sec >= min_sec if is_field else perf_sec <= min_sec
             if reached:
+                nom_f = a.get('nom_famille') or a['nom_prenom'].strip().split()[0]
+                prenom = a.get('prenom') or ' '.join(a['nom_prenom'].strip().split()[1:])
                 rows.append([
-                    a['nom_prenom'], a['numero_licence'], a['categorie'],
+                    nom_f, prenom, a['numero_licence'], a['categorie'],
                     a['centre'], a['coach_name'], ep, perf_str, next_cat, '✔ Minima atteint'
                 ])
 
@@ -1183,7 +1221,7 @@ def export_minimas():
     ws.title = f'Minimas {saison_courante}'
 
     # Header
-    headers = ['Nom & Prénom','N° Licence','Catégorie','Centre','Entraineur',
+    headers = ['Nom','Prénom','N° Licence','Catégorie','Centre','Entraineur',
                'Épreuve','Meilleure Performance','Minima Requis','Statut']
     hdr_font  = Font(bold=True, color='FFFFFF', size=10)
     hdr_fill  = PatternFill(fill_type='solid', fgColor='1E2742')
@@ -1210,7 +1248,7 @@ def export_minimas():
                 cell.font = Font(color='1E8449', bold=True)
 
     # Widths
-    widths = [28,14,8,22,22,18,16,14,18]
+    widths = [18,18,14,8,22,22,18,16,14,18]
     for col, w in enumerate(widths, 1):
         ws.column_dimensions[get_column_letter(col)].width = w
     ws.freeze_panes = 'A2'

@@ -537,6 +537,10 @@ def athlete(aid):
         objectifs=objectifs,
         obj_champ_map=champ_map,
         validated_champs=validated_champs,
+        resultats_champ=q(conn, """SELECT rc.*, oc.objectif, oc.epreuve as obj_epreuve
+            FROM resultats_champ rc
+            LEFT JOIN objectifs_champ oc ON rc.objectif_champ_id=oc.id
+            WHERE rc.athlete_id=%s ORDER BY rc.date_competition DESC""", (aid,)),
         perf_obj_map=perf_obj_map,
         championnats=CHAMPIONNATS,
         chart_data=all_hist,
@@ -742,6 +746,17 @@ def submit_resultat_champ(aid):
     date_comp   = request.form.get('date_competition','').strip()
     notes       = request.form.get('notes','').strip()
     if epreuve and championnat:
+        # Ensure table exists
+        ex(conn, """CREATE TABLE IF NOT EXISTS resultats_champ (
+            id SERIAL PRIMARY KEY,
+            athlete_id INTEGER REFERENCES athletes(id),
+            objectif_champ_id INTEGER REFERENCES objectifs_champ(id),
+            epreuve TEXT, championnat TEXT,
+            classement INTEGER, performance TEXT,
+            lieu TEXT, date_competition TEXT,
+            notes TEXT, saisi_le TEXT
+        )"""
+        )
         sql = ("INSERT INTO resultats_champ "
                "(athlete_id,objectif_champ_id,epreuve,championnat,classement,performance,lieu,date_competition,notes,saisi_le) "
                "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)")

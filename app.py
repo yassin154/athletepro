@@ -146,6 +146,8 @@ def init_db():
         club TEXT, statut TEXT,
         date_integration TEXT,
         classe TEXT DEFAULT 'Autre',
+        nom_famille TEXT,
+        prenom TEXT,
         FOREIGN KEY(coach_id) REFERENCES users(id)
     )''')
 
@@ -226,6 +228,8 @@ def init_db():
     # Seed admin
     try:
         ex(conn, "ALTER TABLE athletes ADD COLUMN IF NOT EXISTS classe TEXT DEFAULT 'Autre'")
+        ex(conn, "ALTER TABLE athletes ADD COLUMN IF NOT EXISTS nom_famille TEXT")
+        ex(conn, "ALTER TABLE athletes ADD COLUMN IF NOT EXISTS prenom TEXT")
     except: pass
 
     ex(conn, '''INSERT INTO users (username,password,full_name,role)
@@ -258,6 +262,8 @@ def init_db():
     ]
     try:
         ex(conn, "ALTER TABLE athletes ADD COLUMN IF NOT EXISTS classe TEXT DEFAULT 'Autre'")
+        ex(conn, "ALTER TABLE athletes ADD COLUMN IF NOT EXISTS nom_famille TEXT")
+        ex(conn, "ALTER TABLE athletes ADD COLUMN IF NOT EXISTS prenom TEXT")
     except: pass
 
     for full_name, username in coaches:
@@ -274,16 +280,20 @@ def init_db():
         if coach:
             epreuves_str = '/'.join(a.get('epreuves', []))
             ex(conn, '''INSERT INTO athletes
-                (centre,coach_id,nom_prenom,date_naissance,age,numero_licence,categorie,sexe,specialite,epreuves,club,statut,date_integration,classe)
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                (centre,coach_id,nom_prenom,date_naissance,age,numero_licence,categorie,sexe,specialite,epreuves,club,statut,date_integration,classe,nom_famille,prenom)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                 ON CONFLICT (numero_licence) DO UPDATE SET
                     club=EXCLUDED.club, epreuves=EXCLUDED.epreuves,
                     age=EXCLUDED.age, specialite=EXCLUDED.specialite,
-                    classe=EXCLUDED.classe''',
+                    classe=EXCLUDED.classe,
+                    nom_famille=EXCLUDED.nom_famille,
+                    prenom=EXCLUDED.prenom''',
                 (a['crf'], coach['id'], a['nom'], a['date_naissance'], a['age'],
                  a['licence'], a['categorie'], a['sexe'], a['specialite'],
                  epreuves_str, a['club'], a['statut'], a['integration'],
-                 a.get('classe', 'Autre')))
+                 a.get('classe', 'Autre'),
+                 a.get('nom_famille', a['nom'].strip().split()[0]),
+                 a.get('prenom', ' '.join(a['nom'].strip().split()[1:]))))
 
     conn.close()
     print("✅ DB initialisée")

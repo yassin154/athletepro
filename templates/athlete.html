@@ -74,10 +74,13 @@
 <!-- HEADER -->
 <div style="background:linear-gradient(135deg,#1E2742,#2C3E6B);border-radius:8px;padding:1.8rem 2rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:1.8rem;box-shadow:0 4px 20px rgba(30,39,66,.15)">
   <div style="width:64px;height:64px;border-radius:50%;background:#C0392B;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.6rem;color:#fff;flex-shrink:0">
-    {{ ath.nom_prenom[:2] }}
+    {{ (ath.nom_famille or ath.nom_prenom.strip())[0] }}{{ (ath.prenom or ath.nom_prenom.strip().split()[1] if ath.nom_prenom.strip().split()|length > 1 else "")[0] }}
   </div>
   <div>
-    <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.9rem;color:#fff;letter-spacing:1px">{{ ath.nom_prenom }}</div>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.9rem;color:#fff;letter-spacing:1px">
+        <span style="font-weight:900">{{ ath.nom_famille or ath.nom_prenom.strip().split()[0] }}</span>
+        <span style="font-weight:400"> {{ ath.prenom or (ath.nom_prenom.strip().split()[1:]|join(' ')) }}</span>
+      </div>
     <div style="font-size:.9rem;color:rgba(255,255,255,.65);margin-top:4px;display:flex;align-items:center;gap:.6rem;flex-wrap:wrap">
       <span>{{ ath.specialite }}</span>
       <span style="color:rgba(255,255,255,.3)">·</span>
@@ -111,7 +114,8 @@
     <div class="card-header"><h2>Informations personnelles</h2><span class="tag tag-grey">Lecture seule</span></div>
     <div class="card-body">
       <div class="form-grid">
-        <div class="field"><label>Nom & Prénom</label><input type="text" value="{{ ath.nom_prenom }}" readonly></div>
+        <div class="field"><label>Nom</label><input type="text" value="{{ ath.nom_famille or ath.nom_prenom.strip().split()[0] }}" readonly></div>
+          <div class="field"><label>Prénom</label><input type="text" value="{{ ath.prenom or (ath.nom_prenom.strip().split()[1:]|join(' ')) }}" readonly></div>
         <div class="field"><label>Date de naissance</label><input type="text" value="{{ ath.date_naissance[:10] if ath.date_naissance else '—' }}" readonly></div>
         <div class="field"><label>Âge</label><input type="text" value="{{ ath.age or '—' }}" readonly></div>
         <div class="field"><label>N° Licence</label><input type="text" value="{{ ath.numero_licence }}" readonly></div>

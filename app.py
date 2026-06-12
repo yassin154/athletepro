@@ -837,18 +837,48 @@ def admin_dashboard():
     """)
 
     coaches_raw = q(conn, "SELECT * FROM users WHERE role='coach' ORDER BY full_name")
+    # Known correct splits for coaches
+    COACH_SPLITS = {
+        'AIT EL HAJ KARIM':  ('AIT EL HAJ', 'KARIM'),
+        'ALI EZZINE':         ('EZZINE', 'ALI'),
+        'BAAKIL SOUFIANE':    ('BAAKIL', 'SOUFIANE'),
+        'BELMRHAR HICHAM':    ('BELMRHAR', 'HICHAM'),
+        'BELMRHAR HICHAM':    ('BELMRHAR', 'HICHAM'),
+        'BOUKRAA ABDELLAH':   ('BOUKRAA', 'ABDELLAH'),
+        'CHERQAOUI':          ('CHERQAOUI', ''),
+        'ECHAFIYI TOUFIK':    ('ECHAFIYI', 'TOUFIK'),
+        'ITFAN LAHCEN':       ('ITFAN', 'LAHCEN'),
+        'KABBOU BRAHIM':      ('KABBOU', 'BRAHIM'),
+        'KAHLAOUI MAROUANE':  ('KAHLAOUI', 'MAROUANE'),
+        'KARIM TELMCANI':     ('TELMCANI', 'KARIM'),
+        'MAHJOUR AHMED':      ('MAHJOUR', 'AHMED'),
+        'MOUHCINE JAMAL':     ('MOUHCINE', 'JAMAL'),
+        'MOUHCINE JAMAL':     ('MOUHCINE', 'JAMAL'),
+        'NABAOUI HAFID':      ('NABAOUI', 'HAFID'),
+        'OUKHBACH HASSAN':    ('OUKHBACH', 'HASSAN'),
+        'OUZLIM MOHAMED':     ('OUZLIM', 'MOHAMED'),
+        'ROUAS HATIM':        ('ROUAS', 'HATIM'),
+        'SAKAH FADOUA':       ('SAKAH', 'FADOUA'),
+        'SEKOURI JALAL':      ('SEKOURI', 'JALAL'),
+        'SKAH KHALID':        ('SKAH', 'KHALID'),
+        'ZERAIDI EL MEHDI':   ('ZERAIDI', 'EL MEHDI'),
+    }
     coaches = []
     for c in coaches_raw:
-        parts = c['full_name'].strip().split()
-        prefixes = ['EL','AL','AIT','BEN','BOU','OU','ABD']
-        if parts and parts[0].upper() in prefixes and len(parts) >= 3:
-            nom_f = parts[0] + ' ' + parts[1]
-            prenom_c = ' '.join(parts[2:])
-        elif parts:
-            nom_f = parts[0]
-            prenom_c = ' '.join(parts[1:])
+        full = c['full_name'].strip()
+        if full in COACH_SPLITS:
+            nom_f, prenom_c = COACH_SPLITS[full]
         else:
-            nom_f = c['full_name']; prenom_c = ''
+            parts = full.split()
+            prefixes = ['EL','AL','AIT','BEN','BOU','OU','ABD']
+            if parts and parts[0].upper() in prefixes and len(parts) >= 3:
+                nom_f = parts[0] + ' ' + parts[1]
+                prenom_c = ' '.join(parts[2:])
+            elif parts:
+                nom_f = parts[0]
+                prenom_c = ' '.join(parts[1:])
+            else:
+                nom_f = full; prenom_c = ''
         d = dict(c)
         d['nom_famille'] = nom_f
         d['prenom'] = prenom_c

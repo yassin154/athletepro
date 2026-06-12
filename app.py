@@ -275,7 +275,7 @@ def init_db():
     ex(conn, "DELETE FROM athletes WHERE numero_licence='1082251'")
 
     # Remove ELMOUADEN coach account
-    ex(conn, "DELETE FROM users WHERE username='elmouaden' OR full_name ILIKE '%ELMOUADEN%'")
+    ex(conn, "DELETE FROM users WHERE username='elmouaden' OR full_name ILIKE '%%ELMOUADEN%%'")
 
     # Seed athletes from JSON
     for a in ATHLETES_JSON:

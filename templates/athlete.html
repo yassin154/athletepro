@@ -193,7 +193,7 @@
     <div style="overflow-x:auto">
       <table class="table">
         <thead>
-          <tr><th>Saison</th><th>Épreuve</th><th>Objectif chrono</th><th>Statut</th></tr>
+          <tr><th>Saison</th><th>Épreuve</th><th>Objectif</th><th>Statut</th></tr>
         </thead>
         <tbody>
           {% for o in objectifs | sort(attribute='saison', reverse=true) %}
@@ -268,9 +268,9 @@
             <input type="hidden" name="saison[]" value="{{ saison_val }}">
             <input type="hidden" name="champ_count_{{ epr_idx }}" value="0">
             <div class="field" style="min-width:220px">
-              <label>Objectif chronométrique</label>
+              <label>{% if 'longueur' in epr_clean.lower() or 'hauteur' in epr_clean.lower() or 'triple' in epr_clean.lower() or 'poids' in epr_clean.lower() or 'disque' in epr_clean.lower() or 'javelot' in epr_clean.lower() or 'marteau' in epr_clean.lower() %}Objectif métrique (m){% else %}Objectif chronométrique{% endif %}</label>
               <input type="text" name="objectif_chrono[]" class="editable"
-                     placeholder="ex: 3:29.00 ou 52.50"
+                     placeholder="{% if 'longueur' in epr_clean.lower() or 'hauteur' in epr_clean.lower() or 'triple' in epr_clean.lower() or 'poids' in epr_clean.lower() or 'disque' in epr_clean.lower() or 'javelot' in epr_clean.lower() or 'marteau' in epr_clean.lower() %}ex: 7.50 ou 1.85{% else %}ex: 3:29.00 ou 52.50{% endif %}"
                      value="{{ obj_val }}"
                      {% if obj_statut == 'validé' %}style="background:#EAFAF1;color:#27AE60;border-color:#27AE60;font-weight:600"
                      {% elif obj_statut == 'en_attente' %}style="background:#FFF8E1;color:#B7770D;border-color:#F0C040;font-weight:600"
@@ -508,7 +508,7 @@
           <th>Date</th><th>Compétition</th><th>Lieu</th><th>Épreuve</th>
           {% if show_classement %}<th>Classement</th>{% endif %}
           <th>Performance</th>
-          <th style="color:#2471D6">Obj. Performance</th>
+          <th style="color:#2471D6">Objectif</th>
           <th>Écart</th>
         </tr>
       </thead>
@@ -587,7 +587,7 @@
           <tr>
             <th>Saison</th><th>Catégorie</th><th>Date</th><th>Compétition</th><th>Lieu</th><th>Épreuve</th>
             <th>Classement</th><th>Performance</th>
-            <th style="color:#2471D6">Obj. Performance</th><th>Écart</th>
+            <th style="color:#2471D6">Objectif</th><th>Écart</th>
           </tr>
         </thead>
         <tbody id="hist-tbody">
@@ -869,6 +869,14 @@ function toggleObj(cb, selId) {
 }
 
 // Écart calculation
+function isFieldEvent(epreuve) {
+  if (!epreuve) return false;
+  const e = epreuve.toLowerCase();
+  return e.includes('longueur') || e.includes('hauteur') || e.includes('triple') ||
+         e.includes('poids') || e.includes('disque') || e.includes('javelot') ||
+         e.includes('marteau') || e.includes('perche');
+}
+
 function normTime(t) {
   // Normalize any time format to colon-separated for parsing
   let p = t.toString().trim().replace(',','.');
@@ -1204,14 +1212,16 @@ function updateChart() {
       },
       scales: {
         y: {
-          reverse: true,
+          reverse: !isFieldEvent(eprFilter),
           ticks: {
-            callback: val => fmtTime(val),
+            callback: val => isFieldEvent(eprFilter) ? val.toFixed(2) + ' m' : fmtTime(val),
             font: { family: 'Barlow, sans-serif', size: 11 },
             color: '#8A92A6',
           },
           grid: { color: '#EEF1F8' },
-          title: { display: true, text: 'Temps (secondes)', color: '#8A92A6', font: { size: 11 } }
+          title: { display: true,
+            text: isFieldEvent(eprFilter) ? 'Distance / Hauteur (m)' : 'Temps (secondes)',
+            color: '#8A92A6', font: { size: 11 } }
         },
         x: {
           ticks: { font: { family: 'Barlow, sans-serif', size: 10 }, color: '#8A92A6', maxTicksLimit: 12 },
@@ -1222,18 +1232,19 @@ function updateChart() {
   });
 
   // Stats rapides
-  const best = Math.min(...validValues);
-  const worst = Math.max(...validValues);
+  const fieldMode = isFieldEvent(eprFilter);
+  const best  = fieldMode ? Math.max(...validValues) : Math.min(...validValues);
+  const worst = fieldMode ? Math.min(...validValues) : Math.max(...validValues);
   const last = validValues[validValues.length - 1];
-  const progress = validValues.length > 1 ? validValues[0] - last : 0;
+  const progress = validValues.length > 1 ? (fieldMode ? last - validValues[0] : validValues[0] - last) : 0;
   const statsEl = document.getElementById('stats-grid');
   statsEl.innerHTML = `
     <div style="background:#fff;border:1px solid #DDE2EC;border-radius:8px;padding:1rem 1.2rem;border-left:4px solid #27AE60">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.6rem;color:#1E2742">${fmtTime(best)}</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.6rem;color:#1E2742">${fieldMode ? best.toFixed(2)+' m' : fmtTime(best)}</div>
       <div style="font-size:.72rem;color:#8A92A6;text-transform:uppercase;letter-spacing:1px;margin-top:2px">Meilleure perf.</div>
     </div>
     <div style="background:#fff;border:1px solid #DDE2EC;border-radius:8px;padding:1rem 1.2rem;border-left:4px solid #2471D6">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.6rem;color:#1E2742">${fmtTime(last)}</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.6rem;color:#1E2742">${fieldMode ? last.toFixed(2)+' m' : fmtTime(last)}</div>
       <div style="font-size:.72rem;color:#8A92A6;text-transform:uppercase;letter-spacing:1px;margin-top:2px">Dernière perf.</div>
     </div>
     <div style="background:#fff;border:1px solid #DDE2EC;border-radius:8px;padding:1rem 1.2rem;border-left:4px solid ${progress > 0 ? '#27AE60' : '#C0392B'}">

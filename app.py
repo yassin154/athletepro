@@ -274,7 +274,8 @@ def init_db():
     # Fix: remove old duplicate BOUSAAD licence before seed
     ex(conn, "DELETE FROM athletes WHERE numero_licence='1082251'")
 
-    # Remove ELMOUADEN coach account
+    # Remove ELMOUADEN — first reassign his athletes to NULL, then delete
+    ex(conn, "UPDATE athletes SET coach_id=NULL WHERE coach_id=(SELECT id FROM users WHERE full_name ILIKE '%%ELMOUADEN%%' LIMIT 1)")
     ex(conn, "DELETE FROM users WHERE username='elmouaden' OR full_name ILIKE '%%ELMOUADEN%%'")
 
     # Seed athletes from JSON

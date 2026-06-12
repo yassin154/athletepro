@@ -84,6 +84,15 @@
         {% endfor %}
       </select>
     </div>
+    <div>
+      <label style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#8A92A6;display:block;margin-bottom:4px">Entraineur</label>
+      <select id="f-coach" onchange="filterTable()"
+        style="padding:7px 12px;border:1.5px solid #DDE2EC;border-radius:5px;font-family:'Barlow',sans-serif;font-size:.85rem;color:#2C3345;outline:none">
+        <option value="">— Tous —</option>
+        <option value="__with__">Avec entraineur</option>
+        <option value="__without__">Sans entraineur</option>
+      </select>
+    </div>
     <button onclick="resetFilters()"
       style="padding:7px 14px;border:1.5px solid #DDE2EC;border-radius:5px;background:#fff;color:#8A92A6;font-size:.83rem;cursor:pointer;font-weight:600">
       ✕ Réinitialiser
@@ -97,7 +106,8 @@
       <table style="width:100%;border-collapse:collapse" id="minimas-table">
         <thead>
           <tr style="background:#1E2742">
-            <th style="padding:11px 14px;text-align:left;font-size:.7rem;text-transform:uppercase;letter-spacing:1.2px;color:rgba(255,255,255,.7);font-weight:700">Athlète</th>
+            <th style="padding:11px 14px;text-align:left;font-size:.7rem;text-transform:uppercase;letter-spacing:1.2px;color:rgba(255,255,255,.7);font-weight:700">Nom</th>
+            <th style="padding:11px 14px;text-align:left;font-size:.7rem;text-transform:uppercase;letter-spacing:1.2px;color:rgba(255,255,255,.7);font-weight:700">Prénom</th>
             <th style="padding:11px 14px;text-align:left;font-size:.7rem;text-transform:uppercase;letter-spacing:1.2px;color:rgba(255,255,255,.7);font-weight:700">Licence</th>
             <th style="padding:11px 14px;text-align:center;font-size:.7rem;text-transform:uppercase;letter-spacing:1.2px;color:rgba(255,255,255,.7);font-weight:700">Cat.</th>
             <th style="padding:11px 14px;text-align:left;font-size:.7rem;text-transform:uppercase;letter-spacing:1.2px;color:rgba(255,255,255,.7);font-weight:700">Centre</th>
@@ -114,13 +124,15 @@
           {% set a = item.athlete %}
           {% for res in item.results %}
           <tr class="min-row"
-              data-nom="{{ a.nom_prenom | upper }}"
+              data-nom="{{ ((a.nom_famille or '') + ' ' + (a.prenom or '') + ' ' + a.nom_prenom)|upper }}"
               data-licence="{{ a.numero_licence }}"
               data-cat="{{ a.categorie }}"
               data-centre="{{ a.centre }}"
               data-epreuve="{{ res.epreuve }}"
+              data-coach="{{ 'with' if (a.coach_name and a.coach_name != '—') else 'without' }}"
               style="border-bottom:1px solid #EEF1F8;background:{{ '#F9FFFB' if loop.index0 % 2 == 0 else '#fff' }}">
-            <td style="padding:10px 14px;font-weight:700;color:#1E2742">{{ a.nom_prenom }}</td>
+            <td style="padding:10px 14px;font-weight:700;color:#1E2742">{{ a.nom_famille or a.nom_prenom.strip().split()[0] }}</td>
+            <td style="padding:10px 14px;color:#1E2742">{{ a.prenom or (a.nom_prenom.strip().split()[1:]|join(" ")) }}</td>
             <td style="padding:10px 14px;font-family:monospace;font-size:.82rem;color:#8A92A6">{{ a.numero_licence }}</td>
             <td style="padding:10px 14px;text-align:center">
               <span style="background:#EEF1F8;padding:2px 9px;border-radius:4px;font-size:.72rem;font-weight:700;color:#1E2742">{{ a.categorie }}</span>
@@ -155,6 +167,7 @@ function filterTable() {
   const cat     = document.getElementById('f-cat').value;
   const centre  = document.getElementById('f-centre').value;
   const epreuve = document.getElementById('f-epreuve').value;
+  const coach   = document.getElementById('f-coach').value;
   const rows    = document.querySelectorAll('#minimas-tbody .min-row');
   let visible   = 0;
 
@@ -163,7 +176,10 @@ function filterTable() {
     const matchCat     = !cat     || row.dataset.cat === cat;
     const matchCentre  = !centre  || row.dataset.centre === centre;
     const matchEpreuve = !epreuve || row.dataset.epreuve === epreuve;
-    const show = matchSearch && matchCat && matchCentre && matchEpreuve;
+    const matchCoach   = !coach   ||
+      (coach === '__with__' && row.dataset.coach === 'with') ||
+      (coach === '__without__' && row.dataset.coach === 'without');
+    const show = matchSearch && matchCat && matchCentre && matchEpreuve && matchCoach;
     row.style.display = show ? '' : 'none';
     if (show) visible++;
   });
@@ -175,7 +191,7 @@ function filterTable() {
 }
 
 function resetFilters() {
-  ['f-search','f-cat','f-centre','f-epreuve'].forEach(id => {
+  ['f-search','f-cat','f-centre','f-epreuve','f-coach'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });

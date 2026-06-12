@@ -21,7 +21,9 @@
     "integration": "2024-09-25",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "ADDOU",
+    "prenom": "MAROUANE"
   },
   {
     "id": "1128154",
@@ -45,7 +47,9 @@
     "integration": "2025-09-14",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "JAAFAR",
+    "prenom": "DOUNYA"
   },
   {
     "id": "1132146",
@@ -71,7 +75,9 @@
     "integration": "2024-09-24",
     "sortie": null,
     "date_enreg": "28/01/2026*51",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "OUDDOUR",
+    "prenom": "RAYANE"
   },
   {
     "id": "1129929",
@@ -97,7 +103,9 @@
     "integration": "2025-10-10",
     "sortie": null,
     "date_enreg": "09/02/2026*88",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "TAFLAHA",
+    "prenom": "MAROUA"
   },
   {
     "id": "1123295",
@@ -123,7 +131,9 @@
     "integration": "2025-09-09",
     "sortie": null,
     "date_enreg": "03/09/2025*644",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "AABI",
+    "prenom": "HATIM"
   },
   {
     "id": "1132437",
@@ -148,7 +158,9 @@
     "integration": "2025-09-06",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "AZZY",
+    "prenom": "MAROUA"
   },
   {
     "id": "1125283",
@@ -173,7 +185,9 @@
     "integration": "2025-09-11",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "KHACHANI",
+    "prenom": "HIBA"
   },
   {
     "id": "1128689",
@@ -197,7 +211,9 @@
     "integration": "2024-09-24",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "KHRIBECH",
+    "prenom": "BADR"
   },
   {
     "id": "1127567",
@@ -224,7 +240,9 @@
     "integration": "2024-10-07",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "NOH",
+    "prenom": "YAHYA"
   },
   {
     "id": "1123979",
@@ -249,7 +267,9 @@
     "integration": "2025-09-11",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "TABJIA",
+    "prenom": "YASSMINA"
   },
   {
     "id": "1128081",
@@ -281,7 +301,9 @@
     "integration": "2025-11-04",
     "sortie": null,
     "date_enreg": "15/10/2025*712",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "ABDOUSSI",
+    "prenom": "YOUSSEF"
   },
   {
     "id": "1119784",
@@ -312,7 +334,9 @@
     "integration": "2025-09-06",
     "sortie": null,
     "date_enreg": "08/09/2025*648",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "ALIMI",
+    "prenom": "CHAYMAE"
   },
   {
     "id": "1129827",
@@ -340,7 +364,9 @@
     "integration": "2025-09-19",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "AOURARH",
+    "prenom": "REDWANE"
   },
   {
     "id": "1125362",
@@ -368,7 +394,9 @@
     "integration": "2024-02-25",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "BABA",
+    "prenom": "MARWA"
   },
   {
     "id": "1127104",
@@ -392,7 +420,9 @@
     "integration": "2024-09-28",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "BENZAZOUL",
+    "prenom": "KARIMA"
   },
   {
     "id": "1123905",
@@ -422,7 +452,9 @@
     "integration": "2025-09-09",
     "sortie": null,
     "date_enreg": "26/08/2025*623",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "BIMOUSSA",
+    "prenom": "KHALID"
   },
   {
     "id": "1135117",
@@ -451,7 +483,9 @@
     "integration": "2025-09-07",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "BOUNAIM",
+    "prenom": "AMMAR"
   },
   {
     "id": "1127909",
@@ -480,7 +514,9 @@
     "integration": "2025-09-08",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "CHOKRI",
+    "prenom": "MOUNA"
   },
   {
     "id": "1126007",
@@ -509,7 +545,9 @@
     "integration": "2025-09-10",
     "sortie": null,
     "date_enreg": "03/09/2025*644",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "ELALAMI",
+    "prenom": "DOUAE"
   },
   {
     "id": "1118457",
@@ -534,7 +572,9 @@
     "integration": "2025-09-09",
     "sortie": null,
     "date_enreg": "26/08/2025*623",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "ELARFAOUI",
+    "prenom": "HANANE"
   },
   {
     "id": "1128445",
@@ -563,7 +603,9 @@
     "integration": "2025-09-07",
     "sortie": null,
     "date_enreg": "26/08/2025*623",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "ELBALDI",
+    "prenom": "WISSAM"
   },
   {
     "id": "1121114",
@@ -594,7 +636,9 @@
     "integration": "2025-09-10",
     "sortie": null,
     "date_enreg": "03/09/2025*644",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "ELMENIY",
+    "prenom": "CHAYMAE"
   },
   {
     "id": "1128380",
@@ -621,7 +665,9 @@
     "integration": "2025-09-10",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "ELMONTASIR",
+    "prenom": "ANOUAR"
   },
   {
     "id": "1129067",
@@ -651,7 +697,9 @@
     "integration": "2025-09-12",
     "sortie": null,
     "date_enreg": "30/09/2025*673",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "ELYOUSSEFI",
+    "prenom": "MOUHSSINE"
   },
   {
     "id": "1124476",
@@ -680,7 +728,9 @@
     "integration": "2025-09-08",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "EZZAKI",
+    "prenom": "YOUNESS"
   },
   {
     "id": "1127850",
@@ -704,7 +754,9 @@
     "integration": "2025-09-17",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "HAFID",
+    "prenom": "ADAM"
   },
   {
     "id": "1118916",
@@ -733,7 +785,9 @@
     "integration": "2026-02-25",
     "sortie": null,
     "date_enreg": "28/01/2026*51",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "JOURAICHI",
+    "prenom": "MALAK"
   },
   {
     "id": "1118021",
@@ -762,7 +816,9 @@
     "integration": "2025-09-09",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "KABEL",
+    "prenom": "FATIMAEZZAHRAE"
   },
   {
     "id": "1127401",
@@ -791,7 +847,9 @@
     "integration": "2025-10-13",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "LAANATZA",
+    "prenom": "AMAL"
   },
   {
     "id": "1123087",
@@ -822,7 +880,9 @@
     "integration": "2025-09-08",
     "sortie": null,
     "date_enreg": "28/01/2026*51",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "LAAROUSSI",
+    "prenom": "IBTISSAM"
   },
   {
     "id": "1132308",
@@ -847,7 +907,9 @@
     "integration": "2025-09-09",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "MARJANA",
+    "prenom": "KHADIJA"
   },
   {
     "id": "1129806",
@@ -872,7 +934,9 @@
     "integration": "2025-09-07",
     "sortie": null,
     "date_enreg": "26/08/2025*623",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "MEHDIOUI",
+    "prenom": "MOHAMED"
   },
   {
     "id": "1125504",
@@ -903,7 +967,9 @@
     "integration": "2025-09-10",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "MTITACHE",
+    "prenom": "ISLAM"
   },
   {
     "id": "1132723",
@@ -932,7 +998,9 @@
     "integration": "2025-09-08",
     "sortie": null,
     "date_enreg": "26/08/2025*623",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "NOUIHRI",
+    "prenom": "AYA"
   },
   {
     "id": "1133784",
@@ -961,7 +1029,9 @@
     "integration": "2026-02-25",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "RIGAT",
+    "prenom": "MOHAMED"
   },
   {
     "id": "1133744",
@@ -990,7 +1060,9 @@
     "integration": "2025-02-17",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "SAMMOUD",
+    "prenom": "YASSINE"
   },
   {
     "id": "1128810",
@@ -1018,7 +1090,9 @@
     "integration": "2025-09-09",
     "sortie": null,
     "date_enreg": "03/09/2025*644",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "SNABI",
+    "prenom": "MOUAD"
   },
   {
     "id": "1117474",
@@ -1047,7 +1121,9 @@
     "integration": "2025-09-08",
     "sortie": null,
     "date_enreg": "03/09/2025*644",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "TAHIRI",
+    "prenom": "ZINEB"
   },
   {
     "id": "1119564",
@@ -1076,7 +1152,9 @@
     "integration": "2026-02-07",
     "sortie": null,
     "date_enreg": "08/09/2025*648",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "ADIL",
+    "prenom": "ADAM"
   },
   {
     "id": "1123086",
@@ -1104,7 +1182,9 @@
     "integration": "2025-09-10",
     "sortie": null,
     "date_enreg": "26/09/2025*670",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "AL MAAROUFI",
+    "prenom": "MALAK"
   },
   {
     "id": "1133997",
@@ -1133,7 +1213,9 @@
     "integration": "2026-02-03",
     "sortie": null,
     "date_enreg": "08/09/2025*648",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "AMMOU",
+    "prenom": "MALAK"
   },
   {
     "id": "1129032",
@@ -1161,7 +1243,9 @@
     "integration": "2026-02-07",
     "sortie": null,
     "date_enreg": "28/01/2026*51",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "BCHIRI",
+    "prenom": "KHADIJA"
   },
   {
     "id": "1118636",
@@ -1189,7 +1273,9 @@
     "integration": "2025-09-08",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "BENKHANTI",
+    "prenom": "LAILA"
   },
   {
     "id": "1125566",
@@ -1217,7 +1303,9 @@
     "integration": "2025-09-11",
     "sortie": null,
     "date_enreg": "30/09/2025*673",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "BOUABIDI",
+    "prenom": "TARIQ"
   },
   {
     "id": "1115180",
@@ -1248,7 +1336,9 @@
     "integration": "2024-12-10",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "BOUDINA",
+    "prenom": "SOUHAIB"
   },
   {
     "id": "1120215",
@@ -1274,7 +1364,9 @@
     "integration": "2025-09-13",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "BOUTARBOUCH",
+    "prenom": "AMINE"
   },
   {
     "id": "1120065",
@@ -1300,7 +1392,9 @@
     "integration": "2025-09-07",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "CHAFIQ",
+    "prenom": "HAMZA"
   },
   {
     "id": "1125340",
@@ -1327,7 +1421,9 @@
     "integration": "2025-09-09",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "CHEGLAL",
+    "prenom": "YOUSSEF"
   },
   {
     "id": "1119527",
@@ -1353,7 +1449,9 @@
     "integration": "2025-10-04",
     "sortie": null,
     "date_enreg": "30/09/2025*673",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "CHNIKHEL",
+    "prenom": "TAHA"
   },
   {
     "id": "1121983",
@@ -1379,7 +1477,9 @@
     "integration": "2025-09-08",
     "sortie": null,
     "date_enreg": "25/02/2026*105",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "EL BARBOUCHI",
+    "prenom": "HALIMA"
   },
   {
     "id": "1123085",
@@ -1408,7 +1508,9 @@
     "integration": "2025-09-10",
     "sortie": null,
     "date_enreg": "23/10/2025*735",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "EL HAMDAOUI",
+    "prenom": "FARAH"
   },
   {
     "id": "1118647",
@@ -1436,7 +1538,9 @@
     "integration": "2023-10-05",
     "sortie": null,
     "date_enreg": "04/09/2025*647",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "EL KACEMI",
+    "prenom": "ISHAK"
   },
   {
     "id": "1123084",
@@ -1462,7 +1566,9 @@
     "integration": "2025-09-29",
     "sortie": null,
     "date_enreg": "12/01/2026*09",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "ELMOSTAQIM",
+    "prenom": "KHADIJA"
   },
   {
     "id": "1135079",
@@ -1490,7 +1596,9 @@
     "integration": "2025-09-07",
     "sortie": null,
     "date_enreg": "15/10/2025*712",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "ERRAYS",
+    "prenom": "YOUSSEF"
   },
   {
     "id": "1129421",
@@ -1519,7 +1627,9 @@
     "integration": "2024-09-23",
     "sortie": null,
     "date_enreg": "15/10/2025*712",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "ET-TOURKY",
+    "prenom": "AMIR"
   },
   {
     "id": "1123975",
@@ -1546,7 +1656,9 @@
     "integration": "2025-09-07",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "ETTHABITY",
+    "prenom": "NUMIDIA"
   },
   {
     "id": "1121137",
@@ -1571,7 +1683,9 @@
     "integration": "2025-09-10",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "FARHATI",
+    "prenom": "AKRAM"
   },
   {
     "id": "1134416",
@@ -1598,7 +1712,9 @@
     "integration": "2026-02-18",
     "sortie": null,
     "date_enreg": "08/09/2025*648",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "HOUSNI",
+    "prenom": "AIMAD"
   },
   {
     "id": "1123440",
@@ -1628,7 +1744,9 @@
     "integration": "2025-09-10",
     "sortie": null,
     "date_enreg": "08/09/2025*648",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "HOUSNI",
+    "prenom": "IMANE"
   },
   {
     "id": "1119115",
@@ -1656,7 +1774,9 @@
     "integration": "2025-09-08",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "KADDOURI",
+    "prenom": "YASMINE"
   },
   {
     "id": "1129220",
@@ -1684,7 +1804,9 @@
     "integration": "2025-12-23",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "KHALIL",
+    "prenom": "YAHYA"
   },
   {
     "id": "1124166",
@@ -1709,7 +1831,9 @@
     "integration": "2026-01-13",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "KHCHINA",
+    "prenom": "MAJID"
   },
   {
     "id": "1125015",
@@ -1734,7 +1858,9 @@
     "integration": "2025-09-07",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "LAMRIOUI",
+    "prenom": "EL MOKHTAR"
   },
   {
     "id": "1114305",
@@ -1760,7 +1886,9 @@
     "integration": "2025-09-09",
     "sortie": null,
     "date_enreg": "03/09/2025*644",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "LOUDAD",
+    "prenom": "YAHYA"
   },
   {
     "id": "1131660",
@@ -1787,7 +1915,9 @@
     "integration": "2025-01-27",
     "sortie": null,
     "date_enreg": "26/08/2025*623",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "MAATAOUI",
+    "prenom": "SALMA"
   },
   {
     "id": "1133530",
@@ -1814,7 +1944,9 @@
     "integration": "2026-02-07",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "MOUHIB",
+    "prenom": "ADAM"
   },
   {
     "id": "1129160",
@@ -1841,7 +1973,9 @@
     "integration": "2025-12-23",
     "sortie": null,
     "date_enreg": "17/12/2025*918",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "MOUJAHID",
+    "prenom": "FOUAD"
   },
   {
     "id": "1124924",
@@ -1865,7 +1999,9 @@
     "integration": "2025-02-05",
     "sortie": null,
     "date_enreg": "26/08/2025*623",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "NASSIRI",
+    "prenom": "AYOUB"
   },
   {
     "id": "1118932",
@@ -1890,7 +2026,9 @@
     "integration": "2025-09-15",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "RADI",
+    "prenom": "CHAMS"
   },
   {
     "id": "1120239",
@@ -1917,7 +2055,9 @@
     "integration": "2025-09-08",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "RAZZAQ",
+    "prenom": "ABDERRAHMANE"
   },
   {
     "id": "1133521",
@@ -1946,7 +2086,9 @@
     "integration": "2025-11-25",
     "sortie": null,
     "date_enreg": "17/12/2025*918",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "SABIRI",
+    "prenom": "HADDA"
   },
   {
     "id": "1127013",
@@ -1972,7 +2114,9 @@
     "integration": "2025-10-22",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "SGHIR",
+    "prenom": "MOHAMED"
   },
   {
     "id": "1125250",
@@ -1996,7 +2140,9 @@
     "integration": "2025-09-12",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "ZBIR",
+    "prenom": "JIHANE"
   },
   {
     "id": "1123347",
@@ -2023,7 +2169,9 @@
     "integration": "2025-09-08",
     "sortie": null,
     "date_enreg": "26/09/2025*670",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "ZOUARI",
+    "prenom": "MERIEM"
   },
   {
     "id": "1127120",
@@ -2051,7 +2199,9 @@
     "integration": "2026-02-25",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "AGOUR",
+    "prenom": "FAICAL"
   },
   {
     "id": "1116444",
@@ -2078,7 +2228,9 @@
     "integration": "2026-03-25",
     "sortie": null,
     "date_enreg": "26/03/2026*151",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "AHIZOUNE",
+    "prenom": "ABDELGHAFOUR"
   },
   {
     "id": "1122488",
@@ -2108,7 +2260,9 @@
     "integration": "2024-10-16",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "AIT EL",
+    "prenom": "MADANI MARWANE"
   },
   {
     "id": "1120472",
@@ -2135,7 +2289,9 @@
     "integration": "2025-09-08",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "ALLIOUI",
+    "prenom": "AHMED"
   },
   {
     "id": "1123864",
@@ -2161,7 +2317,9 @@
     "integration": "2024-10-04",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "ASAD",
+    "prenom": "ADAM"
   },
   {
     "id": "1131271",
@@ -2192,7 +2350,9 @@
     "integration": "2025-09-11",
     "sortie": null,
     "date_enreg": "26/08/2025*623",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "ASSIBAT",
+    "prenom": "AMINE"
   },
   {
     "id": "1109074",
@@ -2219,7 +2379,9 @@
     "integration": "2025-11-19",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "BANOUR",
+    "prenom": "MOUSSA"
   },
   {
     "id": "1123230",
@@ -2247,7 +2409,9 @@
     "integration": "2023-09-17",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "BENDGHOUGUI",
+    "prenom": "AYMANE"
   },
   {
     "id": "1111870",
@@ -2271,7 +2435,9 @@
     "integration": "2025-02-05",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "BGUIRA",
+    "prenom": "MOHAMMED"
   },
   {
     "id": "1128283",
@@ -2299,7 +2465,9 @@
     "integration": "2025-09-11",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "BOUHOU",
+    "prenom": "ABDELHAKAM"
   },
   {
     "id": "1125034",
@@ -2329,7 +2497,9 @@
     "integration": "2025-09-13",
     "sortie": null,
     "date_enreg": "24/09/2025*665",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "BOUMKISS",
+    "prenom": "SALAHEDDINE"
   },
   {
     "id": "1132025",
@@ -2351,7 +2521,9 @@
     "integration": "2025-12-31",
     "sortie": null,
     "date_enreg": "25/08/2025*625",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "BOUSAAD",
+    "prenom": "SALAH EDDINE"
   },
   {
     "id": "1118572",
@@ -2377,7 +2549,9 @@
     "integration": "2022-02-21",
     "sortie": null,
     "date_enreg": "2025*712",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "BRAIKI",
+    "prenom": "MOHAMMED AMINE"
   },
   {
     "id": "1119169",
@@ -2401,7 +2575,9 @@
     "integration": "2025-09-10",
     "sortie": null,
     "date_enreg": "18/02/2026*102",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "CHAHID",
+    "prenom": "MOUAD"
   },
   {
     "id": "1120010",
@@ -2427,7 +2603,9 @@
     "integration": "2025-09-11",
     "sortie": null,
     "date_enreg": "08/09/2025*648",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "CHEMMALI",
+    "prenom": "ANAS"
   },
   {
     "id": "1122481",
@@ -2455,7 +2633,9 @@
     "integration": "2025-09-08",
     "sortie": null,
     "date_enreg": "17/12/2025*918",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "ECHCHAB",
+    "prenom": "AMR"
   },
   {
     "id": "1108256",
@@ -2483,7 +2663,9 @@
     "integration": "2025-09-09",
     "sortie": null,
     "date_enreg": "24/09/2025*665",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "EDDEBBAZ",
+    "prenom": "MERYEME"
   },
   {
     "id": "1117802",
@@ -2506,7 +2688,9 @@
     "integration": "2025-10-20",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "EL AZHAR",
+    "prenom": "AYMEN"
   },
   {
     "id": "1109678",
@@ -2533,7 +2717,9 @@
     "integration": "2025-09-04",
     "sortie": null,
     "date_enreg": "30/09/2025*673",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "EL BOUZY",
+    "prenom": "IMANE"
   },
   {
     "id": "1113597",
@@ -2559,7 +2745,9 @@
     "integration": "2025-09-12",
     "sortie": null,
     "date_enreg": "26/08/2025*623",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "EL HAMDAOUI",
+    "prenom": "RANIA"
   },
   {
     "id": "1119688",
@@ -2587,7 +2775,9 @@
     "integration": "2025-09-09",
     "sortie": null,
     "date_enreg": "26/08/2025*623",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "EL HOUCANI",
+    "prenom": "AMINA"
   },
   {
     "id": "1117649",
@@ -2615,7 +2805,9 @@
     "integration": "2024-12-12",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "EL MEKKAOUI",
+    "prenom": "ISMAIL"
   },
   {
     "id": "1127017",
@@ -2642,7 +2834,9 @@
     "integration": "2024-09-26",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "EL MELIANI",
+    "prenom": "LOTFI ADAM"
   },
   {
     "id": "1133568",
@@ -2670,7 +2864,9 @@
     "integration": "2026-01-06",
     "sortie": null,
     "date_enreg": "27/08/2025*626",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "ELBARKAOUI",
+    "prenom": "OTHMANE"
   },
   {
     "id": "1123846",
@@ -2696,7 +2892,9 @@
     "integration": "2025-09-11",
     "sortie": null,
     "date_enreg": "30/09/2025*673",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "ELFASSI",
+    "prenom": "YOUSSEF"
   },
   {
     "id": "1107931",
@@ -2724,7 +2922,9 @@
     "integration": "2025-09-10",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "ERRAOUI",
+    "prenom": "CHAIMAA"
   },
   {
     "id": "1115797",
@@ -2750,7 +2950,9 @@
     "integration": "2025-10-25",
     "sortie": null,
     "date_enreg": "26/08/2025*623",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "ESSADIK",
+    "prenom": "HASNAA"
   },
   {
     "id": "1120458",
@@ -2777,7 +2979,9 @@
     "integration": "2025-09-11",
     "sortie": null,
     "date_enreg": "30/09/2025*673",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "ESSAIDY",
+    "prenom": "TAWBANE"
   },
   {
     "id": "1122475",
@@ -2806,7 +3010,9 @@
     "integration": "2025-09-13",
     "sortie": null,
     "date_enreg": "01/09/2025*629",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "ESSEBA",
+    "prenom": "MOSTAFA"
   },
   {
     "id": "1126411",
@@ -2836,7 +3042,9 @@
     "integration": "2025-09-09",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "HAFSY",
+    "prenom": "NOUREDDINE"
   },
   {
     "id": "1119535",
@@ -2864,7 +3072,9 @@
     "integration": "2024-10-06",
     "sortie": null,
     "date_enreg": "30/01/2026*62",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "HATIM",
+    "prenom": "KALTOUM"
   },
   {
     "id": "1108809",
@@ -2890,7 +3100,9 @@
     "integration": "2025-10-01",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "JRAIF",
+    "prenom": "SAAD"
   },
   {
     "id": "1118194",
@@ -2915,7 +3127,9 @@
     "integration": "2025-02-19",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "KHALIDI",
+    "prenom": "AHMED"
   },
   {
     "id": "1119460",
@@ -2942,7 +3156,9 @@
     "integration": "2024-12-01",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "LOUAH",
+    "prenom": "KAOUTAR"
   },
   {
     "id": "1124546",
@@ -2972,7 +3188,9 @@
     "integration": "2025-09-10",
     "sortie": null,
     "date_enreg": "26/08/2025*623",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "MAZIANE",
+    "prenom": "HAMZA"
   },
   {
     "id": "1123012",
@@ -2999,7 +3217,9 @@
     "integration": "2025-09-08",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "OUABOUDOU",
+    "prenom": "YAHYA"
   },
   {
     "id": "1123554",
@@ -3027,7 +3247,9 @@
     "integration": "2025-09-13",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "OUAZZAOUIT",
+    "prenom": "REDA"
   },
   {
     "id": "1120937",
@@ -3052,7 +3274,9 @@
     "integration": "2025-09-08",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "ROUIKA",
+    "prenom": "MAROUANE"
   },
   {
     "id": "1126446",
@@ -3079,7 +3303,9 @@
     "integration": "2025-09-07",
     "sortie": null,
     "date_enreg": "26/08/2025*623",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "SAMNAN",
+    "prenom": "IMANE"
   },
   {
     "id": "1120958",
@@ -3102,7 +3328,9 @@
     "integration": "2025-10-01",
     "sortie": null,
     "date_enreg": "26/08/2025*623",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "SOUALI",
+    "prenom": "ADAM"
   },
   {
     "id": "1129130",
@@ -3125,7 +3353,9 @@
     "integration": "2025-02-05",
     "sortie": null,
     "date_enreg": "26/08/2025*623",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "SRAIDI",
+    "prenom": "AHMED"
   },
   {
     "id": "1113447",
@@ -3149,7 +3379,9 @@
     "integration": "2025-09-07",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "TARFAOUI",
+    "prenom": "HICHAM"
   },
   {
     "id": "1127351",
@@ -3173,7 +3405,9 @@
     "integration": "2025-09-15",
     "sortie": null,
     "date_enreg": "23/10/2025*735",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "TERHLAT",
+    "prenom": "AYMANE"
   },
   {
     "id": "1103336",
@@ -3201,7 +3435,9 @@
     "integration": "2025-09-07",
     "sortie": null,
     "date_enreg": "26/08/2025*623",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "AALIL",
+    "prenom": "HATIM"
   },
   {
     "id": "1114993",
@@ -3227,7 +3463,9 @@
     "integration": "2023-09-17",
     "sortie": null,
     "date_enreg": "26/08/2029*623",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "AGOUJDAD",
+    "prenom": "HANANE"
   },
   {
     "id": "1123477",
@@ -3254,7 +3492,9 @@
     "integration": "2026-01-23",
     "sortie": null,
     "date_enreg": "04/09/2025*647",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "AMECHTOUK",
+    "prenom": "MOHAMMED ALI"
   },
   {
     "id": "1110914",
@@ -3280,7 +3520,9 @@
     "integration": "2025-08-20",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "BASSOU",
+    "prenom": "ASMAA"
   },
   {
     "id": "1106881",
@@ -3305,7 +3547,9 @@
     "integration": "2022-01-01",
     "sortie": null,
     "date_enreg": "28/01/2026*51",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "BAZZI",
+    "prenom": "ABDELBASSET"
   },
   {
     "id": "1114240",
@@ -3334,7 +3578,9 @@
     "integration": "2025-09-06",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "BELWAFI",
+    "prenom": "AMINA"
   },
   {
     "id": "1116852",
@@ -3359,7 +3605,9 @@
     "integration": "2024-09-01",
     "sortie": null,
     "date_enreg": "25/02/2026*105",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "BEN CHRIFA",
+    "prenom": "MARWA"
   },
   {
     "id": "1126759",
@@ -3385,7 +3633,9 @@
     "integration": "2025-09-11",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "BINTAOUI",
+    "prenom": "AIMRANE"
   },
   {
     "id": "1124508",
@@ -3410,7 +3660,9 @@
     "integration": "2025-09-11",
     "sortie": null,
     "date_enreg": "08/09/2025*648",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "BOUAZAOUI",
+    "prenom": "SOUFIANE"
   },
   {
     "id": "1108485",
@@ -3433,7 +3685,9 @@
     "integration": "2025-09-09",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "A"
+    "classe": "A",
+    "nom_famille": "BOUCHAJDA",
+    "prenom": "IMAD"
   },
   {
     "id": "1119156",
@@ -3458,7 +3712,9 @@
     "integration": "2025-05-26",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "CHEFFOUI",
+    "prenom": "HATIM"
   },
   {
     "id": "1120982",
@@ -3484,7 +3740,9 @@
     "integration": "2025-09-07",
     "sortie": null,
     "date_enreg": "26/09/2025*670",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "CHIHI",
+    "prenom": "YAHYA"
   },
   {
     "id": "1121463",
@@ -3512,7 +3770,9 @@
     "integration": "2025-09-11",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "DARKAOUI",
+    "prenom": "OUSSAMA"
   },
   {
     "id": "1100967",
@@ -3537,7 +3797,9 @@
     "integration": "2025-12-29",
     "sortie": null,
     "date_enreg": "05/02/2026*68",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "EL KADDOURI",
+    "prenom": "AHLAM"
   },
   {
     "id": "1107824",
@@ -3562,7 +3824,9 @@
     "integration": "2025-08-19",
     "sortie": null,
     "date_enreg": "26/08/2025*623",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "EL-BOUZY",
+    "prenom": "SAIDA"
   },
   {
     "id": "1126312",
@@ -3588,7 +3852,9 @@
     "integration": "2024-09-08",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "ELDRISSI",
+    "prenom": "YOUNES"
   },
   {
     "id": "1111808",
@@ -3614,7 +3880,9 @@
     "integration": "2025-09-10",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "ELFATHI",
+    "prenom": "AYA"
   },
   {
     "id": "1120436",
@@ -3639,7 +3907,9 @@
     "integration": "2025-08-13",
     "sortie": null,
     "date_enreg": "05/02/2026*68",
-    "classe": "B"
+    "classe": "B",
+    "nom_famille": "ERRADOUANI",
+    "prenom": "OSAMA"
   },
   {
     "id": "1117034",
@@ -3664,7 +3934,9 @@
     "integration": "2025-09-07",
     "sortie": null,
     "date_enreg": "17/12/2025*918",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "HAITI",
+    "prenom": "AZIZ"
   },
   {
     "id": "1122918",
@@ -3691,7 +3963,9 @@
     "integration": "2025-10-27",
     "sortie": null,
     "date_enreg": "12/01/2026*09",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "JNIEH",
+    "prenom": "ASSYA"
   },
   {
     "id": "1118484",
@@ -3718,7 +3992,9 @@
     "integration": "2025-10-20",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "KHACHANI",
+    "prenom": "TAHA"
   },
   {
     "id": "1114341",
@@ -3744,7 +4020,9 @@
     "integration": "2022-09-18",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "LOURIGUA",
+    "prenom": "SMAIL"
   },
   {
     "id": "1123426",
@@ -3769,7 +4047,9 @@
     "integration": "2025-06-09",
     "sortie": null,
     "date_enreg": "30/09/2025*673",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "MAHFOUD",
+    "prenom": "BELLAL"
   },
   {
     "id": "1107728",
@@ -3794,7 +4074,9 @@
     "integration": "2025-09-07",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "MAOULOUA",
+    "prenom": "KAOUTAR"
   },
   {
     "id": "1111636",
@@ -3820,7 +4102,9 @@
     "integration": "2025-09-12",
     "sortie": null,
     "date_enreg": "08/09/2025*648",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "MEFHOUL",
+    "prenom": "IMANE"
   },
   {
     "id": "1103352",
@@ -3844,7 +4128,9 @@
     "integration": "2025-09-07",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "MOBTASSIM",
+    "prenom": "GHITA"
   },
   {
     "id": "1120028",
@@ -3869,7 +4155,9 @@
     "integration": "2025-09-11",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "MRIRICH",
+    "prenom": "YASSINE"
   },
   {
     "id": "1118843",
@@ -3897,7 +4185,9 @@
     "integration": "2023-12-01",
     "sortie": null,
     "date_enreg": "26/08/2025*623",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "NAMAR",
+    "prenom": "ADAM"
   },
   {
     "id": "1101025",
@@ -3924,7 +4214,9 @@
     "integration": "2024-10-04",
     "sortie": null,
     "date_enreg": "28/01/2026*51",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "OUGHLA",
+    "prenom": "AMINE"
   },
   {
     "id": "1119620",
@@ -3951,7 +4243,9 @@
     "integration": "2025-09-21",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "RAGGAD",
+    "prenom": "BILAL"
   },
   {
     "id": "1121168",
@@ -3976,7 +4270,9 @@
     "integration": "2025-09-10",
     "sortie": null,
     "date_enreg": "15/10/2025*712",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "SERRAKH",
+    "prenom": "AYOUB"
   },
   {
     "id": "1109360",
@@ -4004,7 +4300,9 @@
     "integration": "2025-09-08",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "SOUJAA",
+    "prenom": "ABDERRAZZAK"
   },
   {
     "id": "1117264",
@@ -4029,7 +4327,9 @@
     "integration": "2025-09-06",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "ZAHIRI",
+    "prenom": "CHAIMAA"
   },
   {
     "id": "1084783",
@@ -4059,7 +4359,9 @@
     "integration": "2026-01-06",
     "sortie": null,
     "date_enreg": "27/08/2025*626",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "AAFIR",
+    "prenom": "FATIMA"
   },
   {
     "id": "1100968",
@@ -4084,7 +4386,9 @@
     "integration": "2025-08-29",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "ABBASSI",
+    "prenom": "LAMYAE"
   },
   {
     "id": "1094589",
@@ -4107,7 +4411,9 @@
     "integration": "2025-09-22",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "AIT TALEB",
+    "prenom": "ASSIA"
   },
   {
     "id": "1036584",
@@ -4131,7 +4437,9 @@
     "integration": "2026-02-06",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "AKANKAM",
+    "prenom": "HICHAM"
   },
   {
     "id": "1095036",
@@ -4157,7 +4465,9 @@
     "integration": "2025-08-12",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "AKKAOUI",
+    "prenom": "MUSTAPHA"
   },
   {
     "id": "1102564",
@@ -4184,7 +4494,9 @@
     "integration": "2025-09-13",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "BALI",
+    "prenom": "KHADDOUJ"
   },
   {
     "id": "1052239",
@@ -4207,7 +4519,9 @@
     "integration": "2025-09-11",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "BOUASSEL",
+    "prenom": "ABDERRAFIA"
   },
   {
     "id": "1123441",
@@ -4237,7 +4551,9 @@
     "integration": "2025-09-02",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "BOUTFIDI",
+    "prenom": "HAMID"
   },
   {
     "id": "1099238",
@@ -4263,7 +4579,9 @@
     "integration": "2025-09-06",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "DIMOUKRATI",
+    "prenom": "ELMEHDI"
   },
   {
     "id": "1115988",
@@ -4291,7 +4609,9 @@
     "integration": "2025-09-12",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "EDRAOUI",
+    "prenom": "MOHAMMED"
   },
   {
     "id": "1035577",
@@ -4313,7 +4633,9 @@
     "integration": "2016-10-01",
     "sortie": null,
     "date_enreg": "25/02/2026*105",
-    "classe": "A"
+    "classe": "A",
+    "nom_famille": "EL BAKKALI",
+    "prenom": "SOUFIANE"
   },
   {
     "id": "1100860",
@@ -4341,7 +4663,9 @@
     "integration": "2025-09-09",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "EL BARODI",
+    "prenom": "MERYEM"
   },
   {
     "id": "1099188",
@@ -4366,7 +4690,9 @@
     "integration": "2025-09-06",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "EL BOUSSIRI",
+    "prenom": "WALID"
   },
   {
     "id": "1076010",
@@ -4388,7 +4714,9 @@
     "integration": "2020-09-01",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "EL MAKTOUM",
+    "prenom": "MOHAMMED"
   },
   {
     "id": "1123435",
@@ -4417,7 +4745,9 @@
     "integration": "2026-02-10",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "EL OUAZARI",
+    "prenom": "ISMAIL"
   },
   {
     "id": "1084692",
@@ -4443,7 +4773,9 @@
     "integration": "2025-09-23",
     "sortie": null,
     "date_enreg": "27/08/2025*626",
-    "classe": "A"
+    "classe": "A",
+    "nom_famille": "ELASSAL",
+    "prenom": "ABDERRAHMAN"
   },
   {
     "id": "1047332",
@@ -4468,14 +4800,16 @@
     "integration": "2025-09-07",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "ELHACHIMI",
+    "prenom": "SARA"
   },
   {
     "id": "1095530",
     "licence": "1095530",
     "nom": "ELHADDAD  SOUAD",
     "crf": "INA Ifrane",
-    "entraineur": "ELMOUADEN",
+    "entraineur": "AIT EL HAJ KARIM",
     "date_naissance": "2001-03-10",
     "age": 25,
     "categorie": "S",
@@ -4492,7 +4826,9 @@
     "integration": "2025-10-10",
     "sortie": null,
     "date_enreg": "26/08/2025*623",
-    "classe": "B"
+    "classe": "B",
+    "nom_famille": "ELHADDAD",
+    "prenom": "SOUAD"
   },
   {
     "id": "1062387",
@@ -4514,7 +4850,9 @@
     "integration": "2026-04-14",
     "sortie": null,
     "date_enreg": "",
-    "classe": "A"
+    "classe": "A",
+    "nom_famille": "ESSAYI",
+    "prenom": "ANASS"
   },
   {
     "id": "1123497",
@@ -4541,7 +4879,9 @@
     "integration": "2025-11-23",
     "sortie": null,
     "date_enreg": "26/08/2025*623",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "EZZAOUYAH",
+    "prenom": "MOHAMMED"
   },
   {
     "id": "1101804",
@@ -4568,7 +4908,9 @@
     "integration": "2025-09-01",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "A"
+    "classe": "A",
+    "nom_famille": "EZZIANI",
+    "prenom": "AYOUB"
   },
   {
     "id": "1040667",
@@ -4592,7 +4934,9 @@
     "integration": "2025-11-20",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "B"
+    "classe": "B",
+    "nom_famille": "FAID",
+    "prenom": "ELMOSTAFA"
   },
   {
     "id": "1125067",
@@ -4622,7 +4966,9 @@
     "integration": "2025-09-11",
     "sortie": null,
     "date_enreg": "05/02/2026*68",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "HABIB",
+    "prenom": "SAIDA"
   },
   {
     "id": "1088275",
@@ -4646,7 +4992,9 @@
     "integration": "2025-10-22",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "HAFID",
+    "prenom": "RIZKI"
   },
   {
     "id": "1114021",
@@ -4673,7 +5021,9 @@
     "integration": "2025-09-07",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "HOUSAINI",
+    "prenom": "LOUBNA"
   },
   {
     "id": "1088190",
@@ -4698,7 +5048,9 @@
     "integration": "2025-09-06",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "HSSINE",
+    "prenom": "YASSINE"
   },
   {
     "id": "1100961",
@@ -4726,7 +5078,9 @@
     "integration": "2025-10-19",
     "sortie": null,
     "date_enreg": "26/08/2025*623",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "IBN",
+    "prenom": "ABD ELMATEY HASSANA"
   },
   {
     "id": "1100959",
@@ -4756,7 +5110,9 @@
     "integration": "2025-10-19",
     "sortie": null,
     "date_enreg": "26/08/2025*623",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "IBN",
+    "prenom": "ABD ELMATEY HOUSNA"
   },
   {
     "id": "1128451",
@@ -4784,7 +5140,9 @@
     "integration": "2024-09-23",
     "sortie": null,
     "date_enreg": "28/01/2026*51",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "IDABDELLAH",
+    "prenom": "MUSTAPHA"
   },
   {
     "id": "1020050",
@@ -4806,7 +5164,9 @@
     "integration": "2023-09-01",
     "sortie": null,
     "date_enreg": "26/08/2025*623",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "KHSSIM",
+    "prenom": "AZIZ"
   },
   {
     "id": "1082308",
@@ -4831,7 +5191,9 @@
     "integration": "2025-09-07",
     "sortie": null,
     "date_enreg": "26/08/2025*623",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "LEHLALI",
+    "prenom": "SALMA"
   },
   {
     "id": "1105068",
@@ -4855,7 +5217,9 @@
     "integration": "2025-09-06",
     "sortie": null,
     "date_enreg": "13/01/2026*14",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "M'HAMDI",
+    "prenom": "RACHID"
   },
   {
     "id": "1065010",
@@ -4882,7 +5246,9 @@
     "integration": "2025-10-10",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "MANYANI",
+    "prenom": "ISMAIL"
   },
   {
     "id": "1027646",
@@ -4908,7 +5274,9 @@
     "integration": "2025-10-31",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "OUAAZIZ",
+    "prenom": "IKRAM"
   },
   {
     "id": "1049581",
@@ -4936,7 +5304,9 @@
     "integration": "2025-09-12",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "SAHMOUDI",
+    "prenom": "ADNANE"
   },
   {
     "id": "1076376",
@@ -4959,7 +5329,9 @@
     "integration": "2026-02-10",
     "sortie": null,
     "date_enreg": "18/08/2025*612",
-    "classe": "A"
+    "classe": "A",
+    "nom_famille": "SALAH",
+    "prenom": "DDINE BEN YAZID"
   },
   {
     "id": "1017473",
@@ -4982,7 +5354,9 @@
     "integration": "2025-12-24",
     "sortie": null,
     "date_enreg": "",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "TINDOUFTE",
+    "prenom": "MOHAMED"
   },
   {
     "id": "1101053",
@@ -5006,7 +5380,9 @@
     "integration": "2025-09-06",
     "sortie": null,
     "date_enreg": "24/08/2025*665",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "ZERHOUM",
+    "prenom": "MOHAMED YASSINE"
   },
   {
     "id": "1116801",
@@ -5034,6 +5410,8 @@
     "integration": "2025-10-18",
     "sortie": null,
     "date_enreg": "17/12/2025*918",
-    "classe": "Autre"
+    "classe": "Autre",
+    "nom_famille": "ZOUHAIR",
+    "prenom": "SARA"
   }
 ]

@@ -1325,7 +1325,7 @@ def export_minimas():
 
     wb = openpyxl.Workbook()
     ws = wb.active
-    ws.title = f'Minimas {saison_courante}'
+    ws.title = f'Minimas {saison_courante.replace("/","-")}'
 
     # Header
     headers = ['Nom','Prénom','N° Licence','Catégorie','Centre','Entraineur',
@@ -1396,8 +1396,8 @@ def export_excel():
         where += " AND a.classe=%s"; params.append(filter_classe)
 
     all_athletes = q(conn, f"""
-        SELECT a.*, u.full_name as coach_name
-        FROM athletes a JOIN users u ON a.coach_id=u.id
+        SELECT a.*, COALESCE(u.full_name, '—') as coach_name
+        FROM athletes a LEFT JOIN users u ON a.coach_id=u.id
         {where} ORDER BY a.centre, a.categorie, a.nom_prenom
     """, params)
 
@@ -1428,7 +1428,7 @@ def export_excel():
 
     wb = openpyxl.Workbook()
     ws = wb.active
-    ws.title = "Export AthléPro"
+    ws.title = "Export AthletePro"
 
     # Build header map
     field_labels = {
@@ -1492,7 +1492,7 @@ def export_excel():
         lic    = a['numero_licence']
         objs   = obj_by_lic.get(lic, [None])
         ress   = res_by_lic.get(lic, [None])
-        hists  = hist_by_lic.get(lic, [None])
+        hists  = hist_by_lic.get(lic, None) or [None]
         n_rows = max(
             len(objs)  if need_obj  else 1,
             len(ress)  if need_res  else 1,

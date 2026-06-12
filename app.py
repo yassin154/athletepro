@@ -725,6 +725,32 @@ def submit_champ_bulk(aid):
     conn.close()
     return redirect(url_for('athlete', aid=aid))
 
+@app.route('/athlete/<int:aid>/submit_resultat_champ', methods=['POST'])
+@login_required
+def submit_resultat_champ(aid):
+    conn = get_db()
+    a = q(conn, "SELECT * FROM athletes WHERE id=%s", (aid,), one=True)
+    if not a or (session['role'] != 'admin' and a['coach_id'] != session['user_id']):
+        conn.close(); return "Accès refusé", 403
+    now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    obj_id      = request.form.get('objectif_champ_id')
+    epreuve     = request.form.get('epreuve','').strip()
+    championnat = request.form.get('championnat','').strip()
+    classement  = request.form.get('classement','').strip()
+    performance = request.form.get('performance','').strip()
+    lieu        = request.form.get('lieu','').strip()
+    date_comp   = request.form.get('date_competition','').strip()
+    notes       = request.form.get('notes','').strip()
+    if epreuve and championnat:
+        sql = ("INSERT INTO resultats_champ "
+               "(athlete_id,objectif_champ_id,epreuve,championnat,classement,performance,lieu,date_competition,notes,saisi_le) "
+               "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)")
+        ex(conn, sql, (aid, obj_id or None, epreuve, championnat,
+                       int(classement) if classement.isdigit() else None,
+                       performance, lieu, date_comp, notes, now))
+    conn.close()
+    return redirect(url_for('athlete', aid=aid) + '?tab=realisations')
+
 @app.route('/admin')
 @login_required
 @admin_required
@@ -777,7 +803,23 @@ def admin_dashboard():
         ORDER BY a.categorie, a.nom_prenom
     """)
 
-    coaches = q(conn, "SELECT * FROM users WHERE role='coach' ORDER BY full_name")
+    coaches_raw = q(conn, "SELECT * FROM users WHERE role='coach' ORDER BY full_name")
+    coaches = []
+    for c in coaches_raw:
+        parts = c['full_name'].strip().split()
+        prefixes = ['EL','AL','AIT','BEN','BOU','OU','ABD']
+        if parts and parts[0].upper() in prefixes and len(parts) >= 3:
+            nom_f = parts[0] + ' ' + parts[1]
+            prenom_c = ' '.join(parts[2:])
+        elif parts:
+            nom_f = parts[0]
+            prenom_c = ' '.join(parts[1:])
+        else:
+            nom_f = c['full_name']; prenom_c = ''
+        d = dict(c)
+        d['nom_famille'] = nom_f
+        d['prenom'] = prenom_c
+        coaches.append(d)
 
     validated_obj = q(conn, """
         SELECT o.*, a.nom_prenom, a.centre, a.categorie, u.full_name as coach_name
@@ -1246,7 +1288,7 @@ def export_minimas():
             cell.border = thin
             cell.alignment = Alignment(vertical='center')
             if bg: cell.fill = bg
-            if col == 9:  # Statut
+            if col == 10:  # Statut
                 cell.font = Font(color='1E8449', bold=True)
 
     # Widths

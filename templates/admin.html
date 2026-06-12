@@ -544,7 +544,8 @@ document.querySelectorAll('.field-cb').forEach(cb => {
         <thead>
           <tr>
             <th>Cat.</th>
-            <th>Nom & Prénom</th>
+            <th>Nom</th>
+            <th>Prénom</th>
             <th>Classe</th>
             <th>Centre</th>
             <th>Entraineur</th>
@@ -556,13 +557,14 @@ document.querySelectorAll('.field-cb').forEach(cb => {
         </thead>
         <tbody id="ath-tbody">
           {% for a in athletes %}
-          <tr data-nom="{{ a.nom_prenom|upper }}"
+          <tr data-nom="{{ ((a.nom_famille or '') + ' ' + (a.prenom or '') + ' ' + a.nom_prenom)|upper }}"
               data-licence="{{ a.numero_licence }}"
               data-centre="{{ a.centre }}"
               data-classe="{{ a.classe or 'Autre' }}"
               data-cat="{{ a.categorie }}">
             <td><span class="tag tag-grey" style="font-size:.65rem">{{ a.categorie }}</span></td>
-            <td style="font-weight:600;color:#1E2742">{{ a.nom_prenom }}</td>
+            <td style="font-weight:700;color:#1E2742">{{ a.nom_famille or a.nom_prenom.strip().split()[0] }}</td>
+            <td style="color:#1E2742">{{ a.prenom or (a.nom_prenom.strip().split()[1:] | join(' ')) }}</td>
             <td style="text-align:center">
               {% if a.classe and a.classe != 'Autre' %}
               <span class="classe-badge classe-{{ a.classe }}" style="font-size:.75rem;padding:2px 8px">{{ a.classe }}</span>

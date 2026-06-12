@@ -181,6 +181,21 @@ def init_db():
         FOREIGN KEY(athlete_id) REFERENCES athletes(id)
     )''')
 
+    ex(conn, '''CREATE TABLE IF NOT EXISTS resultats_champ (
+        id SERIAL PRIMARY KEY,
+        athlete_id INTEGER NOT NULL,
+        objectif_champ_id INTEGER,
+        epreuve TEXT,
+        championnat TEXT,
+        classement INTEGER,
+        performance TEXT,
+        lieu TEXT,
+        date_competition TEXT,
+        notes TEXT,
+        saisi_le TEXT,
+        FOREIGN KEY(athlete_id) REFERENCES athletes(id)
+    )''')
+
     ex(conn, '''CREATE TABLE IF NOT EXISTS resultats (
         id SERIAL PRIMARY KEY,
         athlete_id INTEGER NOT NULL,
@@ -540,12 +555,7 @@ def athlete(aid):
         resultats_champ=q(conn, """SELECT rc.*, oc.objectif, oc.epreuve as obj_epreuve
             FROM resultats_champ rc
             LEFT JOIN objectifs_champ oc ON rc.objectif_champ_id=oc.id
-            WHERE rc.athlete_id=%s ORDER BY rc.date_competition DESC""", (aid,)) if (
-            ex(conn, """CREATE TABLE IF NOT EXISTS resultats_champ (
-                id SERIAL PRIMARY KEY, athlete_id INTEGER REFERENCES athletes(id),
-                objectif_champ_id INTEGER REFERENCES objectifs_champ(id),
-                epreuve TEXT, championnat TEXT, classement INTEGER, performance TEXT,
-                lieu TEXT, date_competition TEXT, notes TEXT, saisi_le TEXT)""") or True) else [],
+            WHERE rc.athlete_id=%s ORDER BY rc.date_competition DESC""", (aid,)),
         perf_obj_map=perf_obj_map,
         championnats=CHAMPIONNATS,
         chart_data=all_hist,

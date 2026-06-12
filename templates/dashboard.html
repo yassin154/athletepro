@@ -60,7 +60,8 @@
     <table class="table" style="table-layout:fixed;width:100%">
       <thead>
         <tr>
-          <th style="width:20%">Nom & Prénom</th>
+          <th style="width:12%">Nom</th>
+          <th style="width:12%">Prénom</th>
           <th style="width:12%">N° Licence</th>
           <th style="width:7%">Classe</th>
           <th style="width:11%">Naissance</th>
@@ -73,7 +74,8 @@
       <tbody>
         {% for a in group %}
         <tr>
-          <td style="font-weight:600;color:#1E2742">{{ a.nom_prenom }}</td>
+          <td style="font-weight:700;color:#1E2742">{{ a.nom_famille or a.nom_prenom.strip().split()[0] }}</td>
+          <td style="color:#1E2742">{{ a.prenom or (a.nom_prenom.strip().split()[1:] | join(' ')) }}</td>
           <td style="font-family:monospace;font-size:.82rem;color:#8A92A6">{{ a.numero_licence }}</td>
           <td style="text-align:center">
             {% if a.classe and a.classe != 'Autre' %}

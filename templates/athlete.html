@@ -294,6 +294,28 @@
         {% if not all_epreuves %}
         <div style="text-align:center;padding:2rem;color:#8A92A6;font-size:.88rem">Aucune épreuve. Ajoutez-en une ci-dessous.</div>
         {% endif %}
+        <!-- Ajouter objectif sur une épreuve non listée -->
+        <div style="border-top:1px dashed #DDE2EC;padding:1rem 0 .5rem;margin-top:.5rem">
+          <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#2471D6;margin-bottom:.7rem">+ Objectif sur une autre épreuve</div>
+          <div style="display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-end">
+            <div>
+              <label style="font-size:.72rem;color:#8A92A6;display:block;margin-bottom:3px">Épreuve</label>
+              <select name="epreuve[]" style="padding:7px 10px;border:1.5px solid rgba(36,113,214,.4);border-radius:5px;background:#F0F5FF;font-family:'Barlow',sans-serif;font-size:.85rem;color:#2C3345;outline:none;min-width:180px"
+                onchange="this.nextElementSibling.style.display=this.value==='__new__'?'block':'none'">
+                <option value="">— Sélectionner —</option>
+                {% for epr in epreuves_ref %}{% if epr not in all_epreuves %}<option value="{{ epr }}">{{ epr }}</option>{% endif %}{% endfor %}
+                <option value="__new__">✚ Autre épreuve...</option>
+              </select>
+              <input type="text" name="new_epreuve_extra_{{ saison_val|replace('/','_') }}"
+                     placeholder="Saisir l'épreuve" style="display:none;margin-top:5px;width:100%;padding:7px 10px;border:1.5px solid #DDE2EC;border-radius:5px;font-family:'Barlow',sans-serif;font-size:.85rem">
+            </div>
+            <div>
+              <label style="font-size:.72rem;color:#8A92A6;display:block;margin-bottom:3px">Objectif chrono</label>
+              <input type="text" name="objectif_chrono[]" class="editable" placeholder="ex: 3:29.00">
+            </div>
+            <input type="hidden" name="saison[]" value="{{ saison_val }}">
+          </div>
+        </div>
         {% if all_epreuves %}
         <div style="display:flex;justify-content:flex-end;margin-top:.8rem">
           <button type="submit" class="btn btn-primary">✉ Envoyer pour validation</button>

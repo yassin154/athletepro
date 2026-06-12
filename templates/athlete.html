@@ -537,7 +537,7 @@
             {% set obj_val = obj_map.get(epr,'') %}
             {{ obj_val or '—' }}
           </td>
-          <td class="ecart-cell" data-perf="{{ perf }}" data-obj="{{ obj_map.get(epr,'') }}">—</td>
+          <td class="ecart-cell" data-perf="{{ perf }}" data-obj="{{ obj_map.get(epr,'') }}" data-epreuve="{{ epr }}">—</td>
         </tr>
         {% endfor %}
       </tbody>
@@ -616,7 +616,7 @@
             </td>
             <td style="font-weight:700;color:#1E2742;font-size:.95rem">{{ perf or '—' }}</td>
             <td style="color:#2471D6;font-weight:500;font-size:.85rem">{% if obj %}{{ obj }}{% else %}<span style="color:#DDE2EC">—</span>{% endif %}</td>
-            <td class="ecart-cell" data-perf="{{ perf }}" data-obj="{{ obj or '' }}">—</td>
+            <td class="ecart-cell" data-perf="{{ perf }}" data-obj="{{ obj or '' }}" data-epreuve="{{ epr }}">—</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -920,15 +920,24 @@ function calcEcarts() {
     const ps = toSec(td.dataset.perf);
     const os = toSec(td.dataset.obj);
     if (isNaN(ps) || isNaN(os) || !td.dataset.obj) return;
+    const epr = td.dataset.epreuve || td.closest('tr')?.querySelector('td[data-epreuve]')?.dataset?.epreuve || '';
+    const fieldEpr = isFieldEvent(epr) || isFieldEvent(td.dataset.perf || '');
     const diff = ps - os;
-    function fmtEcart(sec) {
-      const abs = Math.abs(sec);
+    function fmtEcart(val) {
+      const abs = Math.abs(val);
+      if (fieldEpr) return abs.toFixed(2) + ' m';
       if (abs < 60) return abs.toFixed(2) + 's';
       const m = Math.floor(abs / 60);
       const s = (abs % 60).toFixed(2).padStart(5,'0');
       return m + ':' + s;
     }
+    // For field events: positive diff = better (further/higher), negative = worse
+    // For track: negative diff = better (faster), positive = worse
     if (Math.abs(diff) < 0.01) { td.textContent = '= Objectif'; td.className = 'ecart-cell ecart-eq'; }
+    else if (fieldEpr) {
+      if (diff > 0) { td.textContent = '+' + fmtEcart(diff); td.className = 'ecart-cell ecart-neg'; }
+      else          { td.textContent = '−' + fmtEcart(diff); td.className = 'ecart-cell ecart-pos'; }
+    }
     else if (diff < 0) { td.textContent = '−' + fmtEcart(diff); td.className = 'ecart-cell ecart-neg'; }
     else               { td.textContent = '+' + fmtEcart(diff); td.className = 'ecart-cell ecart-pos'; }
   });

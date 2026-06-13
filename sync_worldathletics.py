@@ -147,16 +147,47 @@ def main():
         try:
             with _ur.urlopen(req, timeout=20) as r:
                 raw = r.read()
-                ct = r.headers.get('Content-Type','')
-                print(f"✅ Status: {r.status}")
-                print(f"   Content-Type: {ct}")
-                print(f"   Taille: {len(raw)} bytes")
-                preview = raw[:800].decode('utf-8', errors='ignore')
-                print(f"   Contenu:\n{preview}")
+                html = raw.decode('utf-8', errors='ignore')
+                print(f"✅ Status: {r.status} | Taille: {len(html)} chars")
+                
+                # Cherche les données athletes dans le HTML
+                import re
+                # Cherche ng-init ou data-athletes ou JSON embedded
+                patterns = [
+                    (r'ng-init="[^"]*athletes[^"]*"', 'ng-init athletes'),
+                    (r'"fullName"\s*:\s*"([^"]+)"', 'fullName'),
+                    (r'"competitor"\s*:\s*"([^"]+)"', 'competitor'),
+                    (r'EL BAKKALI', 'EL BAKKALI direct'),
+                    (r'BAKKALI', 'BAKKALI'),
+                    (r'"place"\s*:\s*\d+', 'place field'),
+                    (r'rankingItem', 'rankingItem'),
+                    (r'ng-repeat', 'ng-repeat'),
+                    (r'athletes\s*=', 'athletes='),
+                    (r'\$scope\.rankings', 'scope.rankings'),
+                    (r'vm\.rankings', 'vm.rankings'),
+                    (r'"results"\s*:\s*\[', 'results array'),
+                ]
+                print()
+                for pat, label in patterns:
+                    matches = re.findall(pat, html, re.IGNORECASE)
+                    if matches:
+                        print(f"  ✅ '{label}': {len(matches)} occurrences")
+                        if label in ('fullName','competitor'):
+                            print(f"     Exemples: {matches[:5]}")
+                        else:
+                            print(f"     Premier: {str(matches[0])[:100]}")
+                    else:
+                        print(f"  ❌ '{label}': non trouvé")
+                
+                # Cherche spécifiquement autour de "Soufiane" ou "BAKKALI"
+                idx = html.find('BAKKALI')
+                if idx < 0: idx = html.find('Bakkali')
+                if idx > 0:
+                    print(f"\n  Contexte autour de BAKKALI:")
+                    print(f"  {html[max(0,idx-200):idx+300]}")
+
         except _ur.HTTPError as e:
-            print(f"❌ HTTP Error {e.code}: {e.reason}")
-            body = e.read()
-            print(f"   Body: {body[:200].decode('utf-8', errors='ignore')}")
+            print(f"❌ HTTP {e.code}: {e.reason}")
         except Exception as e:
             print(f"❌ {type(e).__name__}: {e}")
         return

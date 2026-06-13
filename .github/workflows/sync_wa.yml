@@ -4,7 +4,7 @@ on:
   schedule:
     # Chaque lundi à 06:00 UTC (07:00 heure Maroc)
     - cron: '0 6 * * 1'
-  workflow_dispatch:
+  workflow_dispatch:   # déclenchement manuel
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -24,14 +24,38 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Run sync
-        run: python sync_worldathletics.py
-        timeout-minutes: 45
+      - name: Test connectivité World Athletics
+        run: |
+          python3 -c "
+          import urllib.request, json
+          url = 'https://7ibx2qxfvnch7nyrsbqpj3kysq.appsync-api.eu-west-1.amazonaws.com/graphql'
+          headers = {
+            'Content-Type': 'application/json',
+            'x-api-key': 'da2-em7tgrudife2faws5gvtuhxfxm',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          }
+          data = json.dumps({'query': '{ __typename }'}).encode()
+          req = urllib.request.Request(url, data=data, headers=headers)
+          try:
+              with urllib.request.urlopen(req, timeout=15) as r:
+                  print('✅ AppSync accessible:', r.status)
+          except Exception as e:
+              print('⚠ AppSync bloqué:', e)
+              print('→ Essai via worldathletics.org...')
+          "
 
-      - name: Commit results
+      - name: Sync test (EL BAKKALI)
+        run: python sync_worldathletics.py --test
+        timeout-minutes: 5
+
+      - name: Sync tous les athlètes
+        run: python sync_worldathletics.py
+        timeout-minutes: 60
+
+      - name: Commit résultats
         run: |
           git config user.name  "AthléPro Bot"
           git config user.email "bot@athletepro.ma"
           git add resultats.json wa_ids.json wa_rankings.json || true
-          git diff --staged --quiet || git commit -m "🔄 Sync WA $(date +'%Y-%m-%d')"
+          git diff --staged --quiet || git commit -m "🔄 Sync WA $(date +'%Y-%m-%d') — résultats + rankings"
           git push

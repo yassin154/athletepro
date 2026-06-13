@@ -138,19 +138,27 @@ def main():
 
     if discover:
         print("\n🔍 Mode découverte — 3000mSC Hommes\n")
-        data, url = fetch_rankings('3000msc', 'M')
-        print(f"URL: {url}")
-        if data and '_error' not in data:
-            print(f"Type: {type(data)}")
-            if isinstance(data, dict):
-                print(f"Clés: {list(data.keys())}")
-                for k, v in data.items():
-                    print(f"  {k}: {str(v)[:200]}")
-            elif isinstance(data, list):
-                print(f"Liste de {len(data)} items")
-                if data: print(f"Premier: {str(data[0])[:300]}")
-        else:
-            print(f"Erreur: {data}")
+        import urllib.request as _ur
+        rank_date = RANK_DATE
+        url = (f"https://worldathletics.org/world-rankings/3000msc/men"
+               f"?regionType=countries&region=mar&page=1&rankDate={rank_date}&json=true")
+        print(f"URL testée: {url}\n")
+        req = _ur.Request(url, headers=HEADERS)
+        try:
+            with _ur.urlopen(req, timeout=20) as r:
+                raw = r.read()
+                ct = r.headers.get('Content-Type','')
+                print(f"✅ Status: {r.status}")
+                print(f"   Content-Type: {ct}")
+                print(f"   Taille: {len(raw)} bytes")
+                preview = raw[:800].decode('utf-8', errors='ignore')
+                print(f"   Contenu:\n{preview}")
+        except _ur.HTTPError as e:
+            print(f"❌ HTTP Error {e.code}: {e.reason}")
+            body = e.read()
+            print(f"   Body: {body[:200].decode('utf-8', errors='ignore')}")
+        except Exception as e:
+            print(f"❌ {type(e).__name__}: {e}")
         return
 
     athletes  = load_json(ATHLETES_FILE, [])

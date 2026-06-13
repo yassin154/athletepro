@@ -257,22 +257,20 @@ def init_db():
         ex(conn, "ALTER TABLE athletes ADD COLUMN IF NOT EXISTS prenom TEXT")
     except: pass
 
-    ex(conn, '''INSERT INTO users (username,password,full_name,role)
-                VALUES (%s,%s,%s,%s) ON CONFLICT (username) DO NOTHING''',
-       ('admin', hash_pw('Admin2026!'), 'Yassine Bouta', 'admin'))
+    # Delete old generic admin account
+    ex(conn, "DELETE FROM users WHERE username='admin'")
 
-    # Admin accounts — full access
+    # Named admin accounts
     ex(conn, '''INSERT INTO users (username,password,full_name,role)
-                VALUES (%s,%s,%s,%s) ON CONFLICT (username) DO NOTHING''',
+                VALUES (%s,%s,%s,%s) ON CONFLICT (username) DO UPDATE SET full_name=EXCLUDED.full_name, role=EXCLUDED.role''',
        ('yassine.boutalmaouine', hash_pw('Admin2026!'), 'Yassine Boutalmaouine', 'admin'))
 
     ex(conn, '''INSERT INTO users (username,password,full_name,role)
-                VALUES (%s,%s,%s,%s) ON CONFLICT (username) DO NOTHING''',
+                VALUES (%s,%s,%s,%s) ON CONFLICT (username) DO UPDATE SET full_name=EXCLUDED.full_name, role=EXCLUDED.role''',
        ('adib.elfilali', hash_pw('Admin2026!'), 'Adib El Filali', 'admin'))
 
-    # Directeur Technique — validation only (limited admin)
     ex(conn, '''INSERT INTO users (username,password,full_name,role)
-                VALUES (%s,%s,%s,%s) ON CONFLICT (username) DO NOTHING''',
+                VALUES (%s,%s,%s,%s) ON CONFLICT (username) DO UPDATE SET full_name=EXCLUDED.full_name, role=EXCLUDED.role''',
        ('abdellah.boukraa', hash_pw('DT2026!'), 'Abdellah Boukraa', 'directeur_technique'))
 
     coaches = [
@@ -374,7 +372,7 @@ def login():
             session['username'] = user['username']
             session['full_name'] = user['full_name']
             session['role'] = user['role']
-            if user['role'] == 'admin':
+            if user['role'] in ('admin', 'directeur_technique'):
                 return redirect(url_for('admin_dashboard'))
             return redirect(url_for('guide'))
         error = "Identifiant ou mot de passe incorrect"
@@ -383,7 +381,7 @@ def login():
 @app.route('/guide')
 @login_required
 def guide():
-    if session.get('role') == 'admin':
+    if session.get('role') in ('admin', 'directeur_technique'):
         return redirect(url_for('admin_dashboard'))
     return render_template('guide.html')
 
@@ -397,7 +395,7 @@ def logout():
 def dashboard():
     conn = get_db()
     ex(conn, "DELETE FROM athletes WHERE numero_licence='1082251'")
-    if session['role'] == 'admin':
+    if session['role'] in ('admin', 'directeur_technique'):
         athletes = q(conn, """
             SELECT a.*, COALESCE(u.full_name,'—') as coach_name
             FROM athletes a LEFT JOIN users u ON a.coach_id=u.id

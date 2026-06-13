@@ -1,14 +1,11 @@
 #!/usr/bin/env python3
 """
 sync_worldathletics.py — AthléPro
-Récupère les World Rankings MAR via worldathletics.org avec &json=true
-
-Usage:
-    python sync_worldathletics.py --test
-    python sync_worldathletics.py
+Récupère les World Rankings MAR via scraping HTML de worldathletics.org
+Les données sont dans des <td data-th="..."> dans le tableau.
 """
 
-import json, time, os, sys, urllib.request
+import json, time, os, sys, urllib.request, re
 from datetime import datetime
 
 BASE_DIR       = os.path.dirname(os.path.abspath(__file__))
@@ -16,22 +13,17 @@ ATHLETES_FILE  = os.path.join(BASE_DIR, 'athletes.json')
 RESULTATS_FILE = os.path.join(BASE_DIR, 'resultats.json')
 RANKINGS_FILE  = os.path.join(BASE_DIR, 'wa_rankings.json')
 
-RANK_DATE = "2026-06-09"  # Mettre à jour chaque semaine
+RANK_DATE = "2026-06-09"
 
 HEADERS = {
     "User-Agent": ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                    "AppleWebKit/537.36 (KHTML, like Gecko) "
                    "Chrome/145.0.3800.97 Safari/537.36 Edg/145.0.3800.97"),
-    "Accept": "application/json, text/plain, */*",
+    "Accept": "text/html,application/xhtml+xml,*/*",
     "Accept-Language": "fr-FR,fr;q=0.9,en;q=0.8",
     "Referer": "https://worldathletics.org/world-rankings/",
-    "sec-ch-ua": '"Microsoft Edge";v="145", "Chromium";v="145"',
-    "sec-fetch-dest": "empty",
-    "sec-fetch-mode": "cors",
-    "sec-fetch-site": "same-origin",
 }
 
-# (code WA, nom lisible, sexe)
 EPREUVES = [
     ('3000msc','3000m Steeple','M'), ('5000m','5000m','M'), ('1500m','1500m','M'),
     ('800m','800m','M'), ('10000m','10000m','M'), ('1000m','1000m','M'),
@@ -40,7 +32,6 @@ EPREUVES = [
     ('hj','Hauteur','M'), ('lj','Longueur','M'), ('tj','Triple Saut','M'),
     ('pv','Perche','M'), ('sp','Poids','M'), ('dt','Disque','M'),
     ('ht','Marteau','M'), ('jt','Javelot','M'),
-    # Femmes
     ('3000msc','3000m Steeple','F'), ('5000m','5000m','F'), ('1500m','1500m','F'),
     ('800m','800m','F'), ('10000m','10000m','F'), ('400m','400m','F'),
     ('200m','200m','F'), ('100m','100m','F'),
@@ -50,54 +41,57 @@ EPREUVES = [
     ('ht','Marteau','F'), ('jt','Javelot','F'),
 ]
 
-def fetch_rankings(event_code, sex, rank_date=RANK_DATE):
+def fetch_html(event_code, sex, rank_date=RANK_DATE):
     sex_str = 'men' if sex == 'M' else 'women'
     url = (f"https://worldathletics.org/world-rankings/{event_code}/{sex_str}"
-           f"?regionType=countries&region=mar&page=1&rankDate={rank_date}&json=true")
+           f"?regionType=countries&region=mar&page=1&rankDate={rank_date}")
     req = urllib.request.Request(url, headers=HEADERS)
     try:
         with urllib.request.urlopen(req, timeout=20) as r:
-            ct = r.headers.get('Content-Type', '')
-            raw = r.read()
-            if 'json' in ct:
-                return json.loads(raw), url
-            # Essaie quand même de parser
-            try:
-                return json.loads(raw), url
-            except:
-                # HTML retourné — pas JSON
-                return None, url
+            return r.read().decode('utf-8', errors='ignore'), url
     except Exception as e:
-        return {'_error': str(e)}, url
+        return None, url
 
-def extract_athletes(data):
-    """Extrait la liste d'athlètes depuis la réponse JSON."""
-    if not data or not isinstance(data, dict):
-        return []
-    # Cherche dans plusieurs structures possibles
-    items = (data.get('items') or data.get('results') or
-             data.get('rankings') or data.get('athletes') or
-             data.get('rankingItems') or [])
-    if isinstance(items, dict):
-        items = items.get('items') or items.get('results') or list(items.values())
+def parse_table(html):
+    """Parse <td data-th="..."> structure to extract athlete rows."""
     rows = []
-    for item in (items or []):
-        if not isinstance(item, dict): continue
-        ath = item.get('athlete') or item.get('competitor') or item
-        name = (ath.get('fullName') or ath.get('name') or
-                item.get('fullName') or item.get('name') or
-                item.get('competitor') or '')
-        if not name or not isinstance(name, str): continue
+    # Find all <tr> blocks in the table
+    tr_blocks = re.findall(r'<tr[^>]*>(.*?)</tr>', html, re.DOTALL | re.IGNORECASE)
+
+    for tr in tr_blocks:
+        # Extract all td values with their data-th attributes
+        cells = re.findall(
+            r'<td[^>]*data-th="([^"]+)"[^>]*>(.*?)</td>',
+            tr, re.DOTALL | re.IGNORECASE
+        )
+        if not cells:
+            continue
+
+        row = {}
+        for label, value in cells:
+            # Clean HTML tags and whitespace
+            clean = re.sub(r'<[^>]+>', ' ', value).strip()
+            clean = re.sub(r'\s+', ' ', clean).strip()
+            label = label.strip()
+            row[label] = clean
+
+        # Need at least Competitor field
+        name = row.get('Competitor') or row.get('Athlete') or row.get('Name')
+        if not name or len(name) < 3:
+            continue
+
         rows.append({
-            'name':      name.strip(),
-            'rank':      item.get('place') or item.get('rank') or item.get('worldRank'),
-            'rank_nat':  item.get('placeNat') or item.get('nationalRank'),
-            'score':     item.get('score') or item.get('points'),
-            'mark':      str(item.get('mark') or item.get('result') or item.get('performance') or ''),
-            'date':      str(item.get('date') or item.get('resultDate') or '')[:10],
-            'competition': str(item.get('competition') or item.get('meeting') or ''),
-            'venue':     str(item.get('venue') or item.get('city') or ''),
+            'rank':      row.get('Place') or row.get('Rank') or row.get('#'),
+            'name':      name,
+            'dob':       row.get('DOB') or row.get('Date of Birth',''),
+            'country':   row.get('Nat') or row.get('NAT') or row.get('Country',''),
+            'score':     row.get('Score') or row.get('Points',''),
+            'mark':      row.get('Mark') or row.get('Result') or row.get('Performance',''),
+            'date':      row.get('Date',''),
+            'competition': row.get('Competition') or row.get('Meet',''),
+            'venue':     row.get('Venue') or row.get('City',''),
         })
+
     return rows
 
 def match_athlete(wa_name, athletes, sex):
@@ -112,10 +106,21 @@ def match_athlete(wa_name, athletes, sex):
     return best if best_score >= 2 else None
 
 def date_to_saison(d):
-    if not d or len(str(d)) < 7: return ''
+    if not d or len(str(d)) < 4: return ''
     try:
-        y, m = int(str(d)[:4]), int(str(d)[5:7])
-        return f"{y}/{y+1}" if m >= 9 else f"{y-1}/{y}"
+        # Format "09 JUN 2026" ou "2026-06-09"
+        import re as _re
+        m = _re.search(r'(\d{4})', str(d))
+        if not m: return ''
+        year = int(m.group(1))
+        mon_match = _re.search(r'(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)', str(d).upper())
+        if mon_match:
+            months = {'JAN':1,'FEB':2,'MAR':3,'APR':4,'MAY':5,'JUN':6,
+                     'JUL':7,'AUG':8,'SEP':9,'OCT':10,'NOV':11,'DEC':12}
+            month = months.get(mon_match.group(1), 6)
+        else:
+            month = int(str(d)[5:7]) if len(str(d)) >= 7 else 6
+        return f"{year}/{year+1}" if month >= 9 else f"{year-1}/{year}"
     except: return ''
 
 def load_json(path, default):
@@ -138,58 +143,15 @@ def main():
 
     if discover:
         print("\n🔍 Mode découverte — 3000mSC Hommes\n")
-        import urllib.request as _ur
-        rank_date = RANK_DATE
-        url = (f"https://worldathletics.org/world-rankings/3000msc/men"
-               f"?regionType=countries&region=mar&page=1&rankDate={rank_date}&json=true")
-        print(f"URL testée: {url}\n")
-        req = _ur.Request(url, headers=HEADERS)
-        try:
-            with _ur.urlopen(req, timeout=20) as r:
-                raw = r.read()
-                html = raw.decode('utf-8', errors='ignore')
-                print(f"✅ Status: {r.status} | Taille: {len(html)} chars")
-                
-                # Cherche les données athletes dans le HTML
-                import re
-                # Cherche ng-init ou data-athletes ou JSON embedded
-                patterns = [
-                    (r'ng-init="[^"]*athletes[^"]*"', 'ng-init athletes'),
-                    (r'"fullName"\s*:\s*"([^"]+)"', 'fullName'),
-                    (r'"competitor"\s*:\s*"([^"]+)"', 'competitor'),
-                    (r'EL BAKKALI', 'EL BAKKALI direct'),
-                    (r'BAKKALI', 'BAKKALI'),
-                    (r'"place"\s*:\s*\d+', 'place field'),
-                    (r'rankingItem', 'rankingItem'),
-                    (r'ng-repeat', 'ng-repeat'),
-                    (r'athletes\s*=', 'athletes='),
-                    (r'\$scope\.rankings', 'scope.rankings'),
-                    (r'vm\.rankings', 'vm.rankings'),
-                    (r'"results"\s*:\s*\[', 'results array'),
-                ]
-                print()
-                for pat, label in patterns:
-                    matches = re.findall(pat, html, re.IGNORECASE)
-                    if matches:
-                        print(f"  ✅ '{label}': {len(matches)} occurrences")
-                        if label in ('fullName','competitor'):
-                            print(f"     Exemples: {matches[:5]}")
-                        else:
-                            print(f"     Premier: {str(matches[0])[:100]}")
-                    else:
-                        print(f"  ❌ '{label}': non trouvé")
-                
-                # Cherche spécifiquement autour de "Soufiane" ou "BAKKALI"
-                idx = html.find('BAKKALI')
-                if idx < 0: idx = html.find('Bakkali')
-                if idx > 0:
-                    print(f"\n  Contexte autour de BAKKALI:")
-                    print(f"  {html[max(0,idx-200):idx+300]}")
-
-        except _ur.HTTPError as e:
-            print(f"❌ HTTP {e.code}: {e.reason}")
-        except Exception as e:
-            print(f"❌ {type(e).__name__}: {e}")
+        html, url = fetch_html('3000msc', 'M')
+        if not html:
+            print("❌ Impossible de charger la page")
+            return
+        print(f"✅ Page chargée ({len(html)} chars)")
+        rows = parse_table(html)
+        print(f"   {len(rows)} athlètes trouvés dans le tableau\n")
+        for r in rows[:5]:
+            print(f"   #{r['rank']} | {r['name']} | {r['country']} | Score: {r['score']}")
         return
 
     athletes  = load_json(ATHLETES_FILE, [])
@@ -205,53 +167,60 @@ def main():
         e for e in EPREUVES if e[0] in ('3000msc','5000m','1500m') and e[2]=='M'
     ]
 
-    print(f"\n📋 {len(events)} épreuve(s) | Date ranking: {RANK_DATE}\n")
+    print(f"\n📋 {len(events)} épreuve(s) | Date: {RANK_DATE}\n")
     total_new = 0; nat_rankings = {}
 
     for event_code, ep_name, sex in events:
         sex_label = 'H' if sex == 'M' else 'F'
         print(f"  [{sex_label}] {ep_name}...", end=' ', flush=True)
 
-        data, url = fetch_rankings(event_code, sex)
-
-        if not data or '_error' in (data or {}):
-            err = (data or {}).get('_error','?')
-            print(f"— erreur: {err}")
-            time.sleep(0.5)
+        html, url = fetch_html(event_code, sex)
+        if not html:
+            print("— erreur chargement")
+            time.sleep(1)
             continue
 
-        rows = extract_athletes(data)
+        rows = parse_table(html)
         if not rows:
-            # Affiche structure pour debug
-            print(f"— JSON reçu mais pas d'athlètes (clés: {list(data.keys()) if isinstance(data,dict) else type(data)})")
+            print("— aucun athlète parsé")
             time.sleep(0.5)
             continue
 
-        added = 0
+        added = 0; ranked = 0
         for row in rows:
             our_ath = match_athlete(row['name'], athletes, sex)
             if not our_ath: continue
             lic = our_ath['licence']
-            mark = row['mark']; date = row['date']
-            saison = date_to_saison(date) or '2025/2026'
-            key = (lic, saison, ep_name, mark)
-            if key not in existing_keys and mark:
-                resultats.append({
-                    'licence': lic, 'saison': saison, 'date': date,
-                    'competition': row['competition'], 'lieu': row['venue'],
-                    'epreuve': ep_name, 'classement': None,
-                    'resultat': mark, 'source': 'worldathletics',
-                })
-                existing_keys.add(key); total_new += 1; added += 1
+
+            # Ranking
             if lic not in nat_rankings: nat_rankings[lic] = []
             nat_rankings[lic].append({
-                'discipline': ep_name, 'rank_int': row['rank'],
-                'rank_nat': row['rank_nat'], 'score': row['score'],
-                'mark': mark, 'date': date,
+                'discipline': ep_name,
+                'rank_int': row['rank'],
+                'rank_nat': None,
+                'score': row['score'],
+                'mark': row['mark'],
+                'date': RANK_DATE,
             })
+            ranked += 1
 
-        print(f"{len(rows)} MAR | +{added} résultats")
-        time.sleep(1)
+            # Résultat si mark disponible
+            mark = row.get('mark','')
+            if mark:
+                saison = date_to_saison(RANK_DATE)
+                key = (lic, saison, ep_name, mark)
+                if key not in existing_keys:
+                    resultats.append({
+                        'licence': lic, 'saison': saison, 'date': RANK_DATE,
+                        'competition': row.get('competition','WA Rankings'),
+                        'lieu': row.get('venue',''),
+                        'epreuve': ep_name, 'classement': None,
+                        'resultat': mark, 'source': 'worldathletics',
+                    })
+                    existing_keys.add(key); total_new += 1; added += 1
+
+        print(f"{len(rows)} MAR | {ranked} matchés | +{added} résultats")
+        time.sleep(1.5)
 
     for lic, ranks in nat_rankings.items():
         rankings[lic] = ranks
@@ -261,6 +230,7 @@ def main():
 
     print(f"\n{'='*60}")
     print(f"✅ +{total_new} résultats | Total: {len(resultats)}")
+    print(f"   Rankings sauvegardés: {len(nat_rankings)} athlètes")
     print(f"{'='*60}")
 
 if __name__ == '__main__':

@@ -31,7 +31,9 @@
   <button class="tab-btn active" onclick="showTab('tab-validation',this)">⏳ Validation ({{ stats.en_attente }})</button>
   <button class="tab-btn" onclick="showTab('tab-athletes',this)">👥 Tous les athlètes</button>
   <button class="tab-btn" onclick="showTab('tab-coaches',this)">🏋️ Entraineurs</button>
+  {% if session.role == 'admin' %}
   <a href="/admin/minimas" class="tab-btn" style="text-decoration:none">🏅 Minimas CRF</a>
+  {% endif %}
 </div>
 
 <!-- TAB VALIDATION -->

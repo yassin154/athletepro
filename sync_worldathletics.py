@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
 """
 sync_worldathletics.py — AthléPro
-Scrape les World Rankings depuis worldathletics.org pour les athlètes marocains.
-URL: https://worldathletics.org/world-rankings/{event}/{sex}?country=MAR
+Récupère les World Rankings MAR via l'API interne de worldathletics.org
+
+Le site worldathletics.org fait des appels API vers :
+https://www.worldathletics.org/en/api/athletes/rankings
 
 Usage:
-    python sync_worldathletics.py --test    # 3 épreuves seulement
-    python sync_worldathletics.py           # toutes les épreuves
+    python sync_worldathletics.py --test
+    python sync_worldathletics.py
 """
 
-import json, time, os, sys, urllib.request, urllib.parse, re
+import json, time, os, sys, urllib.request, urllib.parse
 from datetime import datetime
 
 BASE_DIR       = os.path.dirname(os.path.abspath(__file__))
@@ -17,129 +19,152 @@ ATHLETES_FILE  = os.path.join(BASE_DIR, 'athletes.json')
 RESULTATS_FILE = os.path.join(BASE_DIR, 'resultats.json')
 RANKINGS_FILE  = os.path.join(BASE_DIR, 'wa_rankings.json')
 
+# APIs internes utilisées par le site worldathletics.org
+# (vues dans les DevTools du navigateur)
+API_URLS = [
+    "https://www.worldathletics.org/en/api/athletes/rankings?eventCode={event}&sex={sex}&countryCode=MAR",
+    "https://worldathletics.org/en/api/rankings?event={event}&sex={sex}&country=MAR&page=1",
+    "https://worldathletics.org/records/toplists/{event}/outdoor/{sex}/senior?regionType=country&country=MAR&windReading=regular&page=1&bestResultsOnly=true",
+]
+
 HEADERS = {
     "User-Agent": ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                   "AppleWebKit/537.36 (KHTML, like Gecko) "
-                   "Chrome/124.0.0.0 Safari/537.36"),
-    "Accept": "application/json, text/html, */*",
-    "Accept-Language": "fr-FR,fr;q=0.9,en;q=0.8",
-    "Referer": "https://worldathletics.org/",
+                   "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"),
+    "Accept": "application/json, text/plain, */*",
+    "Accept-Language": "fr-FR,fr;q=0.9",
+    "Referer": "https://worldathletics.org/world-rankings/",
+    "X-Requested-With": "XMLHttpRequest",
 }
 
-# Épreuves (code URL WA → nom lisible)
-EPREUVES_H = {
-    '100m': '100m', '200m': '200m', '400m': '400m', '800m': '800m',
-    '1500m': '1500m', '3000m': '3000m', '5000m': '5000m', '10000m': '10000m',
-    '110m-hurdles': '110m Haies', '400m-hurdles': '400m Haies',
-    '3000m-steeplechase': '3000m Steeple',
-    'high-jump': 'Hauteur', 'long-jump': 'Longueur', 'triple-jump': 'Triple Saut',
-    'pole-vault': 'Perche', 'shot-put': 'Poids', 'discus-throw': 'Disque',
-    'hammer-throw': 'Marteau', 'javelin-throw': 'Javelot',
-    '1000m': '1000m', '2000m': '2000m', 'cross-country': 'Cross Country',
-}
-EPREUVES_F = {
-    '100m': '100m', '200m': '200m', '400m': '400m', '800m': '800m',
-    '1500m': '1500m', '3000m': '3000m', '5000m': '5000m', '10000m': '10000m',
-    '100m-hurdles': '100m Haies', '400m-hurdles': '400m Haies',
-    '3000m-steeplechase': '3000m Steeple',
-    'high-jump': 'Hauteur', 'long-jump': 'Longueur', 'triple-jump': 'Triple Saut',
-    'pole-vault': 'Perche', 'shot-put': 'Poids', 'discus-throw': 'Disque',
-    'hammer-throw': 'Marteau', 'javelin-throw': 'Javelot',
-    '1000m': '1000m', '2000m': '2000m',
+# Map épreuves : (slug_ranking, code_api, code_toplist, nom_lisible)
+EPREUVES = {
+    'M': [
+        ('3000m-steeplechase', '3000SC', '3000m-steeplechase', '3000m Steeple'),
+        ('5000m',       '5000', '5000m',       '5000m'),
+        ('1500m',       '1500', '1500m',        '1500m'),
+        ('800m',        '800',  '800m',         '800m'),
+        ('10000m',      '10000','10000m',        '10000m'),
+        ('400m',        '400',  '400m',         '400m'),
+        ('200m',        '200',  '200m',         '200m'),
+        ('100m',        '100',  '100m',         '100m'),
+        ('110m-hurdles','110H', '110m-hurdles', '110m Haies'),
+        ('400m-hurdles','400H', '400m-hurdles', '400m Haies'),
+        ('high-jump',   'HJ',   'high-jump',    'Hauteur'),
+        ('long-jump',   'LJ',   'long-jump',    'Longueur'),
+        ('triple-jump', 'TJ',   'triple-jump',  'Triple Saut'),
+        ('shot-put',    'SP',   'shot-put',     'Poids'),
+        ('discus-throw','DT',   'discus-throw', 'Disque'),
+        ('hammer-throw','HT',   'hammer-throw', 'Marteau'),
+        ('javelin-throw','JT',  'javelin-throw','Javelot'),
+    ],
+    'F': [
+        ('3000m-steeplechase','3000SC','3000m-steeplechase','3000m Steeple'),
+        ('5000m',       '5000', '5000m',        '5000m'),
+        ('1500m',       '1500', '1500m',        '1500m'),
+        ('800m',        '800',  '800m',         '800m'),
+        ('10000m',      '10000','10000m',        '10000m'),
+        ('400m',        '400',  '400m',         '400m'),
+        ('200m',        '200',  '200m',         '200m'),
+        ('100m',        '100',  '100m',         '100m'),
+        ('100m-hurdles','100H', '100m-hurdles', '100m Haies'),
+        ('400m-hurdles','400H', '400m-hurdles', '400m Haies'),
+        ('high-jump',   'HJ',   'high-jump',    'Hauteur'),
+        ('long-jump',   'LJ',   'long-jump',    'Longueur'),
+        ('triple-jump', 'TJ',   'triple-jump',  'Triple Saut'),
+        ('shot-put',    'SP',   'shot-put',     'Poids'),
+        ('discus-throw','DT',   'discus-throw', 'Disque'),
+        ('hammer-throw','HT',   'hammer-throw', 'Marteau'),
+        ('javelin-throw','JT',  'javelin-throw','Javelot'),
+    ]
 }
 
-def fetch_rankings_page(event_slug, sex):
-    """
-    Fetch world rankings page for a given event and sex, filtered by MAR.
-    Returns list of {rank, name, country, mark, date, competition}
-    """
-    sex_str = 'men' if sex == 'M' else 'women'
-    # URL du ranking avec filtre pays MAR
-    url = f"https://worldathletics.org/world-rankings/{event_slug}/{sex_str}?country=MAR"
-
+def try_url(url):
     req = urllib.request.Request(url, headers=HEADERS)
     try:
-        with urllib.request.urlopen(req, timeout=20) as r:
-            html = r.read().decode('utf-8', errors='ignore')
-
-        # Try to extract JSON data from the page
-        # World Athletics embeds data in window.__INITIAL_STATE__ or similar
-        patterns = [
-            r'window\.__INITIAL_STATE__\s*=\s*({.*?});',
-            r'"rankings"\s*:\s*(\[.*?\])',
-            r'"athletes"\s*:\s*(\[.*?\])',
-            r'rankingRows\s*:\s*(\[.*?\])',
-        ]
-        for pat in patterns:
-            m = re.search(pat, html, re.DOTALL)
-            if m:
-                try:
-                    data = json.loads(m.group(1))
-                    rows = extract_rows(data)
-                    if rows:
-                        return rows
-                except: pass
-
-        # Alternative: look for structured data in script tags
-        scripts = re.findall(r'<script[^>]*>(.*?)</script>', html, re.DOTALL)
-        for script in scripts:
-            if 'ranking' in script.lower() and 'place' in script.lower():
-                # Try to find JSON arrays
-                arrays = re.findall(r'\[{[^[\]]*"place"[^[\]]*}\]', script, re.DOTALL)
-                for arr in arrays:
-                    try:
-                        rows = json.loads(arr)
-                        if rows and isinstance(rows[0], dict):
-                            return extract_rows(rows)
-                    except: pass
-
+        with urllib.request.urlopen(req, timeout=15) as r:
+            content = r.read()
+            ct = r.headers.get('Content-Type','')
+            if 'json' in ct:
+                return json.loads(content)
+            # Try parsing as JSON anyway
+            try:
+                return json.loads(content)
+            except:
+                return {'raw': content.decode('utf-8', errors='ignore')[:500]}
     except Exception as e:
-        print(f"      ⚠ Erreur: {e}")
-    return []
+        return None
 
-def extract_rows(data):
-    """Extract athlete rows from various data structures."""
+def fetch_mar_rankings(event_slug, event_code, event_toplist, sex):
+    sex_str = 'men' if sex == 'M' else 'women'
+    sex_api = 'men' if sex == 'M' else 'women'
+
+    urls_to_try = [
+        # Toplist par pays - l'URL la plus standard
+        f"https://worldathletics.org/records/toplists/{event_toplist}/outdoor/{sex_api}/senior?regionType=country&country=MAR&windReading=regular&page=1&bestResultsOnly=true",
+        f"https://worldathletics.org/records/toplists/{event_toplist}/all/{sex_api}/senior?regionType=country&country=MAR&page=1",
+        # World rankings avec filtre pays
+        f"https://worldathletics.org/world-rankings/{event_slug}/{sex_str}?country=MAR&json=1",
+        # API JSON directe
+        f"https://www.worldathletics.org/en/api/discipline/{event_code}/rankings?sex={sex_api}&country=MAR",
+        f"https://www.worldathletics.org/en/api/rankings/{event_code}?sex={sex_api}&countryCode=MAR",
+    ]
+
+    for url in urls_to_try:
+        result = try_url(url)
+        if result and isinstance(result, dict) and 'raw' not in result:
+            rows = extract_athletes(result)
+            if rows:
+                return rows, url
+        elif result and isinstance(result, list) and result:
+            rows = extract_athletes(result)
+            if rows:
+                return rows, url
+
+    return [], None
+
+def extract_athletes(data):
+    """Extract athlete list from various JSON structures."""
     rows = []
     if isinstance(data, list):
         items = data
     elif isinstance(data, dict):
-        items = (data.get('rankings') or data.get('athletes') or
-                data.get('rankingRows') or data.get('results') or [])
+        # Try various keys
+        items = (data.get('results') or data.get('rankings') or
+                data.get('athletes') or data.get('items') or
+                data.get('data') or [])
+        if isinstance(items, dict):
+            items = items.get('results') or items.get('items') or []
     else:
         return []
 
     for item in items:
         if not isinstance(item, dict): continue
-        name = (item.get('athlete',{}).get('fullName','') or
-                item.get('fullName','') or item.get('name',''))
+        ath = item.get('athlete') or item
+        name = (ath.get('fullName') or ath.get('name') or
+                item.get('fullName') or item.get('name') or '')
         if not name: continue
         rows.append({
-            'rank':        item.get('place') or item.get('rank') or item.get('worldRank'),
-            'rank_nat':    item.get('placeNat') or item.get('nationalRank'),
-            'name':        name,
-            'country':     (item.get('athlete',{}).get('country',{}).get('code','') or
-                           item.get('country','')),
-            'mark':        str(item.get('mark','') or item.get('result','') or ''),
-            'date':        str(item.get('date',''))[:10],
-            'competition': str(item.get('competition','') or ''),
-            'venue':       str(item.get('venue','') or ''),
-            'wa_id':       (item.get('athlete',{}).get('aaId') or
-                           item.get('athlete',{}).get('id') or item.get('athleteId')),
+            'name':      name.strip(),
+            'rank':      item.get('place') or item.get('rank') or item.get('worldRank'),
+            'rank_nat':  item.get('placeNat') or item.get('nationalRank'),
+            'mark':      str(item.get('mark') or item.get('result') or item.get('performance') or ''),
+            'date':      str(item.get('date') or '')[:10],
+            'competition': str(item.get('competition') or item.get('meeting') or ''),
+            'venue':     str(item.get('venue') or item.get('city') or ''),
+            'country':   (ath.get('country',{}).get('code','') if isinstance(ath.get('country'),dict)
+                         else str(ath.get('country','') or item.get('country','') or '')),
         })
     return rows
 
-def match_athlete(wa_name, our_athletes, sex):
-    """Match WA name to our athlete list."""
-    wa_parts = set(wa_name.upper().replace('-',' ').split())
-    best = None
-    best_score = 0
-    for a in our_athletes:
+def match_athlete(wa_name, athletes, sex):
+    wa_parts = set(wa_name.upper().replace('-',' ').replace("'",' ').split())
+    best = None; best_score = 0
+    for a in athletes:
         if a.get('sexe') != sex: continue
-        our_parts = set(a['nom'].upper().replace('-',' ').split())
+        our_parts = set(a['nom'].upper().replace('-',' ').replace("'",' ').split())
         score = len(wa_parts & our_parts)
         if score > best_score:
-            best_score = score
-            best = a
+            best_score = score; best = a
     return best if best_score >= 2 else None
 
 def date_to_saison(d):
@@ -151,8 +176,7 @@ def date_to_saison(d):
 
 def load_json(path, default):
     if os.path.exists(path):
-        with open(path, encoding='utf-8') as f:
-            return json.load(f)
+        with open(path, encoding='utf-8') as f: return json.load(f)
     return default
 
 def save_json(path, data):
@@ -161,28 +185,12 @@ def save_json(path, data):
 
 def main():
     test_mode = '--test' in sys.argv
+    discover  = '--discover' in sys.argv
 
     print("="*60)
-    print("AthléPro — Sync World Rankings (MAR)")
+    print("AthléPro — Sync World Rankings MAR")
     print(f"Date: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
     print("="*60)
-
-    # Test connectivity
-    print("\n🌐 Test connectivité...")
-    try:
-        req = urllib.request.Request(
-            "https://worldathletics.org/world-rankings/3000m-steeplechase/men?country=MAR",
-            headers=HEADERS
-        )
-        with urllib.request.urlopen(req, timeout=15) as r:
-            html = r.read().decode('utf-8', errors='ignore')
-        if 'El Bakkali' in html or 'BAKKALI' in html or 'ranking' in html.lower():
-            print("✅ Site accessible et données trouvées\n")
-        else:
-            print(f"✅ Site accessible ({len(html)} chars) — parsing en cours\n")
-    except Exception as e:
-        print(f"❌ {e}")
-        sys.exit(1)
 
     athletes  = load_json(ATHLETES_FILE, [])
     resultats = load_json(RESULTATS_FILE, [])
@@ -193,118 +201,99 @@ def main():
         for r in resultats
     )
 
-    # Events to sync
+    # Mode découverte : trouve quels endpoints marchent
+    if discover:
+        print("\n🔍 Mode découverte — test des endpoints...\n")
+        event = ('3000m-steeplechase','3000SC','3000m-steeplechase','3000m Steeple')
+        rows, url = fetch_mar_rankings(*event, 'M')
+        if rows:
+            print(f"✅ Endpoint trouvé: {url}")
+            print(f"   {len(rows)} athlètes MAR trouvés")
+            for r in rows[:3]: print(f"   - {r['name']} | {r['mark']}")
+        else:
+            print("❌ Aucun endpoint n'a fonctionné pour 3000m Steeple H")
+            # Show what each URL returned
+            event_toplist = '3000m-steeplechase'
+            test_urls = [
+                f"https://worldathletics.org/records/toplists/{event_toplist}/outdoor/men/senior?regionType=country&country=MAR&windReading=regular&page=1&bestResultsOnly=true",
+                f"https://worldathletics.org/records/toplists/{event_toplist}/all/men/senior?regionType=country&country=MAR&page=1",
+            ]
+            for url in test_urls:
+                print(f"\n  Testing: {url}")
+                result = try_url(url)
+                if result:
+                    print(f"  → Type: {type(result)}")
+                    if isinstance(result, dict):
+                        print(f"  → Keys: {list(result.keys())[:5]}")
+                    elif isinstance(result, list):
+                        print(f"  → {len(result)} items")
+                        if result: print(f"  → First: {str(result[0])[:200]}")
+                else:
+                    print("  → None (blocked or error)")
+        return
+
+    events_to_sync = []
     if test_mode:
-        events = [
-            ('3000m-steeplechase', 'M', '3000m Steeple'),
-            ('5000m', 'M', '5000m'),
-            ('1500m', 'M', '1500m'),
-        ]
+        events_to_sync = [('3000m-steeplechase','3000SC','3000m-steeplechase','3000m Steeple','M'),
+                          ('5000m','5000','5000m','5000m','M'),
+                          ('1500m','1500','1500m','1500m','M')]
     else:
-        events = (
-            [(slug, 'M', name) for slug, name in EPREUVES_H.items()] +
-            [(slug, 'F', name) for slug, name in EPREUVES_F.items()]
-        )
+        for sex in ('M','F'):
+            for ev in EPREUVES[sex]:
+                events_to_sync.append((*ev, sex))
 
-    total_new = 0
-    nat_rankings = {}
+    print(f"\n📋 {len(events_to_sync)} épreuve(s)\n")
+    total_new = 0; nat_rankings = {}; working_url = None
 
-    print(f"📋 {len(events)} épreuve(s) à synchroniser\n")
-
-    for event_slug, sex, ep_name in events:
+    for event_slug, event_code, event_toplist, ep_name, sex in events_to_sync:
         sex_label = 'H' if sex == 'M' else 'F'
         print(f"  [{sex_label}] {ep_name}...", end=' ', flush=True)
 
-        rows = fetch_rankings_page(event_slug, sex)
+        rows, url = fetch_mar_rankings(event_slug, event_code, event_toplist, sex)
 
         if not rows:
-            # Try to get MAR athletes from the page via HTML scraping
-            sex_str = 'men' if sex == 'M' else 'women'
-            url = f"https://worldathletics.org/world-rankings/{event_slug}/{sex_str}?country=MAR"
-            try:
-                req = urllib.request.Request(url, headers=HEADERS)
-                with urllib.request.urlopen(req, timeout=20) as r:
-                    html = r.read().decode('utf-8', errors='ignore')
-                # Look for athlete names pattern in HTML
-                # WA uses various class names
-                names_found = re.findall(
-                    r'class="[^"]*athlete[^"]*"[^>]*>\s*<[^>]+>\s*([A-Z][A-Z\s\-]+[A-Z])',
-                    html
-                )
-                if not names_found:
-                    # Try JSON embedded
-                    json_blocks = re.findall(r'\{[^{}]*"mark"[^{}]*\}', html)
-                    for block in json_blocks[:20]:
-                        try:
-                            item = json.loads(block)
-                            rows.append({
-                                'rank': item.get('place',0),
-                                'rank_nat': None,
-                                'name': item.get('fullName','') or item.get('name',''),
-                                'mark': str(item.get('mark','')),
-                                'date': str(item.get('date',''))[:10],
-                                'competition': str(item.get('competition','')),
-                                'venue': str(item.get('venue','')),
-                            })
-                        except: pass
-            except Exception as e:
-                print(f"erreur ({e})")
-                time.sleep(1)
-                continue
-
-        if not rows:
-            print("— aucune donnée parsée")
+            print("— aucune donnée")
             time.sleep(0.5)
             continue
 
-        # Filter MAR and match to our athletes
-        mar_rows = [r for r in rows if r.get('country','').upper() in ('MAR','MOROCCO','')] or rows
+        if working_url != url:
+            working_url = url
+            print(f"\n      ✅ Via: {url}")
+
         added = 0
-
-        for row in mar_rows:
-            wa_name = row.get('name','').strip()
-            if not wa_name: continue
-
-            our_ath = match_athlete(wa_name, athletes, sex)
+        for row in rows:
+            name = row.get('name','')
+            our_ath = match_athlete(name, athletes, sex)
             if not our_ath: continue
 
             lic = our_ath['licence']
             mark = row.get('mark','')
             date = row.get('date','')
             saison = date_to_saison(date) or '2025/2026'
-
             key = (lic, saison, ep_name, str(mark))
+
             if key not in existing_keys and mark:
                 resultats.append({
-                    'licence':     lic,
-                    'saison':      saison,
-                    'date':        date,
+                    'licence': lic, 'saison': saison, 'date': date,
                     'competition': row.get('competition',''),
-                    'lieu':        row.get('venue',''),
-                    'epreuve':     ep_name,
-                    'classement':  None,
-                    'resultat':    str(mark),
-                    'source':      'worldathletics',
+                    'lieu': row.get('venue',''), 'epreuve': ep_name,
+                    'classement': None, 'resultat': str(mark),
+                    'source': 'worldathletics',
                 })
                 existing_keys.add(key)
-                total_new += 1
-                added += 1
+                total_new += 1; added += 1
 
-            # Store ranking
-            if lic not in nat_rankings:
-                nat_rankings[lic] = []
+            if lic not in nat_rankings: nat_rankings[lic] = []
             nat_rankings[lic].append({
                 'discipline': ep_name,
-                'rank_int':   row.get('rank'),
-                'rank_nat':   row.get('rank_nat'),
-                'mark':       str(mark),
-                'date':       date,
+                'rank_int': row.get('rank'),
+                'rank_nat': row.get('rank_nat'),
+                'mark': str(mark), 'date': date,
             })
 
-        print(f"{len(mar_rows)} MAR | +{added} résultats")
+        print(f"{len(rows)} MAR | +{added} résultats")
         time.sleep(1)
 
-    # Update rankings
     for lic, ranks in nat_rankings.items():
         rankings[lic] = ranks
 

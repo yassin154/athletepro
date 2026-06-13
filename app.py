@@ -120,6 +120,15 @@ def login_required(f):
 def admin_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
+        if session.get('role') not in ('admin', 'directeur_technique'):
+            return redirect(url_for('dashboard'))
+        return f(*args, **kwargs)
+    return decorated
+
+def full_admin_required(f):
+    """Only full admins — not directeur_technique"""
+    @wraps(f)
+    def decorated(*args, **kwargs):
         if session.get('role') != 'admin':
             return redirect(url_for('dashboard'))
         return f(*args, **kwargs)
@@ -251,6 +260,20 @@ def init_db():
     ex(conn, '''INSERT INTO users (username,password,full_name,role)
                 VALUES (%s,%s,%s,%s) ON CONFLICT (username) DO NOTHING''',
        ('admin', hash_pw('Admin2026!'), 'Yassine Bouta', 'admin'))
+
+    # Admin accounts — full access
+    ex(conn, '''INSERT INTO users (username,password,full_name,role)
+                VALUES (%s,%s,%s,%s) ON CONFLICT (username) DO NOTHING''',
+       ('yassine.boutalmaouine', hash_pw('Admin2026!'), 'Yassine Boutalmaouine', 'admin'))
+
+    ex(conn, '''INSERT INTO users (username,password,full_name,role)
+                VALUES (%s,%s,%s,%s) ON CONFLICT (username) DO NOTHING''',
+       ('adib.elfilali', hash_pw('Admin2026!'), 'Adib El Filali', 'admin'))
+
+    # Directeur Technique — validation only (limited admin)
+    ex(conn, '''INSERT INTO users (username,password,full_name,role)
+                VALUES (%s,%s,%s,%s) ON CONFLICT (username) DO NOTHING''',
+       ('abdellah.boukraa', hash_pw('DT2026!'), 'Abdellah Boukraa', 'directeur_technique'))
 
     coaches = [
         ('AIT EL HAJ KARIM',  'ait.el.haj.karim'),

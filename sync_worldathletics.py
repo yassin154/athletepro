@@ -205,7 +205,7 @@ def main():
     if discover:
         print("\n🔍 Mode découverte — test des endpoints...\n")
         event = ('3000m-steeplechase','3000SC','3000m-steeplechase','3000m Steeple')
-        rows, url = fetch_mar_rankings(*event, 'M')
+        rows, url = fetch_mar_rankings(event[0], event[1], event[2], 'M')
         if rows:
             print(f"✅ Endpoint trouvé: {url}")
             print(f"   {len(rows)} athlètes MAR trouvés")

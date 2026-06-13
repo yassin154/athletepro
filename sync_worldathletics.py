@@ -1,17 +1,11 @@
 #!/usr/bin/env python3
 """
 sync_worldathletics.py — AthléPro
-Extrait résultats + rankings World Athletics pour les athlètes CRF/INA Maroc.
-
-Usage:
-    python sync_worldathletics.py --test        # EL BAKKALI seulement
-    python sync_worldathletics.py --lic 1035577 # un athlète
-    python sync_worldathletics.py               # tous les athlètes
-
-Exécution hebdomadaire via .github/workflows/sync_wa.yml
+Scraping direct via worldathletics.org (sans package externe)
+Utilise uniquement urllib (inclus dans Python standard)
 """
 
-import json, time, os, sys, urllib.request, urllib.error
+import json, time, os, sys, urllib.request, urllib.parse, re
 from datetime import datetime
 
 BASE_DIR       = os.path.dirname(os.path.abspath(__file__))
@@ -20,103 +14,124 @@ RESULTATS_FILE = os.path.join(BASE_DIR, 'resultats.json')
 WA_IDS_FILE    = os.path.join(BASE_DIR, 'wa_ids.json')
 RANKINGS_FILE  = os.path.join(BASE_DIR, 'wa_rankings.json')
 
-# World Athletics GraphQL API
-WA_URL  = "https://7ibx2qxfvnch7nyrsbqpj3kysq.appsync-api.eu-west-1.amazonaws.com/graphql"
-WA_KEY  = "da2-em7tgrudife2faws5gvtuhxfxm"
-
-# Fallback: worldathletics.org direct endpoint
-WA_URL2 = "https://worldathletics.org/api/graphql"
+# World Athletics utilise ce endpoint depuis leur site web
+WA_GQL = "https://worldathletics.org/en/athletes"
 
 HEADERS = {
-    "Content-Type": "application/json",
-    "x-api-key": WA_KEY,
     "User-Agent": ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                    "AppleWebKit/537.36 (KHTML, like Gecko) "
                    "Chrome/124.0.0.0 Safari/537.36"),
-    "Origin": "https://worldathletics.org",
+    "Accept": "application/json, text/html, */*",
+    "Accept-Language": "fr-FR,fr;q=0.9",
     "Referer": "https://worldathletics.org/",
-    "Accept": "application/json, text/plain, */*",
-    "Accept-Language": "fr-FR,fr;q=0.9,en;q=0.8",
 }
 
-def gql(query, variables=None, url=WA_URL):
-    payload = json.dumps({"query": query, "variables": variables or {}}).encode()
-    req = urllib.request.Request(url, data=payload, headers=HEADERS)
+# ── Fetch athlete profile page ────────────────────────────────────────────────
+def fetch_athlete_page(url_slug):
+    """Fetch athlete profile HTML and extract __NEXT_DATA__ JSON."""
+    url = f"https://worldathletics.org/athletes/{url_slug}"
+    req = urllib.request.Request(url, headers=HEADERS)
     try:
-        with urllib.request.urlopen(req, timeout=20) as r:
-            data = json.loads(r.read())
-            if "errors" in data:
-                errs = data["errors"]
-                print(f"    ⚠ GQL errors: {errs[0].get('message','?')}")
-            return data.get("data", {})
-    except urllib.error.URLError as e:
-        if url == WA_URL:
-            print(f"    ⚠ AppSync bloqué, essai endpoint secondaire...")
-            return gql(query, variables, WA_URL2)
-        print(f"    ❌ API error: {e}")
-        return {}
+        with urllib.request.urlopen(req, timeout=15) as r:
+            html = r.read().decode('utf-8', errors='ignore')
+        # Extract __NEXT_DATA__ JSON embedded in page
+        m = re.search(r'<script id="__NEXT_DATA__" type="application/json">(.*?)</script>', html, re.DOTALL)
+        if m:
+            return json.loads(m.group(1))
     except Exception as e:
-        print(f"    ❌ Error: {e}")
-        return {}
+        print(f"    ⚠ Erreur fetch: {e}")
+    return None
 
-# ── Queries ───────────────────────────────────────────────────────────────────
-Q_SEARCH = """
-query SearchAthletes($query: String!) {
-  searchAthletes(query: $query) {
-    athletes {
-      id aaId fullName
-      country { code name }
-      primaryEventName
-    }
-  }
-}
-"""
+def search_athlete_slug(nom):
+    """Search for athlete on WA and return their URL slug."""
+    query = urllib.parse.quote(nom)
+    url = f"https://worldathletics.org/athletes/search?query={query}"
+    req = urllib.request.Request(url, headers=HEADERS)
+    try:
+        with urllib.request.urlopen(req, timeout=15) as r:
+            html = r.read().decode('utf-8', errors='ignore')
+        m = re.search(r'<script id="__NEXT_DATA__" type="application/json">(.*?)</script>', html, re.DOTALL)
+        if m:
+            data = json.loads(m.group(1))
+            athletes = (data.get('props',{}).get('pageProps',{})
+                           .get('athletes',{}).get('athletes',[]) or [])
+            mar = [a for a in athletes if a.get('country','').upper() == 'MAR']
+            candidates = mar if mar else athletes
+            if candidates:
+                best = candidates[0]
+                nom_up = nom.upper()
+                for a in candidates:
+                    full = (a.get('fullName') or a.get('name','')).upper()
+                    if any(p in full for p in nom_up.split() if len(p) > 3):
+                        best = a; break
+                slug = best.get('urlSlug') or best.get('url_slug')
+                wa_id = best.get('aaId') or best.get('id')
+                full_name = best.get('fullName') or best.get('name','?')
+                return slug, wa_id, full_name
+    except Exception as e:
+        print(f"    ⚠ Erreur search: {e}")
+    return None, None, None
 
-Q_RESULTS = """
-query AthleteAllResults($id: Int!) {
-  getSingleAthleteAllTimeResults(id: $id) {
-    parameters {
-      allResults {
-        discipline
-        results {
-          date competition venue performance wind place recordType
-        }
-      }
-    }
-  }
-}
-"""
+def extract_results(data, lic, existing_keys):
+    """Extract results from athlete page __NEXT_DATA__."""
+    new = []
+    try:
+        props = data.get('props',{}).get('pageProps',{})
+        # Results are in different structures depending on page
+        results_data = (props.get('resultsByYear') or
+                       props.get('resultsData') or
+                       props.get('allTimeResults') or {})
+        
+        all_results = results_data.get('results', []) or []
+        
+        for res in all_results:
+            ep = res.get('discipline','') or res.get('event','')
+            for r in (res.get('results',[]) or [res]):
+                date  = str(r.get('date','') or '')[:10]
+                perf  = str(r.get('performance','') or r.get('mark','') or '')
+                if not perf or not date: continue
+                saison = date_to_saison(date)
+                key = (lic, saison, ep, perf)
+                if key in existing_keys: continue
+                place = r.get('place') or r.get('position')
+                new.append({
+                    'licence':     lic,
+                    'saison':      saison,
+                    'date':        date,
+                    'competition': str(r.get('competition','') or r.get('meeting','') or ''),
+                    'lieu':        str(r.get('venue','') or r.get('city','') or ''),
+                    'epreuve':     ep,
+                    'classement':  int(place) if place and str(place).isdigit() else None,
+                    'resultat':    perf,
+                    'source':      'worldathletics',
+                })
+                existing_keys.add(key)
+    except Exception as e:
+        print(f"    ⚠ Erreur extraction résultats: {e}")
+    return new
 
-Q_RANKINGS = """
-query AthleteRankings($id: Int!) {
-  getAthleteRankingsHistory(id: $id) {
-    disciplines {
-      discipline
-      rankings {
-        place placeNat date mark competition
-      }
-    }
-  }
-}
-"""
+def extract_rankings(data, lic):
+    """Extract rankings from athlete page."""
+    ranks = []
+    try:
+        props = data.get('props',{}).get('pageProps',{})
+        rankings = (props.get('rankings') or
+                   props.get('worldRankings') or
+                   props.get('currentRankings') or [])
+        if isinstance(rankings, dict):
+            rankings = rankings.get('rankings',[])
+        for r in rankings:
+            ranks.append({
+                'discipline': r.get('discipline','') or r.get('event',''),
+                'rank_int':   r.get('place') or r.get('worldRank'),
+                'rank_nat':   r.get('placeNat') or r.get('nationalRank'),
+                'date':       str(r.get('date','') or '')[:10],
+                'mark':       str(r.get('mark','') or ''),
+            })
+    except Exception as e:
+        print(f"    ⚠ Erreur extraction rankings: {e}")
+    return ranks
 
-Q_CURRENT_RANK = """
-query AthleteBest($id: Int!) {
-  getSingleAthleteCompetingResults(id: $id) {
-    parameters {
-      worldRankings {
-        discipline
-        placeReal
-        placeRealNat
-        mark
-        date
-      }
-    }
-  }
-}
-"""
-
-# ── Helpers ───────────────────────────────────────────────────────────────────
 def date_to_saison(d):
     if not d or len(str(d)) < 7: return ''
     try:
@@ -134,122 +149,28 @@ def save_json(path, data):
     with open(path, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
-def find_wa_id(athlete, wa_ids):
-    lic = athlete['licence']
-    if lic in wa_ids:
-        print(f"  📋 WA ID en cache: {wa_ids[lic]}")
-        return wa_ids[lic]
-
-    nom = athlete['nom'].strip()
-    print(f"  🔍 Recherche WA: {nom}")
-    found = gql(Q_SEARCH, {"query": nom}).get("searchAthletes", {}).get("athletes", []) or []
-
-    if not found:
-        print(f"  ❌ Non trouvé sur WA")
-        return None
-
-    # Filtre Maroc
-    mar = [a for a in found if a.get("country", {}).get("code") == "MAR"]
-    candidates = mar if mar else found
-
-    # Meilleur match par nom
-    nom_up = nom.upper()
-    best = None
-    for a in candidates:
-        full = (a.get("fullName") or "").upper()
-        if any(p in full for p in nom_up.split() if len(p) > 3):
-            best = a; break
-    if not best: best = candidates[0]
-
-    wa_id = best.get("aaId") or best.get("id")
-    if not wa_id:
-        print(f"  ❌ Pas d'ID WA")
-        return None
-
-    wa_ids[lic] = wa_id
-    print(f"  ✅ {best.get('fullName')} → ID {wa_id}")
-    return wa_id
-
-def get_results(wa_id, lic, existing_keys):
-    data = gql(Q_RESULTS, {"id": int(wa_id)})
-    params = (data.get("getSingleAthleteAllTimeResults") or {}).get("parameters") or {}
-    all_res = params.get("allResults") or []
-
-    new = []
-    for disc in all_res:
-        ep = disc.get("discipline", "")
-        for r in (disc.get("results") or []):
-            date  = str(r.get("date", "") or "")[:10]
-            perf  = str(r.get("performance", "") or "")
-            saison= date_to_saison(date)
-            key   = (lic, saison, ep, perf)
-            if key in existing_keys: continue
-
-            place = r.get("place")
-            new.append({
-                "licence":     lic,
-                "saison":      saison,
-                "date":        date,
-                "competition": str(r.get("competition", "") or ""),
-                "lieu":        str(r.get("venue", "") or ""),
-                "epreuve":     ep,
-                "classement":  int(place) if place and str(place).isdigit() else None,
-                "resultat":    perf,
-                "wind":        str(r.get("wind", "") or ""),
-                "record":      str(r.get("recordType", "") or ""),
-                "club":        "",
-                "source":      "worldathletics",
-            })
-            existing_keys.add(key)
-    return new
-
-def get_rankings(wa_id, lic):
-    """Récupère historique rankings + ranking actuel."""
-    rankings = []
-
-    # Historique
-    data = gql(Q_RANKINGS, {"id": int(wa_id)})
-    discs = (data.get("getAthleteRankingsHistory") or {}).get("disciplines") or []
-    for d in discs:
-        disc_name = d.get("discipline", "")
-        for r in (d.get("rankings") or []):
-            rankings.append({
-                "discipline":  disc_name,
-                "rank_int":    r.get("place"),
-                "rank_nat":    r.get("placeNat"),
-                "date":        str(r.get("date", "") or "")[:10],
-                "mark":        str(r.get("mark", "") or ""),
-                "competition": str(r.get("competition", "") or ""),
-            })
-
-    return rankings
-
-# ── Main ──────────────────────────────────────────────────────────────────────
 def main():
     test_mode  = '--test' in sys.argv
-    single_lic = None
-    if '--lic' in sys.argv:
-        idx = sys.argv.index('--lic')
-        if idx + 1 < len(sys.argv):
-            single_lic = sys.argv[idx + 1]
+    single_lic = sys.argv[sys.argv.index('--lic')+1] if '--lic' in sys.argv and sys.argv.index('--lic')+1 < len(sys.argv) else None
 
-    print("=" * 60)
-    print("AthléPro — Synchronisation World Athletics")
-    print(f"Date     : {datetime.now().strftime('%Y-%m-%d %H:%M')}")
-    print(f"Endpoint : {WA_URL}")
-    print("=" * 60)
+    print("="*60)
+    print("AthléPro — Sync World Athletics (scraping direct)")
+    print(f"Date: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+    print("="*60)
 
     # Test connectivity
-    print("\n🌐 Test connectivité World Athletics...")
-    test = gql("{ __typename }")
-    if test:
-        print("✅ API accessible\n")
-    else:
-        print("⚠ API potentiellement inaccessible — on continue quand même\n")
+    print("\n🌐 Test connectivité...")
+    try:
+        req = urllib.request.Request("https://worldathletics.org", headers=HEADERS)
+        with urllib.request.urlopen(req, timeout=10) as r:
+            print(f"✅ worldathletics.org accessible (status {r.status})\n")
+    except Exception as e:
+        print(f"❌ worldathletics.org inaccessible: {e}\nVérifiez votre connexion internet.")
+        sys.exit(1)
 
     athletes  = load_json(ATHLETES_FILE, [])
     resultats = load_json(RESULTATS_FILE, [])
-    wa_ids    = load_json(WA_IDS_FILE, {})
+    wa_ids    = load_json(WA_IDS_FILE, {})  # licence -> {slug, wa_id}
     rankings  = load_json(RANKINGS_FILE, {})
 
     existing_keys = set(
@@ -260,13 +181,12 @@ def main():
     if single_lic:
         to_sync = [a for a in athletes if a['licence'] == single_lic]
     elif test_mode:
-        to_sync = [a for a in athletes if a['licence'] == '1035577']  # EL BAKKALI
+        to_sync = [a for a in athletes if a['licence'] == '1035577']
     else:
         to_sync = athletes
 
     print(f"📋 {len(to_sync)} athlète(s) à synchroniser\n")
     total_new = 0
-    errors = 0
 
     for i, ath in enumerate(to_sync, 1):
         lic = ath['licence']
@@ -274,53 +194,64 @@ def main():
         print(f"\n[{i}/{len(to_sync)}] {nom} ({lic})")
 
         try:
-            wa_id = find_wa_id(ath, wa_ids)
-            if not wa_id:
-                errors += 1
+            # Get slug from cache or search
+            cached = wa_ids.get(lic, {})
+            if isinstance(cached, dict):
+                slug = cached.get('slug')
+                wa_id = cached.get('wa_id')
+            else:
+                slug = None; wa_id = cached if cached else None
+
+            if not slug:
+                print(f"  🔍 Recherche sur World Athletics...")
+                slug, wa_id, full_name = search_athlete_slug(nom)
+                if slug:
+                    wa_ids[lic] = {'slug': slug, 'wa_id': wa_id}
+                    print(f"  ✅ {full_name} → slug: {slug}")
+                else:
+                    print(f"  ❌ Non trouvé sur WA")
+                    continue
+            else:
+                print(f"  📋 En cache: {slug}")
+
+            # Fetch results from athlete profile
+            print(f"  📥 Téléchargement profil...")
+            page_data = fetch_athlete_page(slug)
+            
+            if not page_data:
+                print(f"  ⚠ Page non chargée")
+                time.sleep(2)
                 continue
 
-            # Résultats
-            new_res = get_results(wa_id, lic, existing_keys)
+            new_res = extract_results(page_data, lic, existing_keys)
             if new_res:
                 resultats.extend(new_res)
                 total_new += len(new_res)
                 saisons = sorted(set(r['saison'] for r in new_res if r['saison']))
                 print(f"  📊 +{len(new_res)} résultats | saisons: {saisons}")
             else:
-                print(f"  ℹ  Aucun nouveau résultat")
+                print(f"  ℹ  Aucun nouveau résultat (ou structure non reconnue)")
 
-            # Rankings
-            ranks = get_rankings(wa_id, lic)
-            if ranks:
-                rankings[lic] = ranks
-                # Afficher le ranking le plus récent
-                latest = sorted(ranks, key=lambda x: x.get('date',''), reverse=True)[:1]
+            new_ranks = extract_rankings(page_data, lic)
+            if new_ranks:
+                rankings[lic] = new_ranks
+                latest = sorted(new_ranks, key=lambda x: x.get('date',''), reverse=True)
                 if latest:
                     l = latest[0]
-                    print(f"  🏆 {l['discipline']} | "
-                          f"Rang mondial: #{l.get('rank_int','—')} | "
-                          f"Rang national: #{l.get('rank_nat','—')} | "
-                          f"Mark: {l.get('mark','')} ({l.get('date','')})")
+                    print(f"  🏆 {l['discipline']} | Mondial #{l.get('rank_int','—')} | National #{l.get('rank_nat','—')}")
 
-            time.sleep(1.5)  # respecter le rate limit
+            time.sleep(2)  # respectful delay
 
         except Exception as e:
             print(f"  ❌ Erreur: {e}")
             import traceback; traceback.print_exc()
-            errors += 1
 
-    # Sauvegarde
     save_json(WA_IDS_FILE, wa_ids)
     save_json(RESULTATS_FILE, resultats)
-    if rankings:
-        save_json(RANKINGS_FILE, rankings)
+    if rankings: save_json(RANKINGS_FILE, rankings)
 
     print(f"\n{'='*60}")
-    print(f"✅ Terminé")
-    print(f"   Nouveaux résultats : +{total_new}")
-    print(f"   Total résultats    : {len(resultats)}")
-    print(f"   WA IDs en cache    : {len(wa_ids)}")
-    print(f"   Erreurs            : {errors}")
+    print(f"✅ +{total_new} résultats | Total: {len(resultats)} | IDs: {len(wa_ids)}")
     print(f"{'='*60}")
 
 if __name__ == '__main__':
